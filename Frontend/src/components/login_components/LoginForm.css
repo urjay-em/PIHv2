@@ -1,0 +1,180 @@
+/* Centering the wrapper */
+body, html {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #333;
+}
+
+/* Styling the wrapper */
+.wrapper {
+    max-width: 420px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    box-sizing: border-box;
+    margin: auto;
+}
+
+/* Styling the heading */
+.wrapper h1 {
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Input box styling */
+.wrapper .input-box {
+    position: relative;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.input-box input {
+    width: 100%;
+    height: 45px; /* Adjusted height for a better fit */
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    outline: none;
+    font-size: 1rem;
+    color: #fff;
+    padding: 0 20px 0 40px; /* Adjusted padding to leave room for icons on the right */
+    box-sizing: border-box;
+}
+
+.input-box input::placeholder {
+    color: #fff;
+}
+
+/* Move icons to the right */
+.input-box .icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    font-size: 1.2rem;
+}
+
+.input-box .icon {
+    right: 15px; /* Right icon (user icon) positioning */
+}
+
+/* Adjusted position for eye icon */
+.password-eye-icon {
+    position: absolute;
+    top: 50%;
+    right: 40px; /* Move eye icon slightly left */
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.3rem; /* Increased size for better visibility */
+    color: #fff;
+}
+
+.password-eye-icon:hover {
+    color: #bbb; /* Change color on hover */
+}
+
+/* Remember me and forgot password section */
+.wrapper .remember-forgot {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin: -10px 0 20px;
+}
+
+.remember-forgot label input {
+    accent-color: #fff;
+    margin-right: 4px;
+}
+
+.remember-forgot a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.remember-forgot a:hover {
+    text-decoration: underline;
+}
+
+/* Login button styling */
+.wrapper button {
+    width: 100%;
+    height: 45px;
+    background: #fff;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 1rem;
+    color: #333;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+}
+
+.wrapper button:hover {
+    background-color: #ddd;
+}
+
+/* Register link styling */
+.wrapper .register-link {
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.register-link p a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link p a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    .wrapper {
+        padding: 20px;
+    }
+
+    .wrapper h1 {
+        font-size: 1.8em;
+    }
+
+    .input-box input {
+        padding: 0 15px 0 35px; /* Adjusted padding for smaller screens */
+        font-size: 0.9rem;
+    }
+
+    .input-box .icon {
+        font-size: 1rem;
+    }
+
+    .password-eye-icon {
+        font-size: 1.4rem; /* Slightly smaller icon on mobile */
+    }
+
+    .wrapper button {
+        height: 40px;
+        font-size: 0.95rem;
+    }
+
+    .wrapper .register-link {
+        font-size: 0.85rem;
+    }
+
+    .remember-forgot {
+        font-size: 0.85rem;
+    }
+}
