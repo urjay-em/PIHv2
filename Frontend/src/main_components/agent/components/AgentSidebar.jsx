@@ -163,21 +163,21 @@ const AgentSidebar = ({ isAgentSidebar }) => {
                     </Typography>
                         <Item
                         title="List of Client"
-                        to="/list"
+                        to="/agent/list"
                         icon={<FaUsers />}
                         selected={selected}
                         setSelected={setSelected}
                         />
                         <Item
                         title="Approved Client"
-                        to="/approvedclients"
+                        to="/agent/approvedclients"
                         icon={<FaUserCheck />}
                         selected={selected}
                         setSelected={setSelected}
                         />
                         <Item
                         title="Declined Client"
-                        to="/declinedclients"
+                        to="/agent/declinedclients"
                         icon={<FaUserMinus />}
                         selected={selected}
                         setSelected={setSelected}

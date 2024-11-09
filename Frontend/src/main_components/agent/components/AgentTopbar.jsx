@@ -13,7 +13,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-const Topbar = () => {
+const AgentTopbar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
@@ -83,4 +83,4 @@ const Topbar = () => {
   );
 };
 
-export default Topbar;
+export default AgentTopbar;

@@ -161,14 +161,14 @@ const InformationOfficerSidebar = ({ isInformationOfficerSidebar }) => {
                     </Typography>
                         <Item
                         title="List of Agent"
-                        to="/agentlist"
+                        to="/information_officer/agentlist"
                         icon={<FaUsers />}
                         selected={selected}
                         setSelected={setSelected}
                         />
                         <Item
                         title="Approved Client"
-                        to="/approvedclients"
+                        to="/information_officer/approvedclients"
                         icon={<FaUserCheck />}
                         selected={selected}
                         setSelected={setSelected}

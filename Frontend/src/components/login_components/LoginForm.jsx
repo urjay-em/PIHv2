@@ -54,7 +54,7 @@ const LoginForm = ({ onShowSignup }) => {
                 // Display error message for failed authentication
                 setError("Invalid email or password");
             }
-        } catch (err) {
+        } catch (error) {
             setError("An error occurred. Please try again.");
         }
     };

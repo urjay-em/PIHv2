@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { ColorModeContext, useMode } from "./theme";
 import AdminSidebar from './main_components/admin/components/AdminSidebar';
-import AdminTopbar from './main_components/admin/components/Topbar';
+import AdminTopbar from './main_components/admin/components/AdminTopbar';
 import Dashboard from "./main_components/admin/pages/dashboard/Dashboard";
 import ManageAdminAcc from "./main_components/admin/pages/manage_admin/ManageAdminAcc";
 import ManageAgentAcc from "./main_components/admin/pages/manage_agent/ManageAgentAcc";
@@ -13,22 +13,29 @@ import BackupRestore from "./main_components/admin/pages/backuprestore/BackupRes
 import Reports from "./main_components/admin/pages/reports/Reports";
 import Contacts from "./main_components/admin/pages/contacts/Contacts";
 import Form from "./main_components/admin/pages/form/Form";
+import AgentSidebar from "./main_components/agent/components/AgentSidebar";
+import AgentTopbar from "./main_components/agent/components/AgentTopbar";
+import Map from "./main_components/agent/pages/map/Map";
+import ApprovedClient from "./main_components/agent/pages/clientlist/ApprovedClient";
+import DeclinedClient from "./main_components/agent/pages/clientlist/DeclinedClient";
+import CashierSidebar from "./main_components/cashier/components/CashierSidebar";
+import CashierTopbar from "./main_components/cashier/components/CashierTopbar";
+import PaymentApplication from "./main_components/cashier/pages/paymentapplication/PaymentApplication";
+import CashierApprovedClient from "./main_components/cashier/pages/clientlist/ApprovedClient";
+import Commision from "./main_components/cashier/pages/commision/Commision";
+import InformationOfficerSidebar from "./main_components/information_officer/components/InformationOfficerSidebar";
+import InformationOfficerTopbar from "./main_components/information_officer/components/InformationOfficerTopbar";
+import InformationOfficerMap from "./main_components/information_officer/pages/map/Map";
+import AgentList from "./main_components/information_officer/pages/agentlist/AgentList";
+import InformationOfficerApprovedClient from "./main_components/information_officer/pages/clientlist/ApprovedClient";
+
 import Login from "./components/login_components/LoginForm"; // Import the Login component
-import ProtectedRoute from "./components/ProtectedRoute"; // Import the ProtectedRoute component
+//import ProtectedRoute from "./components/ProtectedRoute"; // Import the ProtectedRoute component
 
 const App = () => {
   const [theme, colorMode] = useMode();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const role = localStorage.getItem('user_role');
-    if (token && role) {
-      setIsAuthenticated(true);
-      setUserRole(role);
-    }
-  }, []);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [userRole, setUserRole] = useState("information_officer");
 
   // Admin-specific layout
   const AdminLayout = () => (
@@ -37,27 +44,69 @@ const App = () => {
       <main className="content">
         <AdminTopbar />
         <Routes>
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/manageadminacc/*" element={<ManageAdminAcc />} />
-          <Route path="/admin/manageagentacc" element={<ManageAgentAcc />} />
-          <Route path="/admin/managebranches" element={<ManageBranches />} />
-          <Route path="/admin/manageemployeeacc" element={<ManageEmployeeAcc />} />
-          <Route path="/admin/backuprestore" element={<BackupRestore />} />
-          <Route path="/admin/reports" element={<Reports />} />
-          <Route path="/admin/contacts" element={<Contacts />} />
-          <Route path="/admin/form" element={<Form />} />
+          <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/admin/manageadminacc" element={<ProtectedRoute><ManageAdminAcc /></ProtectedRoute>} />
+          <Route path="/admin/manageagentacc" element={<ProtectedRoute><ManageAgentAcc /></ProtectedRoute>} />
+          <Route path="/admin/managebranches" element={<ProtectedRoute><ManageBranches /></ProtectedRoute>} />
+          <Route path="/admin/manageemployeeacc" element={<ProtectedRoute><ManageEmployeeAcc /></ProtectedRoute>} />
+          <Route path="/admin/backuprestore" element={<ProtectedRoute><BackupRestore /></ProtectedRoute>} />
+          <Route path="/admin/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+          <Route path="/admin/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
+          <Route path="/admin/form" element={<ProtectedRoute><Form /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>
   );
 
-  // Placeholder for other roles
-  const RoleLayout = () => (
-    <div>
-      <h2>Welcome, {userRole}!</h2>
-      <p>Templates for this role are coming soon.</p>
+   // Agent-specific layout
+   const AgentLayout = () => (
+    <div className="app">
+      <AgentSidebar />
+      <main className="content">
+        <AgentTopbar />
+        <Routes>
+          <Route index element={<ProtectedRoute><Map /></ProtectedRoute>} />
+          <Route path="/agent/approvedclients" element={<ProtectedRoute><ApprovedClient /></ProtectedRoute>} />
+          <Route path="/agent/declinedclients" element={<ProtectedRoute><DeclinedClient /></ProtectedRoute>} />
+        </Routes>
+      </main>
     </div>
   );
+
+  
+   // Cashier-specific layout
+   const CashierLayout = () => (
+    <div className="app">
+      <CashierSidebar />
+      <main className="content">
+        <CashierTopbar />
+        <Routes>
+          <Route index element={<ProtectedRoute><PaymentApplication/></ProtectedRoute>} />
+          <Route path="/cashier/approvedclients" element={<ProtectedRoute><CashierApprovedClient /></ProtectedRoute>} />
+          <Route path="/cashier/commision" element={<ProtectedRoute><Commision /></ProtectedRoute>} />
+        </Routes>
+      </main>
+    </div>
+  );
+
+  // InformationOfficer-specific layout
+  const InformationOfficerLayout = () => (
+    <div className="app">
+      <InformationOfficerSidebar />
+      <main className="content">
+        <InformationOfficerTopbar />
+        <Routes>
+          <Route index element={<ProtectedRoute><InformationOfficerMap/></ProtectedRoute>} />
+          <Route path="/information_officer/agentlist" element={<ProtectedRoute><AgentList /></ProtectedRoute>} />
+          <Route path="/information_officer/approvedclients" element={<ProtectedRoute><InformationOfficerApprovedClient/></ProtectedRoute>} />
+        </Routes>
+      </main>
+    </div>
+  );
+
+  const ProtectedRoute = ({ children }) => {
+    return isAuthenticated ? children : <Navigate to="/login" replace />;
+  };
 
   return (
     <Router>
@@ -66,8 +115,22 @@ const App = () => {
           <CssBaseline />
           <Routes>
             <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} />} />
-            <Route path="/admin/dashboard//*" element={isAuthenticated ? (userRole === "admin" ? <AdminLayout /> : <RoleLayout />) : <Navigate to="/login" />} />
-            {/* Other routes can be added for agent, employee, etc., once templates are ready */}
+            <Route
+              path="*"
+              element={
+                isAuthenticated ? (
+                  userRole === "admin" ? <AdminLayout />
+                  : userRole === "agent" ? <AgentLayout />
+                  : userRole === "cashier" ? <CashierLayout />
+                  : userRole === "information_officer" ? <InformationOfficerLayout />
+                  : <Navigate to="/login" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            {/* Redirect any unmatched route to /login if not authenticated */}
+            <Route path="*" element={<Navigate to={isAuthenticated ? "/${userRole}" : "/login"} replace />} />
           </Routes>
         </ThemeProvider>
       </ColorModeContext.Provider>

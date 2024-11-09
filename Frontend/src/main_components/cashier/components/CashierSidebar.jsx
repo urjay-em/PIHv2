@@ -160,14 +160,14 @@ const CashierSidebar = ({ isCashierSidebar }) => {
                         />
                         <Item
                         title="Approved Client"
-                        to="/approvedclients"
+                        to="/cashier/approvedclients"
                         icon={<FaUserCheck />}
                         selected={selected}
                         setSelected={setSelected}
                         />
                         <Item
                         title="Commisions"
-                        to="/commisions"
+                        to="/cashier/commisions"
                         icon={<FaRegFileExcel />}
                         selected={selected}
                         setSelected={setSelected}
