@@ -35,7 +35,7 @@ import Login from "./components/login_components/LoginForm"; // Import the Login
 const App = () => {
   const [theme, colorMode] = useMode();
   const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [userRole, setUserRole] = useState("information_officer");
+  const [userRole, setUserRole] = useState("admin");
 
   // Admin-specific layout
   const AdminLayout = () => (
