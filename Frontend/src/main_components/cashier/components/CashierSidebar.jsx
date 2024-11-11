@@ -31,6 +31,8 @@ const CashierSidebar = ({ isCashierSidebar }) => {
     const colors = tokens(theme.palette.mode);
     const [isCollapsed, setIsCollapsed] = useState(isCashierSidebar);
     const [selected, setSelected] = useState("Map");
+    const userRole = localStorage.getItem("account_type");
+    const fullName = localStorage.getItem("account_name");
 
     useEffect(() => {
         setIsCollapsed(isCashierSidebar);
@@ -134,10 +136,10 @@ const CashierSidebar = ({ isCashierSidebar }) => {
                                 fontWeight="bold"
                                 sx={{ m: "10px 0 0 0"}}
                             >
-                            BOSSING 
+                            {fullName || "Unknown Name"}
                             </Typography>
                             <Typography variant="h5" color={colors.greenAccent[500]}>
-                                Cashier
+                                {userRole || "Unknown Role"}
                             </Typography>
                             </Box>
                         </Box>

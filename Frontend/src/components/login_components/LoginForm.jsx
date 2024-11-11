@@ -33,8 +33,15 @@ const LoginForm = ({ setUserRole }) => {
 
                 const decodedToken = jwtDecode(data.access);  // Decode the access token
                 const accountType = decodedToken.account_type;  // Get the account type from the token
+                const first_name = decodedToken.first_name
+                const last_name = decodedToken.last_name
+
+                const fullName = `${first_name} ${last_name}`;
+                localStorage.setItem("account_name", fullName )
+                localStorage.setItem("account_type", decodedToken.account_type);
 
                 console.log("Decoded account type:", accountType);
+                console.log("Decoded account name:", fullName);
 
                 // Set the role and authentication status
                 setUserRole(accountType);
@@ -45,8 +52,10 @@ const LoginForm = ({ setUserRole }) => {
                     navigate("/admin/dashboard");
                 } else if (accountType === "cashier") {
                     navigate("/cashier-dashboard");
-                } else {
-                    navigate("/user-dashboard");
+                } else if (accountType === "info_officer") {
+                    navigate("/info-dashboard");
+                } else if (accountType === "agent") {
+                    navigate("/agent-dashboard");
                 }
             } else {
                 setError("Failed to retrieve access token.");

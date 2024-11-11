@@ -11,6 +11,8 @@ import Bossing from "../Images/bossing.jpg";
 const Item = ({ title, to, icon, selected, setSelected }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const userRole = localStorage.getItem("account_type");
+    const fullName = localStorage.getItem("account_name");
     return (
         <MenuItem
             active={selected === title}
@@ -31,6 +33,8 @@ const AgentSidebar = ({ isAgentSidebar }) => {
     const colors = tokens(theme.palette.mode);
     const [isCollapsed, setIsCollapsed] = useState(isAgentSidebar);
     const [selected, setSelected] = useState("Map");
+    const userRole = localStorage.getItem("account_type");
+    const fullName = localStorage.getItem("account_name");
 
     useEffect(() => {
         setIsCollapsed(isAgentSidebar);
@@ -136,10 +140,10 @@ const AgentSidebar = ({ isAgentSidebar }) => {
                                 fontWeight="bold"
                                 sx={{ m: "10px 0 0 0"}}
                             >
-                            BOSSING 
+                            {fullName || "Unknown Name"}
                             </Typography>
                             <Typography variant="h5" color={colors.greenAccent[500]}>
-                                Agent
+                                {userRole || "Unknown Role"}
                             </Typography>
                             </Box>
                         </Box>

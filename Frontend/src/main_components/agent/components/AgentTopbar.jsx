@@ -67,6 +67,8 @@ const AgentTopbar = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user_role');
+    localStorage.removeItem("full_name");
+    localStorage.removeItem("account_type");
     navigate('/login', { replace: true });
   };
 

@@ -4,7 +4,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import { ColorModeContext, useMode } from "./theme";
 import AdminSidebar from './main_components/admin/components/AdminSidebar';
 import AdminTopbar from './main_components/admin/components/AdminTopbar';
-import Dashboard from "./main_components/admin/pages/dashboard/Dashboard";
+import AdminDashboard from "./main_components/admin/pages/dashboard/Dashboard";
 import ManageAdminAcc from "./main_components/admin/pages/manage_admin/ManageAdminAcc";
 import ManageAgentAcc from "./main_components/admin/pages/manage_agent/ManageAgentAcc";
 import ManageBranches from "./main_components/admin/pages/manage_branches/ManageBranches";
@@ -43,7 +43,7 @@ const App = () => {
       <main className="content">
         <AdminTopbar />
         <Routes>
-          <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route index element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
           <Route path="/admin/manageadminacc" element={<ProtectedRoute><ManageAdminAcc /></ProtectedRoute>} />
           <Route path="/admin/manageagentacc" element={<ProtectedRoute><ManageAgentAcc /></ProtectedRoute>} />
           <Route path="/admin/managebranches" element={<ProtectedRoute><ManageBranches /></ProtectedRoute>} />
@@ -121,7 +121,7 @@ const App = () => {
                   userRole === "admin" ? <AdminLayout />
                   : userRole === "agent" ? <AgentLayout />
                   : userRole === "cashier" ? <CashierLayout />
-                  : userRole === "information_officer" ? <InformationOfficerLayout />
+                  : userRole === "info_officer" ? <InformationOfficerLayout />
                   : <Navigate to="/login" replace />
                 ) : (
                   <Navigate to="/login" replace />
