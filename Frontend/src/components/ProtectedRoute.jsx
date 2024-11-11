@@ -5,13 +5,11 @@ function ProtectedRoute({ children }) {
   const navigate = useNavigate();
   const isAuthenticated = localStorage.getItem('access_token');;
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, navigate]); // Re-run only if authentication status changes
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+}
 
-  return isAuthenticated ? children : null;
+return children;
 }
 
 export default ProtectedRoute;

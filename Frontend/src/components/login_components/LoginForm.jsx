@@ -1,61 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { jwtDecode } from 'jwt-decode';  // Correct named import for jwt-decode
 import './LoginForm.css';
 import { FaUser } from "react-icons/fa";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { useNavigate } from 'react-router-dom';
 
-const LoginForm = ({ onShowSignup }) => {
+const LoginForm = ({ setUserRole }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const navigate = useNavigate();
-
-    // Check if user is already logged in by looking for access_token in localStorage
-    useEffect(() => {
-        const token = localStorage.getItem('access_token');
-        const role = localStorage.getItem('user_role');
-        
-        if (token && role) {
-            if (role === 'admin') {
-                navigate("/admin/dashboard");
-            } else if (role === 'client') {
-                navigate("/client-dashboard");
-            } else {
-                navigate("/dashboard");
-            }
-        }
-    }, []); // No dependencies needed
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-
-        // Dummy login data (for testing purposes)
-        const dummyData = {
-            access: 'dummyAccessToken',
-            refresh: 'dummyRefreshToken',
-            account_type: 'admin', // Simulate as admin role
-        };
-
+        
         try {
-            // Use dummy data or simulate API response here
-            if (email === 'test@example.com' && password === 'password') {
-                localStorage.setItem('access_token', dummyData.access);
-                localStorage.setItem('refresh_token', dummyData.refresh);
-                localStorage.setItem('user_role', dummyData.account_type);
+            const response = await fetch("http://127.0.0.1:8000/api/v1/auth/jwt/create/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),  // Ensure this is sending the email and password
+            });
 
-                // Navigate based on user role
-                if (dummyData.account_type === 'admin') {
+            const data = await response.json();
+            console.log("Response data:", data);  // Log the entire response
+
+            if (data.access) {
+                localStorage.setItem("access_token", data.access);
+                localStorage.setItem("refresh_token", data.refresh);
+
+                const decodedToken = jwtDecode(data.access);  // Decode the access token
+                const accountType = decodedToken.account_type;  // Get the account type from the token
+
+                console.log("Decoded account type:", accountType);
+
+                // Set the role and authentication status
+                setUserRole(accountType);
+                setIsAuthenticated(true);
+
+                // Redirect based on the user's role
+                if (accountType === "admin") {
                     navigate("/admin/dashboard");
+                } else if (accountType === "cashier") {
+                    navigate("/cashier-dashboard");
                 } else {
-                    navigate("/dashboard");
+                    navigate("/user-dashboard");
                 }
             } else {
-                // Display error message for failed authentication
-                setError("Invalid email or password");
+                setError("Failed to retrieve access token.");
             }
         } catch (error) {
-            setError("An error occurred. Please try again.");
+            console.error("Login failed:", error);
+            setError("Login failed. Please check your credentials.");
         }
     };
 
@@ -96,7 +94,7 @@ const LoginForm = ({ onShowSignup }) => {
                 <button type="submit">Login</button>
 
                 <div className="register-link">
-                    <p>Don't have an account? <a href="#" onClick={onShowSignup}>Register</a></p>
+                    <p>Don't have an account? <a href="#">Register</a></p>
                 </div>
             </form>
         </div>

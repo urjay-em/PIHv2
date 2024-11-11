@@ -67,7 +67,7 @@ const AdminTopbar = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user_role');
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   return (

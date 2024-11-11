@@ -28,14 +28,13 @@ import InformationOfficerTopbar from "./main_components/information_officer/comp
 import InformationOfficerMap from "./main_components/information_officer/pages/map/Map";
 import AgentList from "./main_components/information_officer/pages/agentlist/AgentList";
 import InformationOfficerApprovedClient from "./main_components/information_officer/pages/clientlist/ApprovedClient";
-
 import Login from "./components/login_components/LoginForm"; // Import the Login component
 //import ProtectedRoute from "./components/ProtectedRoute"; // Import the ProtectedRoute component
 
 const App = () => {
   const [theme, colorMode] = useMode();
   const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [userRole, setUserRole] = useState("admin");
+  const [userRole, setUserRole] = useState("");
 
   // Admin-specific layout
   const AdminLayout = () => (
