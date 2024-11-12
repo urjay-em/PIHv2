@@ -16,7 +16,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-
-        # Add custom claims to the JWT token
-        token['account_type'] = user.account_type  # Add the account_type (or role) to the token
+        
+        print("Account Type:", user.account_type)
+        # Add the 'account_type' to the token
+        token['account_type'] = user.account_type  # Ensure 'account_type' is present in the user model
+        # Add user's first and last name to the token
+        token['first_name'] = user.first_name
+        token['last_name'] = user.last_name
         return token
