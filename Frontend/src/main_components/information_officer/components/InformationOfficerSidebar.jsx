@@ -7,6 +7,7 @@ import { tokens } from "../../../theme";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { FaUsers, FaMapMarkedAlt,  FaUserCheck, } from "react-icons/fa";
 import Bossing from "../Images/bossing.jpg";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
     const theme = useTheme();
@@ -141,6 +142,11 @@ const InformationOfficerSidebar = ({ isInformationOfficerSidebar }) => {
                             </Typography>
                             <Typography variant="h5" color={colors.greenAccent[500]}>
                             {userRole || "Unknown Role"}
+                            <Link to="/profile" style={{ marginLeft: 7 }}>
+                                    <IconButton color={colors.greenAccent[500]} aria-label="edit profile">
+                                        <EditOutlinedIcon />
+                                    </IconButton>
+                                </Link>
                             </Typography>
                             </Box>
                         </Box>

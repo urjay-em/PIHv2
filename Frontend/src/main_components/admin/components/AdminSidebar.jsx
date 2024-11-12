@@ -12,6 +12,7 @@ import { AiOutlineFileText } from 'react-icons/ai';
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import Bossing from '../Images/bossing.jpg';
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
     const theme = useTheme();
@@ -113,6 +114,11 @@ const AdminSidebar = ({ isAdminSidebar }) => {
                             </Typography>
                             <Typography variant="h5" color={colors.greenAccent[500]}>
                                 {userRole || "Unknown Role"}  {/* Display user's role */}
+                                <Link to="/profile" style={{ marginLeft: 7 }}>
+                                    <IconButton color={colors.greenAccent[500]} aria-label="edit profile">
+                                        <EditOutlinedIcon />
+                                    </IconButton>
+                                </Link>
                             </Typography>
                             </Box>
                         </Box>
