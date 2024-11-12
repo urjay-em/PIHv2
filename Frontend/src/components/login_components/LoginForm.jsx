@@ -51,11 +51,11 @@ const LoginForm = ({ setUserRole }) => {
                 if (accountType === "admin") {
                     navigate("/admin/dashboard");
                 } else if (accountType === "cashier") {
-                    navigate("/cashier-dashboard");
+                    navigate("/cashier/paymentapplication");
                 } else if (accountType === "info_officer") {
-                    navigate("/info-dashboard");
+                    navigate("/information_officer/information-officer-map");
                 } else if (accountType === "agent") {
-                    navigate("/agent-dashboard");
+                    navigate("/agent/map");
                 }
             } else {
                 setError("Failed to retrieve access token.");

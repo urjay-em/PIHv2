@@ -152,7 +152,7 @@ const AgentSidebar = ({ isAgentSidebar }) => {
                     <Box paddingleft={isCollapsed ? undefined : "10%"}>
                         <Item
                         title="Map"
-                        to="/"
+                        to="/agent/map"
                         icon={<FaMapMarkedAlt />}
                         selected={selected}
                         setSelected={setSelected}

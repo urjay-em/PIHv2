@@ -149,7 +149,7 @@ const InformationOfficerSidebar = ({ isInformationOfficerSidebar }) => {
                     <Box paddingleft={isCollapsed ? undefined : "10%"}>
                         <Item
                         title="Map"
-                        to="/"
+                        to="/information_officer/information-officer-map"
                         icon={<FaMapMarkedAlt />}
                         selected={selected}
                         setSelected={setSelected}

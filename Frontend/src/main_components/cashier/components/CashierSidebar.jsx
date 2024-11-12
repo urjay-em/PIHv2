@@ -155,7 +155,7 @@ const CashierSidebar = ({ isCashierSidebar }) => {
                     </Typography>
                         <Item
                         title="Payment Application"
-                        to="/"
+                        to="/cashier/paymentapplication"
                         icon={<FaCashRegister />}
                         selected={selected}
                         setSelected={setSelected}

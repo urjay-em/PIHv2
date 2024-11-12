@@ -43,7 +43,7 @@ const App = () => {
       <main className="content">
         <AdminTopbar />
         <Routes>
-          <Route index element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/dashboard" index element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
           <Route path="/admin/manageadminacc" element={<ProtectedRoute><ManageAdminAcc /></ProtectedRoute>} />
           <Route path="/admin/manageagentacc" element={<ProtectedRoute><ManageAgentAcc /></ProtectedRoute>} />
           <Route path="/admin/managebranches" element={<ProtectedRoute><ManageBranches /></ProtectedRoute>} />
@@ -64,7 +64,7 @@ const App = () => {
       <main className="content">
         <AgentTopbar />
         <Routes>
-          <Route index element={<ProtectedRoute><Map /></ProtectedRoute>} />
+          <Route path="/agent/map" index element={<ProtectedRoute><Map /></ProtectedRoute>} />
           <Route path="/agent/approvedclients" element={<ProtectedRoute><ApprovedClient /></ProtectedRoute>} />
           <Route path="/agent/declinedclients" element={<ProtectedRoute><DeclinedClient /></ProtectedRoute>} />
         </Routes>
@@ -80,7 +80,7 @@ const App = () => {
       <main className="content">
         <CashierTopbar />
         <Routes>
-          <Route index element={<ProtectedRoute><PaymentApplication/></ProtectedRoute>} />
+          <Route path="/cashier/paymentapplication" index element={<ProtectedRoute><PaymentApplication/></ProtectedRoute>} />
           <Route path="/cashier/approvedclients" element={<ProtectedRoute><CashierApprovedClient /></ProtectedRoute>} />
           <Route path="/cashier/commision" element={<ProtectedRoute><Commision /></ProtectedRoute>} />
         </Routes>
@@ -95,7 +95,7 @@ const App = () => {
       <main className="content">
         <InformationOfficerTopbar />
         <Routes>
-          <Route index element={<ProtectedRoute><InformationOfficerMap/></ProtectedRoute>} />
+          <Route path="/information_officer/information-officer-map" index element={<ProtectedRoute><InformationOfficerMap/></ProtectedRoute>} />
           <Route path="/information_officer/agentlist" element={<ProtectedRoute><AgentList /></ProtectedRoute>} />
           <Route path="/information_officer/approvedclients" element={<ProtectedRoute><InformationOfficerApprovedClient/></ProtectedRoute>} />
         </Routes>
