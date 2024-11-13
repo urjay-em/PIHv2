@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Snackbar, Alert, CircularProgress } from '@mui/material';
 
-const ProfilePage = () => {
+const AgentProfilePage = () => {
     const [profile, setProfile] = useState({
         name: '',
         email: '',
@@ -164,4 +164,4 @@ const ProfilePage = () => {
     );
 };
 
-export default ProfilePage;
+export default AgentProfilePage;

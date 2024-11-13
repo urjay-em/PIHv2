@@ -13,12 +13,13 @@ import BackupRestore from "./main_components/admin/pages/backuprestore/BackupRes
 import Reports from "./main_components/admin/pages/reports/Reports";
 import Contacts from "./main_components/admin/pages/contacts/Contacts";
 import Form from "./main_components/admin/pages/form/Form";
+import AdminProfilePage from "./main_components/admin/pages/profile/AdminProfilePage";
 import AgentSidebar from "./main_components/agent/components/AgentSidebar";
 import AgentTopbar from "./main_components/agent/components/AgentTopbar";
 import Map from "./main_components/agent/pages/map/Map";
 import ApprovedClient from "./main_components/agent/pages/clientlist/ApprovedClient";
 import DeclinedClient from "./main_components/agent/pages/clientlist/DeclinedClient";
-import ProfilePage from "./main_components/agent/pages/profile/ProfilePage";
+import AgentProfilePage from "./main_components/agent/pages/profile/AgentProfilePage";
 import CashierSidebar from "./main_components/cashier/components/CashierSidebar";
 import CashierTopbar from "./main_components/cashier/components/CashierTopbar";
 import PaymentApplication from "./main_components/cashier/pages/paymentapplication/PaymentApplication";
@@ -29,6 +30,7 @@ import InformationOfficerTopbar from "./main_components/information_officer/comp
 import InformationOfficerMap from "./main_components/information_officer/pages/map/Map";
 import AgentList from "./main_components/information_officer/pages/agentlist/AgentList";
 import InformationOfficerApprovedClient from "./main_components/information_officer/pages/clientlist/ApprovedClient";
+import InformationOfficerProfilePage from "./main_components/information_officer/pages/profile/InformationOfficerProfilePage";
 import Login from "./components/login_components/LoginForm"; // Import the Login component
 //import ProtectedRoute from "./components/ProtectedRoute"; // Import the ProtectedRoute component
 
@@ -53,6 +55,7 @@ const App = () => {
           <Route path="/admin/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
           <Route path="/admin/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
           <Route path="/admin/form" element={<ProtectedRoute><Form /></ProtectedRoute>} />
+          <Route path="/admin/profile" element={<ProtectedRoute><AdminProfilePage /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>
@@ -68,7 +71,7 @@ const App = () => {
           <Route path="/agent/map" index element={<ProtectedRoute><Map /></ProtectedRoute>} />
           <Route path="/agent/approvedclients" element={<ProtectedRoute><ApprovedClient /></ProtectedRoute>} />
           <Route path="/agent/declinedclients" element={<ProtectedRoute><DeclinedClient /></ProtectedRoute>} />
-          <Route path="/agent/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/agent/profile" element={<ProtectedRoute><AgentProfilePage /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>
@@ -100,6 +103,7 @@ const App = () => {
           <Route path="/information_officer/information-officer-map" index element={<ProtectedRoute><InformationOfficerMap/></ProtectedRoute>} />
           <Route path="/information_officer/agentlist" element={<ProtectedRoute><AgentList /></ProtectedRoute>} />
           <Route path="/information_officer/approvedclients" element={<ProtectedRoute><InformationOfficerApprovedClient/></ProtectedRoute>} />
+          <Route path="/information_officer/profile" element={<ProtectedRoute><InformationOfficerProfilePage/></ProtectedRoute>} />
         </Routes>
       </main>
     </div>
