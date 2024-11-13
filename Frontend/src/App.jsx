@@ -18,6 +18,7 @@ import AgentTopbar from "./main_components/agent/components/AgentTopbar";
 import Map from "./main_components/agent/pages/map/Map";
 import ApprovedClient from "./main_components/agent/pages/clientlist/ApprovedClient";
 import DeclinedClient from "./main_components/agent/pages/clientlist/DeclinedClient";
+import ProfilePage from "./main_components/agent/pages/profile/ProfilePage";
 import CashierSidebar from "./main_components/cashier/components/CashierSidebar";
 import CashierTopbar from "./main_components/cashier/components/CashierTopbar";
 import PaymentApplication from "./main_components/cashier/pages/paymentapplication/PaymentApplication";
@@ -67,6 +68,7 @@ const App = () => {
           <Route path="/agent/map" index element={<ProtectedRoute><Map /></ProtectedRoute>} />
           <Route path="/agent/approvedclients" element={<ProtectedRoute><ApprovedClient /></ProtectedRoute>} />
           <Route path="/agent/declinedclients" element={<ProtectedRoute><DeclinedClient /></ProtectedRoute>} />
+          <Route path="/agent/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

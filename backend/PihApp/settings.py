@@ -87,7 +87,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'PihApp.wsgi.application'
 
 
-# Database
+# Database 
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
@@ -95,7 +95,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'pihdb', 
         'USER': 'root', 
-        'PASSWORD': 'Admin',
+        'PASSWORD': 'root',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
@@ -162,7 +162,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=60),
     "SIGNING_KEY": env("SIGNING_KEY"),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "AUTH_TOKEN_CLASSES": ("rest_3framework_simplejwt.tokens.AccessToken",),
 }
 
 DJOSER = {

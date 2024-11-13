@@ -67,6 +67,8 @@ const CashierTopbar = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user_role');
+    localStorage.removeItem("full_name");
+    localStorage.removeItem("account_type");
     navigate('/login', { replace: true });
   };
 
@@ -83,7 +85,7 @@ const CashierTopbar = () => {
       {/* ICONS */}
       <Box display="flex" alignItems="center">
         {/* Status Indicator */}
-        <Tooltip title="Set Status">
+        <Tooltip title="Active">
           <IconButton onClick={(e) => handleMenuOpen(e, "status")}>
             <FiberManualRecordIcon color="success" />
           </IconButton>
