@@ -25,6 +25,7 @@ import CashierTopbar from "./main_components/cashier/components/CashierTopbar";
 import PaymentApplication from "./main_components/cashier/pages/paymentapplication/PaymentApplication";
 import CashierApprovedClient from "./main_components/cashier/pages/clientlist/ApprovedClient";
 import Commision from "./main_components/cashier/pages/commision/Commision";
+import CashierProfilePage from "./main_components/cashier/pages/profile/CashierProfilePage";
 import InformationOfficerSidebar from "./main_components/information_officer/components/InformationOfficerSidebar";
 import InformationOfficerTopbar from "./main_components/information_officer/components/InformationOfficerTopbar";
 import InformationOfficerMap from "./main_components/information_officer/pages/map/Map";
@@ -88,6 +89,7 @@ const App = () => {
           <Route path="/cashier/paymentapplication" index element={<ProtectedRoute><PaymentApplication/></ProtectedRoute>} />
           <Route path="/cashier/approvedclients" element={<ProtectedRoute><CashierApprovedClient /></ProtectedRoute>} />
           <Route path="/cashier/commision" element={<ProtectedRoute><Commision /></ProtectedRoute>} />
+          <Route path="/cashier/profile" element={<ProtectedRoute><CashierProfilePage/></ProtectedRoute>} />
         </Routes>
       </main>
     </div>
