@@ -181,7 +181,7 @@ const CashierSidebar = ({ isCashierSidebar }) => {
                         <Item
                             title="Approved Clients"
                             to="/cashier/approvedclients"
-                            icon={<FaUserCheck size={isSmallScreen ? 13 : 21} />}
+                            icon={<FaUserCheck sizve={isSmallScreen ? 13 : 21} />}
                             selected={selected}
                             setSelected={setSelected}
                         />

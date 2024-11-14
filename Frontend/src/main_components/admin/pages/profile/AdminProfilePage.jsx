@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, TextField, Typography, Snackbar, Alert, CircularProgress } from '@mui/material';
+import { Box, Button, TextField, Snackbar, Alert, CircularProgress, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import Header from '../../Header';
+import { useNavigate } from 'react-router-dom';
+
 
 const AdminProfilePage = () => {
+    const navigate= useNavigate();
+    const handleClose = () => {
+        navigate('/');
+    };
     const [profile, setProfile] = useState({
         name: '',
         email: '',
@@ -13,7 +21,6 @@ const AdminProfilePage = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        // Fetch profile data from API or local storage and set state
         const fetchedProfile = {
             name: localStorage.getItem("account_name") || "Unknown Name",
             email: "",  // Replace with actual data
@@ -47,7 +54,6 @@ const AdminProfilePage = () => {
         const validationErrors = validateFields();
         if (Object.keys(validationErrors).length === 0) {
             setIsLoading(true);
-            // Simulate save operation (replace with actual save logic)
             setTimeout(() => {
                 console.log("Profile saved:", profile);
                 setIsLoading(false);
@@ -60,8 +66,8 @@ const AdminProfilePage = () => {
     };
 
     return (
-        <Box display="flex" flexDirection="column" alignItems="center" mt={3} sx={{ width: '100%', maxWidth: 600 }}>
-            <Typography variant="h4" mb={2} sx={{ color: 'text.primary' }}>Edit Profile</Typography>
+        <Box m="20px" maxWidth="800px" mx="auto">
+            <Header title="Profile Information" subtitle="Edit Profile Information" />
 
             {/* Profile Information Box */}
             <Box
@@ -70,21 +76,30 @@ const AdminProfilePage = () => {
                     padding: 5,
                     borderRadius: 4,
                     boxShadow: 3,
-                    backgroundColor: 'background.paper', // background color depending on the theme mode
+                    backgroundColor: 'background.paper',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    border: (theme) => `1px solid ${theme.palette.divider}`, // Divider for separation
+                    position: 'relative',
+                    border: (theme) => `1px solid ${theme.palette.divider}`,
                 }}
             >
-                {/* Profile Picture Upload (Red background) */}
+                {/* Close button at the top-right corner */}
+                <IconButton
+                    onClick={handleClose}  // Function to close the profile page
+                    sx={{ position: 'absolute', top: 16, right: 16 }}
+                >
+                    <CloseIcon />
+                </IconButton>
+
+                {/* Profile Picture Upload */}
                 <Box
                     display="flex"
                     flexDirection="column"
                     alignItems="center"
                     mb={3}
                     sx={{
-                        backgroundColor: 'transparent', // Red background for the upload container
+                        backgroundColor: 'transparent',
                         padding: 2,
                         borderRadius: 8,
                         width: '100%',
@@ -92,7 +107,7 @@ const AdminProfilePage = () => {
                     }}
                 >
                     <img
-                        src={profilePicture || 'default-picture-url'} // Placeholder for profile picture
+                        src={profilePicture || 'default-picture-url'}
                         alt="Profile"
                         style={{ width: '100px', height: '100px', borderRadius: '30%', marginBottom: '10px' }}
                     />
@@ -132,17 +147,16 @@ const AdminProfilePage = () => {
                     onChange={handleChange}
                     fullWidth
                     margin="normal"
-                    disabled  // Role should not be editable
+                    disabled
                     sx={{ marginBottom: 2 }}
                 />
 
-                {/* Save Button (Green background) */}
+                {/* Save Button */}
                 <Button
                     variant="contained"
-                    color="success" // Green background
+                    color="success"
                     onClick={handleSave}
                     disabled={isLoading}
-                    width= "50%"
                     sx={{ marginTop: 2 }}
                     startIcon={isLoading ? <CircularProgress size={10} /> : null}
                 >
