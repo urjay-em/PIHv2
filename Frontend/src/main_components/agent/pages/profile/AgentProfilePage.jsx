@@ -4,9 +4,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import Header from '../../Header';
 import { useNavigate } from 'react-router-dom';
 
-
 const AgentProfilePage = () => {
-    const navigate= useNavigate();
+    const navigate = useNavigate();
     const handleClose = () => {
         navigate('/');
     };
@@ -15,7 +14,7 @@ const AgentProfilePage = () => {
         email: '',
         role: '',
     });
-    const [profilePicture, setProfilePicture] = useState(null);
+    const [profilePicture, setProfilePicture] = useState(localStorage.getItem("profilePicture") || null);
     const [errors, setErrors] = useState({});
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +44,11 @@ const AgentProfilePage = () => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => setProfilePicture(reader.result);
+            reader.onloadend = () => {
+                const imageUrl = reader.result;
+                setProfilePicture(imageUrl);
+                localStorage.setItem("profilePicture", imageUrl); // Save to localStorage
+            };
             reader.readAsDataURL(file);
         }
     };
@@ -69,7 +72,6 @@ const AgentProfilePage = () => {
         <Box m="20px" maxWidth="800px" mx="auto">
             <Header title="Profile Information" subtitle="Edit Profile Information" />
 
-            {/* Profile Information Box */}
             <Box
                 sx={{
                     width: '100%',
@@ -84,15 +86,10 @@ const AgentProfilePage = () => {
                     border: (theme) => `1px solid ${theme.palette.divider}`,
                 }}
             >
-                {/* Close button at the top-right corner */}
-                <IconButton
-                    onClick={handleClose}  // Function to close the profile page
-                    sx={{ position: 'absolute', top: 16, right: 16 }}
-                >
+                <IconButton onClick={handleClose} sx={{ position: 'absolute', top: 16, right: 16 }}>
                     <CloseIcon />
                 </IconButton>
 
-                {/* Profile Picture Upload */}
                 <Box
                     display="flex"
                     flexDirection="column"
@@ -117,7 +114,6 @@ const AgentProfilePage = () => {
                     </Button>
                 </Box>
 
-                {/* Profile Fields */}
                 <TextField
                     label="Name"
                     name="name"
@@ -151,7 +147,6 @@ const AgentProfilePage = () => {
                     sx={{ marginBottom: 2 }}
                 />
 
-                {/* Save Button */}
                 <Button
                     variant="contained"
                     color="success"
@@ -164,7 +159,6 @@ const AgentProfilePage = () => {
                 </Button>
             </Box>
 
-            {/* Snackbar for success confirmation */}
             <Snackbar
                 open={openSnackbar}
                 autoHideDuration={3000}

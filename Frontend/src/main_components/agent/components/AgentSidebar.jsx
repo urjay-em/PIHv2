@@ -6,7 +6,6 @@ import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../../theme";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { FaUsers, FaMapMarkedAlt, FaUserCheck, FaUserMinus } from "react-icons/fa";
-import Bossing from "../Images/bossing.jpg";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Tooltip } from "@mui/material";
 
@@ -36,6 +35,7 @@ const AgentSidebar = ({ isAgentSidebar }) => {
     const [selected, setSelected] = useState("Map");
     const userRole = localStorage.getItem("account_type");
     const fullName = localStorage.getItem("account_name");
+    const [profilePicture, setProfilePicture] = useState(localStorage.getItem("profilePicture") || 'default-profile-picture-url');
 
     const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
     const isMediumScreen = useMediaQuery(theme.breakpoints.between("md", "lg"));
@@ -43,6 +43,10 @@ const AgentSidebar = ({ isAgentSidebar }) => {
 
     useEffect(() => {
         setIsCollapsed(isAgentSidebar);
+        // Listen for changes in localstorage to update profile picture 
+        const updateProfilePicture = () => setProfilePicture(localStorage.getItem("profilePicture"));
+        window.addEventListener("storage", updateProfilePicture);
+        return () => window.removeEventListener("storage", updateProfilePicture);
     }, [isAgentSidebar]);
 
     const sidebarWidth = isLargeScreen ? 250 : isMediumScreen ? 200 : isSmallScreen ? 150 : 100;
@@ -103,7 +107,7 @@ const AgentSidebar = ({ isAgentSidebar }) => {
                                     alt="user"
                                     width="80"
                                     height="80"
-                                    src={Bossing}
+                                    src={profilePicture}
                                     style={{ cursor: "pointer", borderRadius: "50%" }}
                                 />
             
