@@ -69,7 +69,12 @@ const CashierTopbar = () => {
     localStorage.removeItem('user_role');
     localStorage.removeItem("full_name");
     localStorage.removeItem("account_type");
-    navigate('/login', { replace: true });
+    window.location.reload();  // This will refresh the page
+    
+    // Alternatively, you can navigate after a slight delay to ensure the page reloads before the navigation occurs
+    setTimeout(() => {
+        navigate('/login', { replace: true });
+    }, 100);  // Small delay (100ms) to ensure the reload happens first
   };
 
   return (

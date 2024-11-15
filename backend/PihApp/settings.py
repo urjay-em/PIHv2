@@ -95,7 +95,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'pihdb', 
         'USER': 'root', 
-        'PASSWORD': 'root',
+        'PASSWORD': 'Admin',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }

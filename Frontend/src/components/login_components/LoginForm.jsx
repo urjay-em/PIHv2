@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { jwtDecode } from 'jwt-decode';  // Correct named import for jwt-decode
+import React, { useState, useEffect } from "react";
+import { jwtDecode } from 'jwt-decode'; 
 import './LoginForm.css';
 import { FaUser } from "react-icons/fa";
 import { RiLockPasswordFill } from "react-icons/ri";
@@ -12,36 +12,54 @@ const LoginForm = ({ setUserRole }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        // Check if access_token exists in localStorage on mount
+        const accessToken = localStorage.getItem('access_token');
+        if (accessToken) {
+            const decodedToken = jwtDecode(accessToken);  // Decode the access token
+            const accountType = decodedToken.account_type;
+            setUserRole(accountType);  // Set user role globally
+
+            // Redirect based on the user's role
+            if (accountType === "admin") {
+                navigate("/admin/dashboard");
+            } else if (accountType === "cashier") {
+                navigate("/cashier/paymentapplication");
+            } else if (accountType === "info_officer") {
+                navigate("/information_officer/information-officer-map");
+            } else if (accountType === "agent") {
+                navigate("/agent/map");
+            }
+            setIsAuthenticated(true);  // Mark as authenticated
+        }
+    }, [navigate, setUserRole]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         try {
             const response = await fetch("http://127.0.0.1:8000/api/v1/auth/jwt/create/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, password }),  // Ensure this is sending the email and password
+                body: JSON.stringify({ email, password }),
             });
 
             const data = await response.json();
-            console.log("Response data:", data);  // Log the entire response
 
             if (data.access) {
                 localStorage.setItem("access_token", data.access);
                 localStorage.setItem("refresh_token", data.refresh);
 
                 const decodedToken = jwtDecode(data.access);  // Decode the access token
-                const accountType = decodedToken.account_type;  // Get the account type from the token
-                const first_name = decodedToken.first_name
-                const last_name = decodedToken.last_name
+                const accountType = decodedToken.account_type;
+                const first_name = decodedToken.first_name;
+                const last_name = decodedToken.last_name;
 
                 const fullName = `${first_name} ${last_name}`;
-                localStorage.setItem("account_name", fullName )
+                localStorage.setItem("account_name", fullName);
                 localStorage.setItem("account_type", decodedToken.account_type);
-
-                console.log("Decoded account type:", accountType);
-                console.log("Decoded account name:", fullName);
 
                 // Set the role and authentication status
                 setUserRole(accountType);
