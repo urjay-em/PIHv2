@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, TextField, Typography, Snackbar, Alert, CircularProgress, Tabs, Tab, Divider } from '@mui/material';
+import { Box, Button, TextField, Typography, Snackbar, Alert, CircularProgress, Tabs, Tab, Divider, IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import CloseIcon from '@mui/icons-material/Close';
 
 const AdminProfilePage = () => {
+    const navigate = useNavigate();
+    const handleClose = () => {
+        navigate('/');
+    };
     const [profile, setProfile] = useState({
         firstName: '',
         lastName: '',
@@ -13,7 +19,7 @@ const AdminProfilePage = () => {
         password: '',
         confirmPassword: '',
     });
-    const [profilePicture, setProfilePicture] = useState(null);
+    const [profilePicture, setProfilePicture] = useState(localStorage.getItem("profilePicture") || null);
     const [errors, setErrors] = useState({});
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -48,38 +54,21 @@ const AdminProfilePage = () => {
         setProfile({ ...profile, [e.target.name]: e.target.value });
     };
 
-    const handlePictureChange = async (e) => {
+    const handlePictureChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const token = localStorage.getItem("access_token");
-            console.log(token)
-            const formData = new FormData();
-            formData.append('profile_picture', file);  // Ensure this matches your serializer field name
-    
-            try {
-                const response = await fetch('http://127.0.0.1:8000/api/v1/auth/users/me/', {
-                    method: 'PATCH',  // Use PATCH for partial update
-                    headers: {
-                        "Authorization": `Bearer ${token}`,  // Authorization header only
-                    },
-                    body: formData,  // FormData automatically sets the correct Content-Type
-                });
-    
-                if (!response.ok) {
-                    // Capture error details from the server response
-                    const errorData = await response.json();
-                    console.error("Profile picture update failed:", errorData);
-                    alert(`Failed to upload picture: ${errorData.detail || "Unknown error"}`);
-                } else {
-                    const data = await response.json();
-                    console.log("Profile picture updated successfully:", data);
-                }
-            } catch (error) {
-                console.error("Error uploading image:", error);
-                alert("An error occurred while uploading the image.");
-            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const imageUrl = reader.result;
+                setProfilePicture(imageUrl);
+                localStorage.setItem("profilePicture", imageUrl); // Save to localStorage
+
+            };
+            reader.readAsDataURL(file);
         }
     };
+
+    
     const handleSave = async () => {
         const validationErrors = validateFields();
         if (Object.keys(validationErrors).length === 0) {
@@ -96,10 +85,10 @@ const AdminProfilePage = () => {
         }
     };
 
-
     const handleTabChange = (event, newValue) => {
         setSelectedTab(newValue);
     };
+
 
     return (
         <Box display="flex" justifyContent="center" alignItems="flex-start" minHeight="100vh" bgcolor="background.default">
@@ -117,6 +106,10 @@ const AdminProfilePage = () => {
                 <Typography variant="h4" mb={3} color="text.primary">
                     Edit Profile
                 </Typography>
+
+                <IconButton onClick={handleClose} sx={{ position: 'absolute', top: 16, right: 16 }}>
+                    <CloseIcon />
+                </IconButton>
 
                 {/* Tabs for switching between categories */}
                 <Tabs

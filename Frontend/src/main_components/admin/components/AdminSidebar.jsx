@@ -1,259 +1,242 @@
 import { useEffect, useState } from "react";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
-import { Box, IconButton, Typography, useTheme, useMediaQuery } from "@mui/material";
+import { Box, IconButton, Typography, useTheme, Tooltip } from "@mui/material";
 import { Link } from "react-router-dom";
 import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { FaUserShield, FaBuilding, FaDatabase, FaUsers } from 'react-icons/fa';
-import { AiOutlineFileText } from 'react-icons/ai';
+import { FaUserShield, FaBuilding, FaDatabase, FaUsers } from "react-icons/fa";
+import { AiOutlineFileText } from "react-icons/ai";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import Bossing from '../Images/bossing.jpg';
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { Tooltip } from "@mui/material";
+
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
-    
-    return (
-        <MenuItem
-            active={selected === title}
-            style={{
-                color: theme.palette.mode === "light" ? colors.grey[800] : colors.grey[100],
-            }}
-            onClick={() => setSelected(title)}
-            icon={icon}
-        >
-            <Typography variant="body1">{title}</Typography>
-            <Link to={to} />
-        </MenuItem>
-    );
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+
+  return (
+    <MenuItem
+      active={selected === title}
+      style={{
+        color: theme.palette.mode === "light" ? colors.grey[800] : colors.grey[100],
+      }}
+      onClick={() => setSelected(title)}
+      icon={icon}
+    >
+      <Typography variant="body1">{title}</Typography>
+      <Link to={to} />
+    </MenuItem>
+  );
 };
 
 const AdminSidebar = ({ isAdminSidebar }) => {
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
-    const [isCollapsed, setIsCollapsed] = useState(isAdminSidebar);
-    const [selected, setSelected] = useState("Dashboard");
-    const userRole = localStorage.getItem("account_type");
-    const fullName = localStorage.getItem("account_name");
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const [isCollapsed, setIsCollapsed] = useState(isAdminSidebar);
+  const [selected, setSelected] = useState("Dashboard");
+  const userRole = localStorage.getItem("account_type");
+  const fullName = localStorage.getItem("account_name");
+  const [profilePicture, setProfilePicture] = useState(localStorage.getItem("profilePicture") || 'default-profile-picture-url');
 
-    const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
-    const isMediumScreen = useMediaQuery(theme.breakpoints.between("md", "lg"));
-    const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  useEffect(() => {
+    setIsCollapsed(isAdminSidebar);
+    // Listen for changes in local storage to update profile picture
+    const updateProfilePicture = () => setProfilePicture(localStorage.getItem("profilePicture"));
+        window.addEventListener("storage", updateProfilePicture);
+        return () => window.removeEventListener("storage", updateProfilePicture);
+  }, [isAdminSidebar]);
 
-    useEffect(() => {
-        setIsCollapsed(isAdminSidebar);
-    }, [isAdminSidebar]);
-
-    const sidebarWidth = isLargeScreen ? 250 : isMediumScreen ? 200 : isSmallScreen ? 150 : 100;
-    const padding = isSmallScreen ? "5px 15px" : isMediumScreen ? "5px 20px" : "5px 25px";
-
-    return (
-        <Box
-            sx={{
-                "& .pro-sidebar-inner": {
-                    backgroundColor: theme.palette.mode === "light" ? colors.grey[50] : colors.primary[800],
-                    borderRight: theme.palette.mode === "light" ? `1px solid ${colors.grey[300]}` : "none",
-                    width: sidebarWidth,
-                },
-                "& .pro-icon-wrapper": {
-                    backgroundColor: "transparent !important",
-                },
-                "& .pro-inner-item": {
-                    padding: `${padding} !important`,
-                },
-                "& .pro-inner-item:hover": {
-                    color: theme.palette.mode === "light" ? colors.blueAccent[600] : colors.blueAccent[200],
-                },
-                "& .pro-menu-item.active": {
-                    color: theme.palette.mode === "light" ? colors.blueAccent[700] : colors.blueAccent[300],
-                },
+  return (
+    <Box
+      sx={{
+        "& .pro-sidebar-inner": {
+          backgroundColor: theme.palette.mode === "light" ? colors.grey[50] : colors.primary[800],
+          borderRight: theme.palette.mode === "light" ? `1px solid ${colors.grey[300]}` : "none",
+        },
+        "& .pro-icon-wrapper": {
+          backgroundColor: "transparent !important",
+        },
+        "& .pro-inner-item": {
+          padding: "5px 25px 5px 10px !important",
+        },
+        "& .pro-inner-item:hover": {
+          color: theme.palette.mode === "light" ? colors.blueAccent[600] : colors.blueAccent[200],
+        },
+        "& .pro-menu-item.active": {
+          color: theme.palette.mode === "light" ? colors.blueAccent[700] : colors.blueAccent[300],
+        },
+      }}
+    >
+      <ProSidebar collapsed={isCollapsed}>
+        <Menu iconShape="square">
+          {/* Menu Toggle */}
+          <MenuItem
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
+            style={{
+              margin: "10px 0 20px 0",
+              color: theme.palette.mode === "light" ? colors.grey[800] : colors.grey[100],
             }}
-        >
-            <ProSidebar collapsed={isCollapsed}>
-                <Menu iconShape="square">
-                    <MenuItem
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
-                        style={{
-                            margin: "10px 0 20px 0",
-                            color: theme.palette.mode === "light" ? colors.grey[800] : colors.grey[100],
-                        }}
+          >
+            {!isCollapsed && (
+              <Box display="flex" justifyContent="space-between" alignItems="center" ml="15px">
+                <Typography
+                  variant="h3"
+                  color={theme.palette.mode === "light" ? colors.grey[800] : colors.grey[100]}
                 >
-                    {!isCollapsed && (
-                            <Box display="flex" justifyContent="space-between" alignItems="center" ml="15px">
-                                <Typography
-                                    variant="h3"
-                                    fontSize={isSmallScreen ? "1.0rem" : isMediumScreen ? "1.3rem" : "1.5rem"}
-                                    color={theme.palette.mode === "light" ? colors.grey[800] : colors.grey[100]}
-                                >
-                                    PIHMP-BLIMAPS
-                                </Typography>
-                                <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
-                                    <MenuOutlinedIcon />
-                                </IconButton>
-                            </Box>
-                        )}
-                    </MenuItem>
+                  PIHMP-BLIMAPS
+                </Typography>
+                <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
+                  <MenuOutlinedIcon />
+                </IconButton>
+              </Box>
+            )}
+          </MenuItem>
 
-                    {!isCollapsed && (
-                        <Box mb="25px">
-                            <Box display="flex" justifyContent="center" alignItems="center">
-                                <img
-                                alt="user"
-                                width="80"
-                                height="80"
-                                src={Bossing}
-                                style={{ cursor: "pointer", borderRadius: "50%" }}
-                                />
+          {/* User Info */}
+          {!isCollapsed && (
+            <Box mb="25px">
+              <Box display="flex" justifyContent="center" alignItems="center">
+                <img
+                  alt="user"
+                  width="80"
+                  height="80"
+                  src={profilePicture}
+                  style={{ cursor: "pointer", borderRadius: "50%" }}
+                />
+                {/* Edit Profile Icon */}
+                <Tooltip title="Edit profile">
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      position: "absolute",
+                      right: 85, // Adjust to position the icon closer or further
+                      top: "20%",
+                      transform: "translateY(-100%)",
+                    }}
+                  >
+                    <Link to="/admin/profile">
+                      <IconButton
+                        sx={{
+                          color: colors.grey[100],
+                          backgroundColor: colors.greenAccent[500],
+                          borderRadius: "50%",
+                          padding: "2px",
+                          "&:hover": {
+                            backgroundColor: colors.greenAccent[700],
+                          },
+                        }}
+                        aria-label="edit profile"
+                      >
+                        <EditOutlinedIcon />
+                      </IconButton>
+                    </Link>
+                  </Box>
+                </Tooltip>
+              </Box>
+              <Box textAlign="center">
+                <Typography
+                  variant="h2"
+                  color={theme.palette.mode === "light" ? colors.grey[800] : colors.grey[100]}
+                  fontWeight="bold"
+                  sx={{ m: "10px 0 0 0" }}
+                >
+                  {fullName || "Unknown Name"}
+                </Typography>
+                <Typography
+                  variant="h5"
+                  color={theme.palette.mode === "light" ? colors.greenAccent[500] : colors.greenAccent[500]}
+                >
+                  {userRole || "Unknown Role"}
+                </Typography>
+              </Box>
+            </Box>
+          )}
 
-                                <Link to="/admin/profile">
-                                    <Tooltip title="Edit profile">
-                                        <Box 
-                                            sx={{ 
-                                                display: 'flex', 
-                                                flexDirection: 'column', 
-                                                alignItems: 'center',
-                                                position: "absolute",
-                                                right: 77, // Adjust to position the icon closer or further
-                                                top: "20%",
-                                                transform: "translateY(-100%)",
-                                            }}
-                                        >
-                                            <IconButton 
-                                                sx={{ 
-                                                    color: colors.grey[100],  // Icon color
-                                                    backgroundColor: colors.greenAccent[500],  // Background color for the circle
-                                                    borderRadius: "50%",  // Makes the background circular
-                                                    padding: "2px",  // Adjust padding to control the circle size
-                                                    "&:hover": {
-                                                        backgroundColor: colors.greenAccent[700],  // Darker shade on hover
-                                                    },
-                                                }} 
-                                                aria-label="edit profile"
-                                            >
-                                                <EditOutlinedIcon />
-                                            </IconButton>
+          {/* Menu Items */}
+          <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+            <Item
+              title="Dashboard"
+              to="/admin/dashboard"
+              icon={<HomeOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
 
-                                        </Box>
-                                    </Tooltip>
-                                </Link>
-                                </Box>
-                            <Box textAlign="center">
-                                <Typography
-                                    variant="h2"
-                                    fontSize={isSmallScreen ? "1rem" : "1.5rem"}
-                                    color={theme.palette.mode === "light" ? colors.grey[800] : colors.grey[100]}
-                                    fontWeight="bold"
-                                    sx={{ m: "10px 0 0 0" }}
-                                >
-                                    {fullName || "Unknown Name"}
-                                </Typography>
-                                <Typography
-                                    variant="h5"
-                                    fontSize={isSmallScreen ? "0.5rem" : "0.9rem"}
-                                    color={theme.palette.mode === "light" ? colors.greenAccent[500] : colors.greenAccent[500]}
-                                >
-                                    {userRole || "Unknown Role"}
-                                
-                                </Typography>
-                            </Box>
-                        </Box>
-                    )}
-
-                    <Box paddingleft={isCollapsed ? undefined : "10%"}>
-                        <Item
-                            title="Dashboard"
-                            to="/admin/dashboard"
-                            icon={<HomeOutlinedIcon size={isSmallScreen ? 13 : 21} />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-
-                        <Typography
-                            variant="h6"
-                            fontSize={isSmallScreen ? "0.8rem" : "1rem"}
-                            color={theme.palette.mode === "light" ? colors.grey[500] : colors.grey[300]}
-                            sx={{ m: "15px 0 5px 20px" }}
-                        >
-                            Data
-                        </Typography>
-                        <Item
-                            title="Manage Admin Account"
-                            to="/admin/manageadminacc"
-                            icon={<FaUserShield size={isSmallScreen ? 13 : 21} />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-
-                        <Item
-                            title="Manage Agent Account"
-                            to="/admin/manageagentacc"
-                            icon={<PeopleOutlinedIcon size={isSmallScreen ? 13 : 21} />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Manage Branches"
-                            to="/admin/branches"
-                            icon={<FaBuilding size={isSmallScreen ? 13 : 21} />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Manage Employee Account"
-                            to="/admin/manageemployeeacc"
-                            icon={<FaUsers size={isSmallScreen ? 13 : 21} />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Backup & Restore"
-                            to="/admin/backuprestore"
-                            icon={<FaDatabase size={isSmallScreen ? 13 : 21} />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Reports"
-                            to="/admin/reports"
-                            icon={<AiOutlineFileText size={isSmallScreen ? 13 : 21} />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Contact Information"
-                            to="/admin/contact"
-                            icon={<ContactsOutlinedIcon size={isSmallScreen ? 13 : 21} />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Typography
-                            variant="h6"
-                            fontSize={isSmallScreen ? "0.8rem" : "1.0rem"}
-                            color={colors.grey[300]}
-                            sx={{ m: "15px 0 5px 20px "}}
-                        >
-                            Pages
-                        </Typography>
-                        <Item
-                            title="User Profile Form"
-                            to="/admin/form"
-                            icon={<PersonAddIcon size={isSmallScreen ? 13 : 21} />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        
-                        />
-                    </Box>
-                </Menu>
-            </ProSidebar>
-        </Box>
-    );
+            <Typography
+              variant="h6"
+              color={theme.palette.mode === "light" ? colors.grey[500] : colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              Data
+            </Typography>
+            <Item
+              title="Manage Agent Account"
+              to="/admin/manageagentacc"
+              icon={<PeopleOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Manage Client Account"
+              to="/admin/manageclientacc"
+              icon={<FaUsers />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Manage Branches"
+              to="/admin/branches"
+              icon={<FaBuilding />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Manage Employee Account"
+              to="/admin/manageemployeeacc"
+              icon={<FaUserShield />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Backup & Restore"
+              to="/admin/backuprestore"
+              icon={<FaDatabase />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Reports"
+              to="/admin/reports"
+              icon={<AiOutlineFileText />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            
+            <Typography
+              variant="h6"
+              color={theme.palette.mode === "light" ? colors.grey[500] : colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              Pages
+            </Typography>
+            <Item
+              title="User Profile Form"
+              to="/admin/form"
+              icon={<PersonAddIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          </Box>
+        </Menu>
+      </ProSidebar>
+    </Box>
+  );
 };
 
 export default AdminSidebar;

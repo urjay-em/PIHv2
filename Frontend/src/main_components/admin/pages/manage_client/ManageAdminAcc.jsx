@@ -2,13 +2,13 @@ import React from 'react'
 import Header from '../../Header';
 import { Box } from '@mui/material';
 
-const ManageAdminAcc = () => {
+const ManageClientAcc = () => {
   return (
     <Box m="20px">
-      <Header title="ADMIN ACCOUNTS" subtitle="Manage Admin Account" />
+      <Header title="CLIENT ACCOUNTS" subtitle="Manage Client Account" />
     </Box>
   );
     
 }
 
-export default ManageAdminAcc;
+export default ManageClientAcc;

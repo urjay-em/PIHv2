@@ -2,24 +2,29 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { ColorModeContext, useMode } from "./theme";
+
+// Admin
 import AdminSidebar from './main_components/admin/components/AdminSidebar';
 import AdminTopbar from './main_components/admin/components/AdminTopbar';
 import AdminDashboard from "./main_components/admin/pages/dashboard/Dashboard";
-import ManageAdminAcc from "./main_components/admin/pages/manage_admin/ManageAdminAcc";
+import ManageClientAcc from "./main_components/admin/pages/manage_client/ManageAdminAcc";
 import ManageAgentAcc from "./main_components/admin/pages/manage_agent/ManageAgentAcc";
 import ManageBranches from "./main_components/admin/pages/manage_branches/ManageBranches";
 import ManageEmployeeAcc from "./main_components/admin/pages/manage_employee/ManageEmployeeAcc";
 import BackupRestore from "./main_components/admin/pages/backuprestore/BackupRestore";
 import Reports from "./main_components/admin/pages/reports/Reports";
-import Contacts from "./main_components/admin/pages/contacts/Contacts";
 import Form from "./main_components/admin/pages/form/Form";
 import AdminProfilePage from "./main_components/admin/pages/profile/AdminProfilePage";
+
+// Agent
 import AgentSidebar from "./main_components/agent/components/AgentSidebar";
 import AgentTopbar from "./main_components/agent/components/AgentTopbar";
 import Map from "./main_components/agent/pages/map/Map";
 import ApprovedClient from "./main_components/agent/pages/clientlist/ApprovedClient";
 import DeclinedClient from "./main_components/agent/pages/clientlist/DeclinedClient";
 import AgentProfilePage from "./main_components/agent/pages/profile/AgentProfilePage";
+
+//Cashier
 import CashierSidebar from "./main_components/cashier/components/CashierSidebar";
 import CashierTopbar from "./main_components/cashier/components/CashierTopbar";
 import PaymentApplication from "./main_components/cashier/pages/paymentapplication/PaymentApplication";
@@ -48,13 +53,12 @@ const App = () => {
         <AdminTopbar />
         <Routes>
           <Route path="/admin/dashboard" index element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/admin/manageadminacc" element={<ProtectedRoute><ManageAdminAcc /></ProtectedRoute>} />
           <Route path="/admin/manageagentacc" element={<ProtectedRoute><ManageAgentAcc /></ProtectedRoute>} />
+          <Route path="/admin/manageclientacc" element={<ProtectedRoute><ManageClientAcc /></ProtectedRoute>} />
           <Route path="/admin/managebranches" element={<ProtectedRoute><ManageBranches /></ProtectedRoute>} />
           <Route path="/admin/manageemployeeacc" element={<ProtectedRoute><ManageEmployeeAcc /></ProtectedRoute>} />
           <Route path="/admin/backuprestore" element={<ProtectedRoute><BackupRestore /></ProtectedRoute>} />
           <Route path="/admin/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-          <Route path="/admin/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
           <Route path="/admin/form" element={<ProtectedRoute><Form /></ProtectedRoute>} />
           <Route path="/admin/profile" element={<ProtectedRoute><AdminProfilePage /></ProtectedRoute>} />
         </Routes>

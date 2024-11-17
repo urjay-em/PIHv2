@@ -1,39 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, TextField, Snackbar, Alert, CircularProgress, IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import Header from '../../Header';
+import { Box, Button, TextField, Typography, Snackbar, Alert, CircularProgress, Tabs, Tab, Divider, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
+import CloseIcon from '@mui/icons-material/Close';
 
 const InformationOfficerProfilePage = () => {
-    const navigate= useNavigate();
+    const navigate = useNavigate();
     const handleClose = () => {
         navigate('/');
     };
     const [profile, setProfile] = useState({
-        name: '',
-        email: '',
+        firstName: '',
+        lastName: '',
         role: '',
+        phone: '',
+        address: '',
+        birthDate: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
     });
-    const [profilePicture, setProfilePicture] = useState(null);
+    const [profilePicture, setProfilePicture] = useState(localStorage.getItem("profilePicture") || null);
     const [errors, setErrors] = useState({});
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedTab, setSelectedTab] = useState(0);
 
     useEffect(() => {
         const fetchedProfile = {
-            name: localStorage.getItem("account_name") || "Unknown Name",
-            email: "",  // Replace with actual data
+            firstName: localStorage.getItem("firstName") || "Unknown Name",
+            lastName: localStorage.getItem("lastName")||"",
             role: localStorage.getItem("account_type") || "Unknown Role",
+            phone: "",
+            address: "",
+            birthDate: "",
         };
         setProfile(fetchedProfile);
     }, []);
 
     const validateFields = () => {
         let errors = {};
-        if (!profile.name) errors.name = "Name is required";
+    
+        if (!profile.firstName) errors.firstName = "First Name is required";
+        if (!profile.lastName) errors.lastName = "Last Name is required";
         if (!profile.email) errors.email = "Email is required";
         else if (!/\S+@\S+\.\S+/.test(profile.email)) errors.email = "Email is invalid";
+        if (profile.password && profile.password !== profile.confirmPassword) {
+            errors.confirmPassword = "Passwords do not match";
+        }
         return errors;
     };
 
@@ -45,15 +58,22 @@ const InformationOfficerProfilePage = () => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => setProfilePicture(reader.result);
+            reader.onloadend = () => {
+                const imageUrl = reader.result;
+                setProfilePicture(imageUrl);
+                localStorage.setItem("profilePicture", imageUrl); // Save to localStorage
+
+            };
             reader.readAsDataURL(file);
         }
     };
 
+    
     const handleSave = async () => {
         const validationErrors = validateFields();
         if (Object.keys(validationErrors).length === 0) {
             setIsLoading(true);
+            console.log("Saving Profile: ", profile); // Log profile before save
             setTimeout(() => {
                 console.log("Profile saved:", profile);
                 setIsLoading(false);
@@ -65,91 +85,167 @@ const InformationOfficerProfilePage = () => {
         }
     };
 
-    return (
-        <Box m="20px" maxWidth="800px" mx="auto">
-            <Header title="Profile Information" subtitle="Edit Profile Information" />
+    const handleTabChange = (event, newValue) => {
+        setSelectedTab(newValue);
+    };
 
-            {/* Profile Information Box */}
+
+    return (
+        <Box display="flex" justifyContent="center" alignItems="flex-start" minHeight="100vh" bgcolor="background.default">
             <Box
                 sx={{
                     width: '100%',
+                    maxWidth: '900px',
                     padding: 5,
                     borderRadius: 4,
                     boxShadow: 3,
                     backgroundColor: 'background.paper',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    position: 'relative',
-                    border: (theme) => `1px solid ${theme.palette.divider}`,
+                    textAlign: 'center',
                 }}
             >
-                {/* Close button at the top-right corner */}
-                <IconButton
-                    onClick={handleClose}  // Function to close the profile page
-                    sx={{ position: 'absolute', top: 16, right: 16 }}
-                >
+                <Typography variant="h4" mb={3} color="text.primary">
+                    Edit Profile
+                </Typography>
+
+                <IconButton onClick={handleClose} sx={{ position: 'absolute', top: 16, right: 16 }}>
                     <CloseIcon />
                 </IconButton>
 
-                {/* Profile Picture Upload */}
-                <Box
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    mb={3}
+                {/* Tabs for switching between categories */}
+                <Tabs
+                    value={selectedTab}
+                    onChange={handleTabChange}
+                    centered
                     sx={{
-                        backgroundColor: 'transparent',
-                        padding: 2,
-                        borderRadius: 8,
-                        width: '100%',
-                        boxSizing: 'border-box',
+                        mb: 4,
+                        borderRadius: 2,
+                    }}
+                    TabIndicatorProps={{
+                        style: { backgroundColor: 'currentColor' }  // Default indicator color
                     }}
                 >
+                    <Tab label="Personal Information" sx={{ color: 'skyblue' }} />
+                    <Tab label="Security Login Credentials" sx={{ color: 'skyblue' }} />
+                </Tabs>
+
+                {/* Profile Picture */}
+                <Box display="flex" flexDirection="column" alignitems="center" mb={3}>
                     <img
                         src={profilePicture || 'default-picture-url'}
                         alt="Profile"
-                        style={{ width: '100px', height: '100px', borderRadius: '30%', marginBottom: '10px' }}
+                        style={{ width: '120px', height: '120px', borderRadius: '50%', marginBottom: '10px' }}
                     />
-                    <Button variant="contained" component="label">
+                    <Button variant="contained" component="label" color="primary" size="small">
                         Upload Picture
                         <input type="file" hidden onChange={handlePictureChange} />
                     </Button>
                 </Box>
 
-                {/* Profile Fields */}
-                <TextField
-                    label="Name"
-                    name="name"
-                    value={profile.name}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                    error={!!errors.name}
-                    helperText={errors.name}
-                    sx={{ marginBottom: 2 }}
-                />
-                <TextField
-                    label="Email"
-                    name="email"
-                    value={profile.email}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                    error={!!errors.email}
-                    helperText={errors.email}
-                    sx={{ marginBottom: 2 }}
-                />
-                <TextField
-                    label="Role"
-                    name="role"
-                    value={profile.role}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                    disabled
-                    sx={{ marginBottom: 2 }}
-                />
+                <Divider sx={{ my: 3 }} />
+
+                {/* Form Fields */}
+                <Box
+                    component="form"
+                    display="grid"
+                    gridTemplateColumns="repeat(2, 1fr)"
+                    gap={3}
+                    sx={{ width: '90%', mx: 'auto' }}
+                >
+                    {/* Personal Information Fields */}
+                    {selectedTab === 0 && (
+                        <>
+                            <TextField
+                                label="First Name"
+                                name="firstName"
+                                value={profile.firstName}
+                                onChange={handleChange}
+                                fullWidth
+                                error={!!errors.firstName}
+                                helperText={errors.firstName}
+                            />
+                            <TextField
+                                label="Last Name"
+                                name="lastName"
+                                value={profile.lastName}
+                                onChange={handleChange}
+                                fullWidth
+                                error={!!errors.lastName}
+                                helperText={errors.lastName}
+                            />
+                            <TextField
+                                label="Role"
+                                name="role"
+                                value={profile.role}
+                                disabled
+                                fullWidth
+                            />
+                            <TextField
+                                label="Phone Number"
+                                name="phone"
+                                value={profile.phone}
+                                onChange={handleChange}
+                                fullWidth
+                            />
+                            <TextField
+                                label="Address"
+                                name="address"
+                                value={profile.address}
+                                onChange={handleChange}
+                                fullWidth
+                            />
+                            <TextField
+                                label="Birth Date"
+                                name="birthDate"
+                                type="date"
+                                value={profile.birthDate}
+                                onChange={handleChange}
+                                fullWidth
+                                InputLabelProps={{ shrink: true }}
+                            />
+                        </>
+                    )}
+
+                    {/* Security Login Credentials Fields */}
+                    {selectedTab === 1 && (
+                        <>
+                            <TextField
+                                label="Email"
+                                name="email"
+                                type="email"
+                                value={profile.email}
+                                onChange={handleChange}
+                                fullWidth
+                                error={!!errors.email}
+                                helperText={errors.email}
+                            />
+                            <TextField
+                                label="Password"
+                                name="password"
+                                type="password"
+                                value={profile.password}
+                                onChange={handleChange}
+                                fullWidth
+                                error={!!errors.password}
+                                helperText={errors.password}
+                            />
+                            <Box display="flex" justifyContent="center" width="100%">
+                                <TextField 
+                                    display="flex"
+                                    justifyContent="center"
+                                    alignItems="center"
+                                    label="Confirm Password"
+                                    name="confirmPassword"
+                                    type="password"
+                                    value={profile.confirmPassword}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    error={!!errors.confirmPassword}
+                                    helperText={errors.confirmPassword}
+                                />
+                            </Box>
+                        </>
+                    )}
+                </Box>
 
                 {/* Save Button */}
                 <Button
@@ -157,23 +253,23 @@ const InformationOfficerProfilePage = () => {
                     color="success"
                     onClick={handleSave}
                     disabled={isLoading}
-                    sx={{ marginTop: 2 }}
+                    sx={{ marginTop: 4, width: '50%' }}
                     startIcon={isLoading ? <CircularProgress size={10} /> : null}
                 >
                     {isLoading ? "Saving..." : "Save Changes"}
                 </Button>
-            </Box>
 
-            {/* Snackbar for success confirmation */}
-            <Snackbar
-                open={openSnackbar}
-                autoHideDuration={3000}
-                onClose={() => setOpenSnackbar(false)}
-            >
-                <Alert onClose={() => setOpenSnackbar(false)} severity="success">
-                    Profile updated successfully!
-                </Alert>
-            </Snackbar>
+                {/* Snackbar for success confirmation */}
+                <Snackbar
+                    open={openSnackbar}
+                    autoHideDuration={3000}
+                    onClose={() => setOpenSnackbar(false)}
+                >
+                    <Alert onClose={() => setOpenSnackbar(false)} severity="success">
+                        Profile updated successfully!
+                    </Alert>
+                </Snackbar>
+            </Box>
         </Box>
     );
 };
