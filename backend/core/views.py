@@ -1,21 +1,29 @@
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth import get_user_model
-from django.utils.http import urlsafe_base64_decode
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from rest_framework import viewsets
+from .models import Employee, Agent, Commission, Plot, Client
+from .serializers import EmployeeSerializer, AgentSerializer, CommissionSerializer, PlotSerializer, ClientSerializer
+from rest_framework.permissions import IsAuthenticated
 
-User = get_user_model()
+class EmployeeViewSet(viewsets.ModelViewSet):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
 
-def activate_account(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
+class AgentViewSet(viewsets.ModelViewSet):
+    queryset = Agent.objects.all()
+    serializer_class = AgentSerializer
+    permission_classes = [IsAuthenticated]
 
-    if user is not None and default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
-        return HttpResponse("Your account has been activated successfully.")
-    else:
-        return HttpResponse("Activation link is invalid!")
+class CommissionViewSet(viewsets.ModelViewSet):
+    queryset = Commission.objects.all()
+    serializer_class = CommissionSerializer
+    permission_classes = [IsAuthenticated]
+
+class PlotViewSet(viewsets.ModelViewSet):
+    queryset = Plot.objects.all()
+    serializer_class = PlotSerializer
+    permission_classes = [IsAuthenticated]
+
+class ClientViewSet(viewsets.ModelViewSet):
+    queryset = Client.objects.all()
+    serializer_class = ClientSerializer
+    permission_classes = [IsAuthenticated]
