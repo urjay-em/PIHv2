@@ -6,12 +6,20 @@ import Header from "../../Header";
 import { useState } from "react";
 import ImageIcon from '@mui/icons-material/Image';
 
-const Form = () => {
+const Form = ({ onSubmit, mode = "add", initialValues = {} }) => { 
+  // Default to "add" mode and accept initial values for edit mode
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(
+    initialValues.employee_pic ? initialValues.employee_pic : null
+  );
 
   const handleFormSubmit = (values) => {
-    console.log(values);
+    onSubmit(values); // Pass the form values to the parent for processing
+    if (mode === "add") {
+      console.log("Employee added:", values);
+    } else {
+      console.log("Employee updated:", values);
+    }
   };
 
   const handleImageChange = (event, setFieldValue) => {
@@ -24,11 +32,31 @@ const Form = () => {
 
   return (
     <Box m="20px" maxWidth="800px" mx="auto">
-      <Header title="NEW EMPLOYEE" subtitle="Create a New Employee Profile" />
+      <Header
+        title={mode === "add" ? "NEW EMPLOYEE" : "EDIT EMPLOYEE"}
+        subtitle={
+          mode === "add" 
+            ? "Create a New Employee Profile" 
+            : "Update the Employee Profile"
+        }
+      />
 
       <Formik
         onSubmit={handleFormSubmit}
-        initialValues={initialValues}
+        initialValues={{
+          first_name: initialValues.first_name || "",
+          middle_name: initialValues.middle_name || "",
+          last_name: initialValues.last_name || "",
+          address: initialValues.address || "",
+          age: initialValues.age || "",
+          gender: initialValues.gender || "",
+          email_address: initialValues.email_address || "",
+          contact_no: initialValues.contact_no || "",
+          account_types: initialValues.account_types || "",
+          hire_date: initialValues.hire_date || "",
+          salary: initialValues.salary || "",
+          employee_pic: initialValues.employee_pic || null,
+        }}
         validationSchema={checkoutSchema}
       >
         {({
@@ -58,7 +86,12 @@ const Form = () => {
                       <img
                         src={selectedImage}
                         alt="Selected"
-                        style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }}
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                        }}
                       />
                     </Box>
                   ) : (
@@ -173,7 +206,7 @@ const Form = () => {
                   error={touched.age && !!errors.age}
                   helperText={touched.age && errors.age}
                   fullWidth
-                  sx={{ mb: 2 }} // Vertical margin
+                  sx={{ mb: 2 }}
                 />
               </Grid>
               <Grid item xs={12} sm={2}>
@@ -208,7 +241,7 @@ const Form = () => {
                   error={touched.email_address && !!errors.email_address}
                   helperText={touched.email_address && errors.email_address}
                   fullWidth
-                  sx={{ mb: 2 }} // Vertical margin
+                  sx={{ mb: 2 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -239,9 +272,8 @@ const Form = () => {
                   >
                     <MenuItem value=""></MenuItem>
                     <MenuItem value="admin">Admin</MenuItem>
-                    <MenuItem value="agent">Agent</MenuItem>
                     <MenuItem value="cashier">Cashier</MenuItem>
-                    <MenuItem value="info">Information</MenuItem>
+                    <MenuItem value="information">Information</MenuItem>
                   </Select>
                   {touched.account_types && errors.account_types && (
                     <Box sx={{ color: "red", mt: 1 }}>{errors.account_types}</Box>
@@ -281,34 +313,20 @@ const Form = () => {
                   sx={{ mb: 2 }} // Vertical margin
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  variant="filled"
-                  type="number"
-                  label="Commission Amount"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.commission_amount}
-                  name="commission_amount"
-                  error={touched.commission_amount && !!errors.commission_amount}
-                  helperText={touched.commission_amount && errors.commission_amount}
-                  fullWidth
-                  sx={{ mb: 2 }} // Vertical margin
-                />
               </Grid>
-            </Grid>
 
-            <Box display="flex" justifyContent="center" mt={2}>
-              <Button type="submit" color="secondary" variant="contained">
-                Create New Employee
-              </Button>
-            </Box>
-          </form>
-        )}
-      </Formik>
-    </Box>
-  );
-};
+              <Box display="flex" justifyContent="center" mt={2}>
+                <Button type="submit" color="secondary" variant="contained">
+                  {mode === "add" ? "Create New Employee" : "Save Changes"}
+                </Button>
+              </Box>
+            </form>
+          )}
+        </Formik>
+      </Box>
+    );
+  };
+
 
 // Initial form values
 const initialValues = {
@@ -323,7 +341,6 @@ const initialValues = {
   account_types: "",
   hire_date: "",
   salary: "",
-  commission_amount: "",
   employee_pic: null,
 };
 
@@ -340,8 +357,6 @@ const checkoutSchema = yup.object().shape({
   account_types: yup.string().required("Required"),
   hire_date: yup.string().required("Required"),
   salary: yup.number().required("Required"),
-  commission_amount: yup.number().required("Required"),
-  employee_pic: yup.mixed().required("Image is required"),
 });
 
 export default Form;
