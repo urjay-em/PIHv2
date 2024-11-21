@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os 
 import environ
 from datetime import timedelta
 
@@ -197,3 +198,6 @@ EMAIL_HOST_USER= "capstone.project2505@gmail.com"
 EMAIL_HOST_PASSWORD= "yalf hkup vipe ufpu"
 EMAIL_USE_TLS=True
 DOMAIN= "localhost:5173"
+
+MEDIA_URL = '/media/'  # This is the URL that will serve the media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

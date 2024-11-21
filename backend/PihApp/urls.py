@@ -3,6 +3,8 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView
 from users.serializers import CustomTokenObtainPairSerializer
 from users.views import MyTokenObtainPairView, MyTokenRefreshView
+from django.conf import settings
+from django.conf.urls.static import static
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -17,3 +19,6 @@ urlpatterns = [
     # core'
     path('api/v1/', include('core.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

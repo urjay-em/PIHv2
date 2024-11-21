@@ -1,230 +1,220 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+} from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
+import { DataGrid } from "@mui/x-data-grid";
 import EmployeeService from "../../../../features/employee_service.js";
-import { tokens } from "../../../../../src/theme.js";
 import Header from "../../Header";
 import Form from "../../pages/form/Form.jsx";
-import $ from "jquery";
-import "datatables.net";
-import "datatables.net-dt/css/dataTables.dataTables.css";
+
+
 
 const Employees = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-
   const [employees, setEmployees] = useState([]);
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); 
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [formData, setFormData] = useState({});
-  const tableRef = useRef(null);
+  const [searchText, setSearchText] = useState("");
 
-  // Fetch employees when the component mounts
   useEffect(() => {
     fetchEmployees();
   }, []);
 
-  // Fetch employee data
-  const fetchEmployees = () => {
+  const fetchEmployees = async () => {
     setLoading(true);
-    EmployeeService.getAllEmployees()
-      .then((response) => {
-        setEmployees(response.data);
-        setLoading(false);
-        initializeDataTable(response.data);
-      })
-      .catch((error) => {
-        setError("Failed to load employee data");
-        setLoading(false);
-      });
-  };
-
-  // Initialize DataTable
-  const initializeDataTable = (data) => {
-    if ($.fn.dataTable.isDataTable(tableRef.current)) {
-      $(tableRef.current).DataTable().clear().rows.add(data).draw(); // Refresh data
-    } else {
-      $(tableRef.current).DataTable({
-        data: data,
-        columns: [
-          { data: "id", title: "ID" },
-          { data: "first_name", title: "First Name" },
-          { data: "middle_name", title: "Middle Name" },
-          { data: "last_name", title: "Last Name" },
-          { data: "age", title: "Age" },
-          { data: "gender", title: "Gender" },
-          { data: "contact_no", title: "Contact Number" },
-          { data: "email_address", title: "Email" },
-          { data: "address", title: "Address" },
-          { data: "account_types", title: "Account Type" },
-          { data: "hire_date", title: "Hire Date" },
-          { data: "salary", title: "Salary (₱)" },
-          {
-            data: null,
-            title: "Actions",
-            render: (data) => {
-              return `
-                <button class="edit-btn">Edit</button>
-                <button class="delete-btn">Delete</button>
-              `;
-            },
-          },
-        ],
-        pageLength: 10,
-        initComplete: function () {
-          this.api()
-            .columns()
-            .every(function () {
-              const column = this;
-              const footer = column.footer();
-              if (footer) {
-                const input = document.createElement("input");
-                input.placeholder = footer.textContent || "Search";
-                input.style.width = "100%";
-                input.style.boxSizing = "border-box";
-                input.addEventListener("keyup", () => {
-                  if (column.search() !== input.value) {
-                    column.search(input.value).draw();
-                  }
-                });
-                footer.replaceChildren(input);
-              }
-            });
-        },
-      });
-
-      // Attach click events for edit and delete
-      $(tableRef.current).on("click", ".edit-btn", function () {
-        const rowData = $(tableRef.current).DataTable().row($(this).closest("tr")).data();
-        handleEditEmployee(rowData);
-      });
-
-      $(tableRef.current).on("click", ".delete-btn", function () {
-        const rowData = $(tableRef.current).DataTable().row($(this).closest("tr")).data();
-        handleDeleteEmployee(rowData.userid);
-      });
+    try {
+      const response = await EmployeeService.getAllEmployees();
+      setEmployees(response.data);
+      setFilteredEmployees(response.data);
+    } catch (error) {
+      console.error("Failed to load employee data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Add employee
   const handleAddEmployee = () => {
     setFormData({});
     setSelectedEmployee(null);
     setOpenDialog(true);
   };
 
-  // Edit employee
   const handleEditEmployee = (employee) => {
     setFormData(employee);
     setSelectedEmployee(employee);
     setOpenDialog(true);
   };
 
-  // Delete employee
-  const handleDeleteEmployee = (employeeId) => {
-    EmployeeService.deleteEmployee(employeeId)
-      .then(() => {
-        fetchEmployees();
-      })
-      .catch((error) => {
-        console.error("Failed to delete employee:", error);
-      });
+  // Open the delete confirmation dialog
+  const handleDeleteClick = (employee) => {
+    setSelectedEmployee(employee);
+    setDeleteDialogOpen(true);
   };
 
-  const handleSaveEmployee = (data) => {
-    if (selectedEmployee) {
-      // Update existing employee
-      EmployeeService.updateEmployee(selectedEmployee.userid, data)
-        .then(() => {
-          fetchEmployees(); // Refresh the employee list
-          setOpenDialog(false); // Close the dialog
-        })
-        .catch((error) => {
-          console.error("Failed to update employee:", error);
-        });
-    } else {
-      // Create new employee
-      EmployeeService.createEmployee(data)
-        .then(() => {
-          fetchEmployees(); // Refresh the employee list
-          setOpenDialog(false); // Close the dialog
-        })
-        .catch((error) => {
-          console.error("Failed to create employee:", error);
-        });
+  // Delete employee on confirmation
+  const handleDeleteEmployee = async () => {
+    try {
+      if (selectedEmployee) {
+        await EmployeeService.deleteEmployee(selectedEmployee.id);
+        fetchEmployees();
+        setDeleteDialogOpen(false);
+      }
+    } catch (error) {
+      console.error("Failed to delete employee:", error);
     }
   };
+
+  const handleSaveEmployee = async (data) => {
+    const formData = new FormData();
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        formData.append(key, data[key]);
+      }
+    }
+
+    try {
+      if (selectedEmployee) {
+        await EmployeeService.updateEmployee(selectedEmployee.id, formData);
+      } else {
+        await EmployeeService.createEmployee(formData);
+      }
+      fetchEmployees();
+      setOpenDialog(false);
+    } catch (error) {
+      console.error("Error saving employee:", error);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedEmployee(null);
+    setFormData({});
+  };
+  
+
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchText(value);
+
+    const filtered = employees.filter((employee) =>
+      Object.values(employee).some((field) =>
+        field?.toString().toLowerCase().includes(value)
+      )
+    );
+    setFilteredEmployees(filtered);
+  };
+
+  const columns = [
+    { field: "id", headerName: "ID", width: 50 },
+    { field: "first_name", headerName: "First Name", flex: 1 },
+    { field: "middle_name", headerName: "Middle Name", flex: 1 },
+    { field: "last_name", headerName: "Last Name", flex: 1 },
+    { field: "age", headerName: "Age", width: 40 },
+    { field: "gender", headerName: "Gender", width: 60 },
+    { field: "contact_no", headerName: "Contact Number", flex: 1 },
+    { field: "email_address", headerName: "Email", flex: 1 },
+    { field: "address", headerName: "Address", flex: 1 },
+    { field: "account_type", headerName: "Account Type", flex: 1 },
+    { field: "hire_date", headerName: "Hire Date", width: 90 },
+    { field: "salary", headerName: "Salary (₱)", flex: 1 },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 180,
+      renderCell: (params) => (
+        <Box display="flex" justifyContent="center" alignItems="center" gap={1} height="100%">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Edit />}
+            size="small"
+            onClick={() => handleEditEmployee(params.row)}
+            style={{ textTransform: "none" }}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Delete />}
+            size="small"
+            onClick={() => handleDeleteClick(params.row)}
+            style={{ textTransform: "none" }}
+          >
+            Delete
+          </Button>
+        </Box>
+      ),
+    },
+  ];
 
   return (
     <Box m="20px">
       <Header title="EMPLOYEES" subtitle="List of Employees in the Database" />
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          onClick={handleAddEmployee}
-        >
+      <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={2}>
+        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddEmployee}>
           Add Employee
         </Button>
+        <TextField
+          variant="outlined"
+          placeholder="Search..."
+          value={searchText}
+          onChange={handleSearch}
+          sx={{ width: { xs: "100%", sm: "300px" }, mt: { xs: 2, sm: 0 } }}
+        />
+      </Box>
+      <Box sx={{ height: "calc(100vh - 250px)", width: "100%", overflowY: "auto", bgcolor: "background.default", borderRadius: "8px", boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)" }}>
+        <DataGrid
+          rows={filteredEmployees}
+          columns={columns}
+          pageSize={10}
+          rowsPerPageOptions={[10, 20, 50]}
+          loading={loading}
+          disableSelectionOnClick
+        />
       </Box>
 
-      <Box>
-        <table ref={tableRef} className="display" style={{ width: "100%" }}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>First Name</th>
-              <th>Middle Name</th>
-              <th>Last Name</th>
-              <th>Age</th>
-              <th>Gender</th>
-              <th>Contact Number</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Account Type</th>
-              <th>Hire Date</th>
-              <th>Salary</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tfoot>
-            <tr>
-              <th>ID</th>
-              <th>First Name</th>
-              <th>Middle Name</th>
-              <th>Last Name</th>
-              <th>Age</th>
-              <th>Gender</th>
-              <th>Contact Number</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Account Type</th>
-              <th>Hire Date</th>
-              <th>Salary</th>
-              <th>Actions</th>
-            </tr>
-          </tfoot>
-        </table>
-      </Box>
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <p>Are you sure you want to delete this employee? This action cannot be undone.</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteEmployee} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      {/* Employee Add/Edit Dialog */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>{selectedEmployee ? "Edit Employee" : "Add New Employee"}</DialogTitle>
         <DialogContent>
           <Form
-            formData={formData}
-            setFormData={setFormData}
+            mode={selectedEmployee ? "edit" : "add"}
+            initialValues={selectedEmployee || {}}
             onSubmit={handleSaveEmployee}
-            existingEmployee={selectedEmployee}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
         </DialogActions>
       </Dialog>
+
     </Box>
   );
 };
