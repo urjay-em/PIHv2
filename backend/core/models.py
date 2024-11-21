@@ -23,7 +23,7 @@ class Employee(models.Model):
     salary = models.DecimalField(max_digits=10, decimal_places=2)
     profile_picture = models.ImageField(upload_to='employee_pics/', null=True, blank=True)
     
-    role = models.CharField(max_length=15, choices=ROLE_CHOICES, default='information')
+    account_type = models.CharField(max_length=15, choices=ROLE_CHOICES, default='information')
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.role}"
@@ -46,7 +46,7 @@ class Agent(models.Model):
     email_address = models.EmailField(unique=True)
     hire_date = models.DateField()
     commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    role = models.CharField(max_length=15, choices=ROLE_CHOICES, default='agent')
+    account_type = models.CharField(max_length=15, choices=ROLE_CHOICES, default='agent')
     profile_picture = models.ImageField(upload_to='agent_pics/', null=True, blank=True)
 
     def __str__(self):
