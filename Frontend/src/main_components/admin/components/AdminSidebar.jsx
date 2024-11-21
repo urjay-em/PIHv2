@@ -52,6 +52,7 @@ const AdminSidebar = ({ isAdminSidebar }) => {
   return (
     <Box
       sx={{
+
         "& .pro-sidebar-inner": {
           backgroundColor: theme.palette.mode === "light" ? colors.grey[50] : colors.primary[800],
           borderRight: theme.palette.mode === "light" ? `1px solid ${colors.grey[300]}` : "none",

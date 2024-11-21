@@ -62,6 +62,7 @@ const AgentProfilePage = () => {
                 setIsLoading(false);
                 setOpenSnackbar(true);
             }, 2000);
+            window.location.reload();
             setErrors({});
         } else {
             setErrors(validationErrors);
