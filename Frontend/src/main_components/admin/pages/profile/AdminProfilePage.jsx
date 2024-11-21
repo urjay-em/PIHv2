@@ -1,277 +1,280 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, TextField, Typography, Snackbar, Alert, CircularProgress, Tabs, Tab, Divider, IconButton } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import CloseIcon from '@mui/icons-material/Close';
+import { Box, Button, TextField, Snackbar, Alert, Grid, Typography } from "@mui/material";
+import { Formik } from "formik";
+import * as yup from "yup";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import Header from "../../Header";
+import { useState, useEffect } from "react";
+import ImageIcon from "@mui/icons-material/Image";
 
 const AdminProfilePage = () => {
-    const navigate = useNavigate();
-    const handleClose = () => {
-        navigate('/');
+  const isNonMobile = useMediaQuery("(min-width:600px)");
+  const [profile, setProfile] = useState({
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    address: "",
+    email_address: "",
+    contacts: "",
+    employee_pic: "",
+  });
+
+  const [profilePicture, setProfilePicture] = useState(localStorage.getItem("profilePicture") || null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchedProfile = {
+      first_name: localStorage.getItem("first_name") || "",
+      middle_name: localStorage.getItem("middle_name") || "",
+      last_name: localStorage.getItem("last_name") || "",
+      address: "",
+      email_address: "",
+      contacts: "",
     };
-    const [profile, setProfile] = useState({
-        firstName: '',
-        lastName: '',
-        role: '',
-        phone: '',
-        address: '',
-        birthDate: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-    });
-    const [profilePicture, setProfilePicture] = useState(localStorage.getItem("profilePicture") || null);
-    const [errors, setErrors] = useState({});
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [selectedTab, setSelectedTab] = useState(0);
+    setProfile(fetchedProfile);
+  }, []);
 
-    useEffect(() => {
-        const fetchedProfile = {
-            firstName: localStorage.getItem("firstName") || "Unknown Name",
-            lastName: localStorage.getItem("lastName")||"",
-            role: localStorage.getItem("account_type") || "Unknown Role",
-            phone: "",
-            address: "",
-            birthDate: "",
-        };
-        setProfile(fetchedProfile);
-    }, []);
+  const handleImageChange = (e, setFieldValue) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const imageUrl = reader.result;
+        setProfilePicture(imageUrl);
+        setFieldValue("employee_pic", imageUrl); // Update Formik's employee_pic field
+        localStorage.setItem("profilePicture", imageUrl); // Save to localStorage
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    const validateFields = () => {
-        let errors = {};
-    
-        if (!profile.firstName) errors.firstName = "First Name is required";
-        if (!profile.lastName) errors.lastName = "Last Name is required";
-        if (!profile.email) errors.email = "Email is required";
-        else if (!/\S+@\S+\.\S+/.test(profile.email)) errors.email = "Email is invalid";
-        if (profile.password && profile.password !== profile.confirmPassword) {
-            errors.confirmPassword = "Passwords do not match";
-        }
-        return errors;
-    };
+  const handleFormSubmit = async (values, { resetForm }) => {
+    setIsLoading(true);
 
-    const handleChange = (e) => {
-        setProfile({ ...profile, [e.target.name]: e.target.value });
-    };
+    // Simulate an API call
+    setTimeout(() => {
+      console.log("Profile saved:", values); // Log profile for debugging
+      setIsLoading(false);
 
-    const handlePictureChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const imageUrl = reader.result;
-                setProfilePicture(imageUrl);
-                localStorage.setItem("profilePicture", imageUrl); // Save to localStorage
+      // Show Snackbar after saving
+      setOpenSnackbar(true);
 
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+      // Optionally reset the form if needed
+      resetForm();
+    }, 2000);
+  };
 
-    
-    const handleSave = async () => {
-        const validationErrors = validateFields();
-        if (Object.keys(validationErrors).length === 0) {
-            setIsLoading(true);
-            console.log("Saving Profile: ", profile); // Log profile before save
-            setTimeout(() => {
-                console.log("Profile saved:", profile);
-                setIsLoading(false);
-                setOpenSnackbar(true);
-            }, 2000);
-            setErrors({});
-        } else {
-            setErrors(validationErrors);
-        }
-    };
+  return (
+    <Box m="20px" maxWidth="800px" mx="auto">
+      <Header title="PROFILE INFORMATION" subtitle="Edit Profile Information" />
 
-    const handleTabChange = (event, newValue) => {
-        setSelectedTab(newValue);
-    };
-
-
-    return (
-        <Box display="flex" justifyContent="center" alignItems="flex-start" minHeight="100vh" bgcolor="background.default">
-            <Box
-                sx={{
-                    width: '100%',
-                    maxWidth: '900px',
-                    padding: 5,
-                    borderRadius: 4,
-                    boxShadow: 3,
-                    backgroundColor: 'background.paper',
-                    textAlign: 'center',
-                }}
-            >
-                <Typography variant="h4" mb={3} color="text.primary">
-                    Edit Profile
-                </Typography>
-
-                <IconButton onClick={handleClose} sx={{ position: 'absolute', top: 16, right: 16 }}>
-                    <CloseIcon />
-                </IconButton>
-
-                {/* Tabs for switching between categories */}
-                <Tabs
-                    value={selectedTab}
-                    onChange={handleTabChange}
-                    centered
-                    sx={{
-                        mb: 4,
-                        borderRadius: 2,
-                    }}
-                    TabIndicatorProps={{
-                        style: { backgroundColor: 'currentColor' }  // Default indicator color
-                    }}
-                >
-                    <Tab label="Personal Information" sx={{ color: 'skyblue' }} />
-                    <Tab label="Security Login Credentials" sx={{ color: 'skyblue' }} />
-                </Tabs>
-
-                {/* Profile Picture */}
-                <Box display="flex" flexDirection="column" alignitems="center" mb={3}>
-                    <img
-                        src={profilePicture || 'default-picture-url'}
-                        alt="Profile"
-                        style={{ width: '120px', height: '120px', borderRadius: '50%', marginBottom: '10px' }}
-                    />
-                    <Button variant="contained" component="label" color="primary" size="small">
-                        Upload Picture
-                        <input type="file" hidden onChange={handlePictureChange} />
-                    </Button>
-                </Box>
-
-                <Divider sx={{ my: 3 }} />
-
-                {/* Form Fields */}
+      <Formik
+        onSubmit={handleFormSubmit}
+        initialValues={profile}
+        validationSchema={checkoutSchema}
+      >
+        {({
+          values,
+          errors,
+          touched,
+          handleBlur,
+          handleChange,
+          handleSubmit,
+          setFieldValue,
+        }) => (
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={3}>
+              {/* Employee Picture Upload */}
+              <Grid item xs={12} sm={3}>
                 <Box
-                    component="form"
-                    display="grid"
-                    gridTemplateColumns="repeat(2, 1fr)"
-                    gap={3}
-                    sx={{ width: '90%', mx: 'auto' }}
+                  border="1px dashed grey"
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                  justifyContent="center"
+                  p={2}
+                  sx={{ mb: 2 }}
                 >
-                    {/* Personal Information Fields */}
-                    {selectedTab === 0 && (
-                        <>
-                            <TextField
-                                label="First Name"
-                                name="firstName"
-                                value={profile.firstName}
-                                onChange={handleChange}
-                                fullWidth
-                                error={!!errors.firstName}
-                                helperText={errors.firstName}
-                            />
-                            <TextField
-                                label="Last Name"
-                                name="lastName"
-                                value={profile.lastName}
-                                onChange={handleChange}
-                                fullWidth
-                                error={!!errors.lastName}
-                                helperText={errors.lastName}
-                            />
-                            <TextField
-                                label="Role"
-                                name="role"
-                                value={profile.role}
-                                disabled
-                                fullWidth
-                            />
-                            <TextField
-                                label="Phone Number"
-                                name="phone"
-                                value={profile.phone}
-                                onChange={handleChange}
-                                fullWidth
-                            />
-                            <TextField
-                                label="Address"
-                                name="address"
-                                value={profile.address}
-                                onChange={handleChange}
-                                fullWidth
-                            />
-                            <TextField
-                                label="Birth Date"
-                                name="birthDate"
-                                type="date"
-                                value={profile.birthDate}
-                                onChange={handleChange}
-                                fullWidth
-                                InputLabelProps={{ shrink: true }}
-                            />
-                        </>
-                    )}
+                  {profilePicture ? (
+                    <Box mb={2}>
+                      <img
+                        src={profilePicture}
+                        alt="Selected"
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <ImageIcon sx={{ fontSize: 50, color: "grey.500" }} />
+                  )}
 
-                    {/* Security Login Credentials Fields */}
-                    {selectedTab === 1 && (
-                        <>
-                            <TextField
-                                label="Email"
-                                name="email"
-                                type="email"
-                                value={profile.email}
-                                onChange={handleChange}
-                                fullWidth
-                                error={!!errors.email}
-                                helperText={errors.email}
-                            />
-                            <TextField
-                                label="Password"
-                                name="password"
-                                type="password"
-                                value={profile.password}
-                                onChange={handleChange}
-                                fullWidth
-                                error={!!errors.password}
-                                helperText={errors.password}
-                            />
-                            <Box display="flex" justifyContent="center" width="100%">
-                                <TextField 
-                                    display="flex"
-                                    justifyContent="center"
-                                    alignItems="center"
-                                    label="Confirm Password"
-                                    name="confirmPassword"
-                                    type="password"
-                                    value={profile.confirmPassword}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    error={!!errors.confirmPassword}
-                                    helperText={errors.confirmPassword}
-                                />
-                            </Box>
-                        </>
-                    )}
-                </Box>
+                  <Typography variant="h6" color="textSecondary" mb={2}>
+                    {profilePicture ? "Change Image" : "Upload Image"}
+                  </Typography>
 
-                {/* Save Button */}
-                <Button
+                  <Button
                     variant="contained"
-                    color="success"
-                    onClick={handleSave}
-                    disabled={isLoading}
-                    sx={{ marginTop: 4, width: '50%' }}
-                    startIcon={isLoading ? <CircularProgress size={10} /> : null}
-                >
-                    {isLoading ? "Saving..." : "Save Changes"}
-                </Button>
+                    component="label"
+                    color="primary"
+                    sx={{ mb: 2 }}
+                  >
+                    {profilePicture ? "Change Image" : "Select Image"}
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={(e) => handleImageChange(e, setFieldValue)}
+                    />
+                  </Button>
 
-                {/* Snackbar for success confirmation */}
-                <Snackbar
-                    open={openSnackbar}
-                    autoHideDuration={3000}
-                    onClose={() => setOpenSnackbar(false)}
-                >
-                    <Alert onClose={() => setOpenSnackbar(false)} severity="success">
-                        Profile updated successfully!
-                    </Alert>
-                </Snackbar>
+                  {profilePicture && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => {
+                        setProfilePicture(null);
+                        setFieldValue("employee_pic", null);
+                      }}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </Box>
+              </Grid>
+
+              {/* Stack Name Fields Vertically */}
+              <Grid item xs={12} sm={9}>
+                <Grid container direction="column" spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      variant="filled"
+                      label="First Name"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.first_name}
+                      name="first_name"
+                      error={touched.first_name && !!errors.first_name}
+                      helperText={touched.first_name && errors.first_name}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      variant="filled"
+                      label="Middle Name"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.middle_name}
+                      name="middle_name"
+                      error={touched.middle_name && !!errors.middle_name}
+                      helperText={touched.middle_name && errors.middle_name}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      variant="filled"
+                      label="Last Name"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.last_name}
+                      name="last_name"
+                      error={touched.last_name && !!errors.last_name}
+                      helperText={touched.last_name && errors.last_name}
+                      fullWidth
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              {/* Address Field */}
+              <Grid item xs={12}>
+                <TextField
+                  variant="filled"
+                  label="Address"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.address}
+                  name="address"
+                  error={touched.address && !!errors.address}
+                  helperText={touched.address && errors.address}
+                  fullWidth
+                />
+              </Grid>
+
+              {/* Email and Contact Number Fields */}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="filled"
+                  label="Email Address"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.email_address}
+                  name="email_address"
+                  error={touched.email_address && !!errors.email_address}
+                  helperText={touched.email_address && errors.email_address}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="filled"
+                  label="Contact Number"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.contacts}
+                  name="contacts"
+                  error={touched.contacts && !!errors.contacts}
+                  helperText={touched.contacts && errors.contacts}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+              </Grid>
+            </Grid>
+
+            <Box display="flex" justifyContent="center" mt={2}>
+              <Button
+                type="submit"
+                color="secondary"
+                variant="contained"
+                disabled={isLoading}
+              >
+                {isLoading ? "Saving..." : "Save Changes"}
+              </Button>
             </Box>
-        </Box>
-    );
+          </form>
+        )}
+      </Formik>
+
+      {/* Snackbar for success confirmation */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success">
+          Profile updated successfully!
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
 };
+
+// Validation schema using yup
+const checkoutSchema = yup.object().shape({
+  first_name: yup.string().required("Required"),
+  middle_name: yup.string().required("Required"),
+  last_name: yup.string().required("Required"),
+  address: yup.string().required("Required"),
+  email_address: yup.string().email("Invalid email").required("Required"),
+  contacts: yup.string().required("Required"),
+  employee_pic: yup.mixed().required("Image is required"),
+});
 
 export default AdminProfilePage;
