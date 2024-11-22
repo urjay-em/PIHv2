@@ -7,13 +7,12 @@ import { ColorModeContext, useMode } from "./theme";
 import AdminSidebar from './main_components/admin/components/AdminSidebar';
 import AdminTopbar from './main_components/admin/components/AdminTopbar';
 import AdminDashboard from "./main_components/admin/pages/dashboard/Dashboard";
-import ManageClientAcc from "./main_components/admin/pages/manage_client/ManageAdminAcc";
+import ManageClientAcc from "./main_components/admin/pages/manage_client/ManageClientAcc";
 import ManageAgentAcc from "./main_components/admin/pages/manage_agent/ManageAgentAcc";
 import ManageBranches from "./main_components/admin/pages/manage_branches/ManageBranches";
 import ManageEmployeeAcc from "./main_components/admin/pages/manage_employee/ManageEmployeeAcc";
 import BackupRestore from "./main_components/admin/pages/backuprestore/BackupRestore";
 import Reports from "./main_components/admin/pages/reports/Reports";
-import Form from "./main_components/admin/pages/form/Form";
 import AdminProfilePage from "./main_components/admin/pages/profile/AdminProfilePage";
 
 // Agent
@@ -59,7 +58,6 @@ const App = () => {
           <Route path="/admin/manageemployeeacc" element={<ProtectedRoute><ManageEmployeeAcc /></ProtectedRoute>} />
           <Route path="/admin/backuprestore" element={<ProtectedRoute><BackupRestore /></ProtectedRoute>} />
           <Route path="/admin/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-          <Route path="/admin/form" element={<ProtectedRoute><Form /></ProtectedRoute>} />
           <Route path="/admin/profile" element={<ProtectedRoute><AdminProfilePage /></ProtectedRoute>} />
         </Routes>
       </main>

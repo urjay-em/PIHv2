@@ -4,41 +4,26 @@ import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../Header";
 import { useState } from "react";
-import ImageIcon from '@mui/icons-material/Image';
 
-const Form = ({ onSubmit, mode = "add", initialValues = {} }) => { 
-  // Default to "add" mode and accept initial values for edit mode
+const ClientForm = ({ onSubmit, mode = "add", initialValues = {} }) => { 
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [selectedImage, setSelectedImage] = useState(
-    initialValues.employee_pic ? initialValues.employee_pic : null
-  );
 
   const handleFormSubmit = (values) => {
     onSubmit(values); // Pass the form values to the parent for processing
     if (mode === "add") {
-      console.log("Employee added:", values);
+      console.log("Client added:", values);
     } else {
-      console.log("Employee updated:", values);
-    }
-  };
-
-  const handleImageChange = (event, setFieldValue) => {
-    const file = event.target.files[0];
-    if (file) {
-      setSelectedImage(URL.createObjectURL(file));
-      setFieldValue("employee_pic", file);
+      console.log("Client updated:", values);
     }
   };
 
   return (
     <Box m="20px" maxWidth="800px" mx="auto">
       <Header
-        title={mode === "add" ? "NEW EMPLOYEE" : "EDIT EMPLOYEE"}
-        subtitle={
-          mode === "add" 
-            ? "Create a New Employee Profile" 
-            : "Update the Employee Profile"
-        }
+        title={mode === "add" ? "NEW CLIENT" : "EDIT CLIENT"}
+        subtitle={mode === "add" 
+          ? "Create a New Client Profile" 
+          : "Update the Client Profile"}
       />
 
       <Formik
@@ -52,10 +37,9 @@ const Form = ({ onSubmit, mode = "add", initialValues = {} }) => {
           gender: initialValues.gender || "",
           email_address: initialValues.email_address || "",
           contact_no: initialValues.contact_no || "",
-          account_types: initialValues.account_types || "",
-          hire_date: initialValues.hire_date || "",
-          salary: initialValues.salary || "",
-          employee_pic: initialValues.employee_pic || null,
+          plot_details: initialValues.plot_details || "",
+          payment_status: initialValues.payment_status || "",
+          payment_method: initialValues.payment_method || "",
         }}
         validationSchema={checkoutSchema}
       >
@@ -70,70 +54,8 @@ const Form = ({ onSubmit, mode = "add", initialValues = {} }) => {
         }) => (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              {/* Employee Picture Upload */}
-              <Grid item xs={12} sm={3}>
-                <Box
-                  border="1px dashed grey"
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  p={2}
-                  sx={{ mb: 2 }}
-                >
-                  {selectedImage ? (
-                    <Box mb={2}>
-                      <img
-                        src={selectedImage}
-                        alt="Selected"
-                        style={{
-                          width: "100px",
-                          height: "100px",
-                          objectFit: "cover",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </Box>
-                  ) : (
-                    <ImageIcon sx={{ fontSize: 50, color: "grey.500" }} />
-                  )}
-
-                  <Typography variant="h6" color="textSecondary" mb={2}>
-                    {selectedImage ? "Change Image" : "Upload Image"}
-                  </Typography>
-
-                  <Button
-                    variant="contained"
-                    component="label"
-                    color="primary"
-                    sx={{ mb: 2 }}
-                  >
-                    {selectedImage ? "Change Image" : "Select Image"}
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={(event) => handleImageChange(event, setFieldValue)}
-                    />
-                  </Button>
-
-                  {selectedImage && (
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => {
-                        setSelectedImage(null);
-                        setFieldValue("employee_pic", null);
-                      }}
-                    >
-                      Clear
-                    </Button>
-                  )}
-                </Box>
-              </Grid>
-
-              {/* Stack Name Fields Vertically */}
-              <Grid item xs={12} sm={9}>
+              {/* Client Name Fields */}
+              <Grid item xs={12} sm={6} md={12}>
                 <Grid container direction="column" spacing={2}>
                   <Grid item xs={12}>
                     <TextField
@@ -259,74 +181,75 @@ const Form = ({ onSubmit, mode = "add", initialValues = {} }) => {
                 />
               </Grid>
 
-              {/* Account Type and Hire Date Fields */}
+              {/* Plot Details and Payment Fields */}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="filled"
+                  label="Plot Details"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.plot_details}
+                  name="plot_details"
+                  error={touched.plot_details && !!errors.plot_details}
+                  helperText={touched.plot_details && errors.plot_details}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+              </Grid>
               <Grid item xs={12} sm={6}>
                 <FormControl variant="filled" fullWidth>
-                  <InputLabel>Account Type</InputLabel>
+                  <InputLabel>Payment Status</InputLabel>
                   <Select
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.account_types}
-                    name="account_types"
-                    error={touched.account_types && !!errors.account_types}
+                    value={values.payment_status}
+                    name="payment_status"
+                    error={touched.payment_status && !!errors.payment_status}
                   >
-                    <MenuItem value=""></MenuItem>
-                    <MenuItem value="admin">Admin</MenuItem>
-                    <MenuItem value="cashier">Cashier</MenuItem>
-                    <MenuItem value="information">Information</MenuItem>
+                    <MenuItem value="paid">Paid</MenuItem>
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="cancelled">Cancelled</MenuItem>
                   </Select>
-                  {touched.account_types && errors.account_types && (
-                    <Box sx={{ color: "red", mt: 1 }}>{errors.account_types}</Box>
+                  {touched.payment_status && errors.payment_status && (
+                    <Box sx={{ color: "red", mt: 1 }}>{errors.payment_status}</Box>
                   )}
                 </FormControl>
               </Grid>
+
+              {/* Payment Method Field */}
               <Grid item xs={12} sm={6}>
-                <TextField
-                  variant="filled"
-                  type="date"
-                  label="Hire Date"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.hire_date}
-                  name="hire_date"
-                  error={touched.hire_date && !!errors.hire_date}
-                  helperText={touched.hire_date && errors.hire_date}
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                  sx={{ mb: 2 }} // Vertical margin
-                />
+                <FormControl variant="filled" fullWidth>
+                  <InputLabel>Payment Method</InputLabel>
+                  <Select
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.payment_method}
+                    name="payment_method"
+                    error={touched.payment_method && !!errors.payment_method}
+                  >
+                    <MenuItem value="cash">Cash</MenuItem>
+                    <MenuItem value="installment">Credit</MenuItem>
+                    <MenuItem value="bank_transfer">Bank Transfer</MenuItem>
+                  </Select>
+                  {touched.payment_method && errors.payment_method && (
+                    <Box sx={{ color: "red", mt: 1 }}>{errors.payment_method}</Box>
+                  )}
+                </FormControl>
               </Grid>
 
-              {/* Salary and Commission Amount Fields */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  variant="filled"
-                  type="number"
-                  label="Salary"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.salary}
-                  name="salary"
-                  error={touched.salary && !!errors.salary}
-                  helperText={touched.salary && errors.salary}
-                  fullWidth
-                  sx={{ mb: 2 }} // Vertical margin
-                />
-              </Grid>
-              </Grid>
+            </Grid>
 
-              <Box display="flex" justifyContent="center" mt={2}>
-                <Button type="submit" color="secondary" variant="contained">
-                  {mode === "add" ? "Create New Employee" : "Save Changes"}
-                </Button>
-              </Box>
-            </form>
-          )}
-        </Formik>
-      </Box>
-    );
-  };
-
+            <Box display="flex" justifyContent="center" mt={2}>
+              <Button type="submit" color="secondary" variant="contained">
+                {mode === "add" ? "Create New Client" : "Save Changes"}
+              </Button>
+            </Box>
+          </form>
+        )}
+      </Formik>
+    </Box>
+  );
+};
 
 // Initial form values
 const initialValues = {
@@ -338,10 +261,9 @@ const initialValues = {
   gender: "",
   email_address: "",
   contact_no: "",
-  account_types: "",
-  hire_date: "",
-  salary: "",
-  employee_pic: null,
+  plot_details: "",
+  payment_status: "pending",
+  payment_method: "cash",
 };
 
 // Validation schema using yup
@@ -354,9 +276,9 @@ const checkoutSchema = yup.object().shape({
   gender: yup.string().required("Required"),
   email_address: yup.string().email("Invalid email").required("Required"),
   contact_no: yup.string().required("Required"),
-  account_types: yup.string().required("Required"),
-  hire_date: yup.string().required("Required"),
-  salary: yup.number().required("Required"),
+  plot_details: yup.string().required("Required"),
+  payment_status: yup.string().required("Required"),
+  payment_method: yup.string().required("Required"),
 });
 
-export default Form;
+export default ClientForm;

@@ -10,71 +10,69 @@ import {
 } from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
-import EmployeeService from "../../../../features/employee_service.js";
-import Header from "../../Header";
-import Form from "../../pages/form/EmployeeForm.jsx";
+import EmployeeService from "../../../../features/client_service.js";
+import Header from "../../Header.jsx";
+import Form from "../form/ClientForm.jsx";
 
-
-
-const Employees = () => {
-  const [employees, setEmployees] = useState([]);
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
+const ManageClientAcc = () => {
+  const [clients, setClients] = useState([]);
+  const [filteredClients, setFilteredClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); 
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedClient, setSelectedClient] = useState(null);
   const [formData, setFormData] = useState({});
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
-    fetchEmployees();
+    fetchClients();
   }, []);
 
-  const fetchEmployees = async () => {
+  const fetchClients = async () => {
     setLoading(true);
     try {
-      const response = await EmployeeService.getAllEmployees();
-      setEmployees(response.data);
-      setFilteredEmployees(response.data);
+      const response = await EmployeeService.getAllClients();
+      setClients(response.data);
+      setFilteredClients(response.data);
     } catch (error) {
-      console.error("Failed to load employee data:", error);
+      console.error("Failed to load Client data:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddEmployee = () => {
+  const handleAddClient = () => {
     setFormData({});
-    setSelectedEmployee(null);
+    setSelectedClient(null);
     setOpenDialog(true);
   };
 
-  const handleEditEmployee = (employee) => {
-    setFormData(employee);
-    setSelectedEmployee(employee);
+  const handleclient = (client) => {
+    setFormData(client);
+    setSelectedClient(client);
     setOpenDialog(true);
   };
 
   // Open the delete confirmation dialog
-  const handleDeleteClick = (employee) => {
-    setSelectedEmployee(employee);
+  const handleDeleteClick = (client) => {
+    setSelectedClient(client);
     setDeleteDialogOpen(true);
   };
 
   // Delete employee on confirmation
-  const handleDeleteEmployee = async () => {
+  const handleDeleteClient = async () => {
     try {
-      if (selectedEmployee) {
-        await EmployeeService.deleteEmployee(selectedEmployee.id);
-        fetchEmployees();
+      if (selectedClient) {
+        await ClientService.deleteClient(selectedClient.id);
+        fetchClients();
         setDeleteDialogOpen(false);
       }
     } catch (error) {
-      console.error("Failed to delete employee:", error);
+      console.error("Failed to delete client:", error);
     }
   };
 
-  const handleSaveEmployee = async (data) => {
+  const handleSaveClient = async (data) => {
     const formData = new FormData();
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
@@ -83,21 +81,21 @@ const Employees = () => {
     }
 
     try {
-      if (selectedEmployee) {
-        await EmployeeService.updateEmployee(selectedEmployee.id, formData);
+      if (selectedClient) {
+        await ClientService.updateEmployee(selectedClient.id, formData);
       } else {
-        await EmployeeService.createEmployee(formData);
+        await ClientService.createClient(formData);
       }
-      fetchEmployees();
+      fetchClients();
       setOpenDialog(false);
     } catch (error) {
-      console.error("Error saving employee:", error);
+      console.error("Error saving client:", error);
     }
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setSelectedEmployee(null);
+    setSelectedClient(null);
     setFormData({});
   };
   
@@ -106,12 +104,12 @@ const Employees = () => {
     const value = e.target.value.toLowerCase();
     setSearchText(value);
 
-    const filtered = employees.filter((employee) =>
-      Object.values(employee).some((field) =>
+    const filtered = clients.filter((client) =>
+      Object.values(client).some((field) =>
         field?.toString().toLowerCase().includes(value)
       )
     );
-    setFilteredEmployees(filtered);
+    setFilteredClients(filtered);
   };
 
   const columns = [
@@ -125,8 +123,12 @@ const Employees = () => {
     { field: "email_address", headerName: "Email", flex: 1 },
     { field: "address", headerName: "Address", flex: 1 },
     { field: "account_type", headerName: "Account Type", flex: 1 },
-    { field: "hire_date", headerName: "Hire Date", width: 90 },
-    { field: "salary", headerName: "Salary (₱)", flex: 1 },
+    { field: "date_registered", headerName: "Date Registered", width: 90 },
+    { field: "mode_of_payment", headerName: "Mode of Payment", flex: 1 },
+    { field: "balance_to_pay", headerName: "Balance to Pay", flex: 1 },
+    { field: "role", headerName: "Role", flex: 1 },
+    { field: "agent_id", headerName: "Agent ID", flex: 1 },
+    { field: "plot_id", headerName: "Plot ID", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",
@@ -160,10 +162,10 @@ const Employees = () => {
 
   return (
     <Box m="20px">
-      <Header title="EMPLOYEES" subtitle="List of Employees in the Database" />
+      <Header title="CLIENTS" subtitle="List of Clients in the Database" />
       <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={2}>
-        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddEmployee}>
-          Add Employee
+        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddClient}>
+          Add Client
         </Button>
         <TextField
           variant="outlined"
@@ -175,7 +177,7 @@ const Employees = () => {
       </Box>
       <Box sx={{ height: "calc(100vh - 250px)", width: "100%", overflowY: "auto", bgcolor: "background.default", borderRadius: "8px", boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)" }}>
         <DataGrid
-          rows={filteredEmployees}
+          rows={filteredClients}
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[10, 20, 50]}
@@ -188,13 +190,13 @@ const Employees = () => {
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
-          <p>Are you sure you want to delete this employee? This action cannot be undone.</p>
+          <p>Are you sure you want to delete this client? This action cannot be undone.</p>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleDeleteEmployee} color="error">
+          <Button onClick={handleDeleteClient} color="error">
             Delete
           </Button>
         </DialogActions>
@@ -202,12 +204,12 @@ const Employees = () => {
 
       {/* Employee Add/Edit Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>{selectedEmployee ? "Edit Employee" : "Add New Employee"}</DialogTitle>
+        <DialogTitle>{selectedClient ? "Edit Client" : "Add New Client"}</DialogTitle>
         <DialogContent>
           <Form
-            mode={selectedEmployee ? "edit" : "add"}
-            initialValues={selectedEmployee || {}}
-            onSubmit={handleSaveEmployee}
+            mode={selectedClient ? "edit" : "add"}
+            initialValues={selectedClient || {}}
+            onSubmit={handleSaveClient}
           />
         </DialogContent>
         <DialogActions>
@@ -217,6 +219,7 @@ const Employees = () => {
 
     </Box>
   );
-};
+    
+}
 
-export default Employees;
+export default ManageClientAcc;
