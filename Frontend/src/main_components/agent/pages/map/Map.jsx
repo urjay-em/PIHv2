@@ -8,37 +8,55 @@ import { Box } from '@mui/material';
 import Header from '../../Header';
 import L from 'leaflet';
 
-const ImageOverlay = ({ imageUrl, imageBounds }) => {
-    const map = useMap(); // Get the map instance
+const CenterButton = ({ centerCoords, zoomLevel }) => {
+    const map = useMap();
+    return (
+        <button
+            style={{
+                position: 'absolute',
+                top: 10,
+                left: 10,
+                zIndex: 1000,
+                padding: '10px',
+                background: 'white',
+                border: '1px solid black',
+                cursor: 'pointer'
+            }}
+            onClick={() => map.setView(centerCoords, zoomLevel)}
+        >
+            Center on Philippines
+        </button>
+    );
+};
 
+const ImageOverlay = ({ imageUrl, imageBounds }) => {
+    const map = useMap();
     useEffect(() => {
         const overlay = L.imageOverlay(imageUrl, imageBounds, { opacity: 1 }).addTo(map);
-
         return () => {
-            // Cleanup if component unmounts
             map.removeLayer(overlay);
         };
     }, [map, imageUrl, imageBounds]);
 
-    return null; // This component only manages the overlay
+    return null;
 };
 
 const Map = () => {
     const [markers, setMarkers] = useState([]);
     const [polygons, setPolygons] = useState([]);
-    const [currentColor, setCurrentColor] = useState('#ff0000');
+    const [currentColor, setCurrentColor] = useState("#003BFF");
     const [showColorPicker, setShowColorPicker] = useState(false);
+    const [markerOpacity, setMarkerOpacity] = useState(1);
 
     const featureGroupRef = useRef(null);
 
-    // Coordinates for the image corners (Southwest and Northeast corners)
     const imageBounds = [
-        [9.8391, 118.7202], // Southwest corner (Bottom Left)
-        [9.8435, 118.7165]  // Northeast corner (Top Right)
+        [9.8391, 118.7202],
+        [9.8435, 118.7165]
     ];
+    const imageUrl = '/assets/pih_map_data.png';
 
-    // URL for the image overlay
-    const imageUrl = '/assets/pih_map_data.png'; // Ensure the path is correct and publicly accessible
+    const cemeteryLocation = [9.8413, 118.71835];
 
     const handleColorChange = (color) => {
         setCurrentColor(color.hex);
@@ -68,16 +86,59 @@ const Map = () => {
         localStorage.setItem("polygons", JSON.stringify(polygons));
     }, [markers, polygons]);
 
+    const ZoomToOverlay = () => {
+        const map = useMap();
+
+        const zoomToOverlay = () => {
+            map.fitBounds(imageBounds);
+        };
+
+        //opacity based on zoom level
+        const handleZoom = () => {
+            const zoomLevel = map.getZoom();
+            if (zoomLevel > 18) {
+                setMarkerOpacity(0); 
+            } else {
+                setMarkerOpacity(1);
+            }
+        };
+
+        //zoom event
+        useEffect(() => {
+            map.on('zoom', handleZoom);
+
+            return () => {
+                map.off('zoom', handleZoom);
+            };
+        }, [map]);
+
+        return (
+            <Marker
+                position={cemeteryLocation}
+                icon={L.divIcon({
+                    className: "custom-marker",
+                    html: `<div style="background-color: ${currentColor}; width: 20px; height: 20px; border-radius: 50%; cursor: pointer;"></div>`,
+                    opacity: markerOpacity,  // Use the opacity state for the cemetery marker
+                })}
+                eventHandlers={{
+                    click: zoomToOverlay,
+                }}
+            >
+                <Popup>Paradise in Heaven Memorial Park</Popup>
+            </Marker>
+        );
+    };
+
     return (
         <Box m="15px" maxWidth="1000px" mx="auto">
             <Header title="Paradise in Heaven Memorial Park" subtitle="Map" />
             <MapContainer
-                center={[9.8413, 118.71835]}
-                zoom={16}
+                center={cemeteryLocation}
+                zoom={5}  // Set the initial zoom level closer to the Philippines
                 style={{ height: "75vh", width: "100%" }}
-                maxZoom={19}
+                maxZoom={22} // Increased maxZoom for detailed views
                 minZoom={5}
-                zoomControl={true}
+                zoomControl={false} // Disable default zoom control
                 scrollWheelZoom={true}
                 doubleClickZoom={true}
                 dragging={true}
@@ -89,6 +150,9 @@ const Map = () => {
 
                 {/* Add the image overlay */}
                 <ImageOverlay imageUrl={imageUrl} imageBounds={imageBounds} />
+
+                {/* Cemetery marker that zooms to fit the image overlay */}
+                <ZoomToOverlay />
 
                 <FeatureGroup ref={featureGroupRef}>
                     <EditControl
@@ -105,7 +169,11 @@ const Map = () => {
                     <Marker
                         key={idx}
                         position={marker.position}
-                        icon={L.divIcon({ className: "custom-marker", html: `<div style="background-color: ${marker.color}; width: 20px; height: 20px; border-radius: 50%;"></div>` })}
+                        icon={L.divIcon({
+                            className: "custom-marker",
+                            html: `<div style="background-color: ${marker.color}; width: 20px; height: 20px; border-radius: 50%;"></div>`,
+                            opacity: markerOpacity
+                        })}
                     >
                         <Popup>Marker with color: {marker.color}</Popup>
                     </Marker>
@@ -134,6 +202,29 @@ const Map = () => {
                 >
                     Choose Color
                 </button>
+
+                {/* Add center button */}
+                <CenterButton centerCoords={[12.8797, 121.7740]} zoomLevel={5} />
+
+                {/* Re-add zoom control at bottom right */}
+                <div style={{ position: 'absolute', bottom: 10, right: 10, zIndex: 1000 }}>
+                    <div
+                        style={{
+                            background: "white",
+                            padding: "5px",
+                            border: "1px solid black",
+                            borderRadius: "5px",
+                            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.3)",
+                        }}
+                    >
+                        <button onClick={() => map.zoomIn()} style={{ display: "block", margin: "5px auto" }}>
+                            +
+                        </button>
+                        <button onClick={() => map.zoomOut()} style={{ display: "block", margin: "5px auto" }}>
+                            - 
+                        </button>
+                    </div>
+                </div>
             </MapContainer>
         </Box>
     );
