@@ -7,7 +7,11 @@ import { ColorModeContext, useMode } from "./theme";
 import AdminSidebar from './main_components/admin/components/AdminSidebar';
 import AdminTopbar from './main_components/admin/components/AdminTopbar';
 import AdminDashboard from "./main_components/admin/pages/dashboard/Dashboard";
+<<<<<<< Updated upstream
 import ManageClientAcc from "./main_components/admin/pages/manage_client/ManageClientAcc";
+=======
+import ManageClientAcc from "./main_components/admin/pages/manage_client/ManagClientAcc";
+>>>>>>> Stashed changes
 import ManageAgentAcc from "./main_components/admin/pages/manage_agent/ManageAgentAcc";
 import ManageBranches from "./main_components/admin/pages/manage_branches/ManageBranches";
 import ManageEmployeeAcc from "./main_components/admin/pages/manage_employee/ManageEmployeeAcc";
