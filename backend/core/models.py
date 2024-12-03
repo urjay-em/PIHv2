@@ -70,6 +70,7 @@ class Commission(models.Model):
 
     def __str__(self):
         return f"{self.agent.first_name} {self.agent.last_name}: {self.amount} - {self.status}"
+    
 
 class Plot(models.Model):
     STATUS_CHOICES = [
@@ -77,10 +78,9 @@ class Plot(models.Model):
         ('vacant', 'Vacant'),
     ]
 
-    plot_id = models.AutoField(primary_key=True)
-    plot_code = models.CharField(max_length=10, unique=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    plot_id = models.AutoField(primary_key=True)  # Automatically generated unique ID
+    row = models.IntegerField()
+    column = models.IntegerField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='vacant')
     plot_type = models.CharField(max_length=30, choices=[
         ('stone', 'Stone Type'),
@@ -88,12 +88,18 @@ class Plot(models.Model):
         ('valor', 'Valor Type'),
         ('mausoleum', 'Mausoleum'),
     ])
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     purchase_date = models.DateField(null=True, blank=True)
-    #owner = models.ForeignKey('Client', on_delete=models.CASCADE, related_name='plots', null=True, blank=True)
+    owner = models.ForeignKey('Client', on_delete=models.CASCADE, related_name='plots', null=True, blank=True)
+
+    class Meta:
+        unique_together = ('row', 'column')  # Enforces uniqueness
+        ordering = ['row', 'column']  # Grid-style ordering
 
     def __str__(self):
-        return f"Plot {self.plot_code} - {self.status}"
+        return f"Plot {self.plot_id} (Row {self.row}, Column {self.column}) - {self.status}"
+
+
 
 
 class Client(models.Model):

@@ -192,7 +192,7 @@ const AdminSidebar = ({ isAdminSidebar }) => {
             />
             <Item
               title="Manage Branches"
-              to="/admin/branches"
+              to="/admin/managebranches"
               icon={<FaBuilding />}
               selected={selected}
               setSelected={setSelected}
