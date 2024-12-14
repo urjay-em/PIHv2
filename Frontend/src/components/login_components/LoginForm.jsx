@@ -28,7 +28,10 @@ const LoginForm = ({ setUserRole }) => {
             } else if (accountType === "info_officer") {
                 navigate("/information_officer/information-officer-map");
             } else if (accountType === "agent") {
-                navigate("/agent/map");
+                navigate("/agent/dashboard");
+            }
+              else if (accountType === "client") {
+                navigate("/client/dashboard");
             }
             setIsAuthenticated(true);  // Mark as authenticated
         }
@@ -73,7 +76,10 @@ const LoginForm = ({ setUserRole }) => {
                 } else if (accountType === "info_officer") {
                     navigate("/information_officer/information-officer-map");
                 } else if (accountType === "agent") {
-                    navigate("/agent/map");
+                    navigate("/agent/dashboard");
+                }
+                  else if (accountType === "client") {
+                    navigate("/client/dashboard");
                 }
             } else {
                 setError("Failed to retrieve access token.");

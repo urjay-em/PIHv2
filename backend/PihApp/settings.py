@@ -94,11 +94,11 @@ WSGI_APPLICATION = 'PihApp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pihdb_temp', 
+        'NAME': 'pihdb', 
         'USER': 'root', 
         'PASSWORD': 'root',
         'HOST': '127.0.0.1',
-        'PORT': '3000',
+        'PORT': '3306',
     }
 }
 

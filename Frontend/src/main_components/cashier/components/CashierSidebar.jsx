@@ -182,7 +182,7 @@ const CashierSidebar = ({ isCashierSidebar }) => {
                         />
                         <Item
                             title="Commision"
-                            to="/cashier/commision"
+                            to="/cashier/commission"
                             icon={<FaRegFileExcel />}
                             selected={selected}
                             setSelected={setSelected}
