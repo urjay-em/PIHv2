@@ -10,68 +10,69 @@ import {
 } from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
-import EmployeeService from "../../../../features/client_service.js";
+import AgentService from "../../../../features/agent_service.js";  // Use AgentService
 import Header from "../../Header";
+import Form from "../../pages/form/AgentForm.jsx";  // Use AgentForm
 
-const ManageAgentAcc = () => {
-  const [clients, setClients] = useState([]);
-  const [filteredClients, setFilteredClients] = useState([]);
+const Agents = () => {  // Renamed to plural "Agents"
+  const [agents, setAgents] = useState([]);
+  const [filteredAgents, setFilteredAgents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); 
-  const [selectedClient, setSelectedClient] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState(null);  // Renamed to selectedAgent
   const [formData, setFormData] = useState({});
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
-    fetchClients();
+    fetchAgents();
   }, []);
 
-  const fetchClients = async () => {
+  const fetchAgents = async () => {
     setLoading(true);
     try {
-      const response = await EmployeeService.getAllClients();
-      setClients(response.data);
-      setFilteredClients(response.data);
+      const response = await AgentService.getAllAgents();  // Use AgentService
+      setAgents(response.data);
+      setFilteredAgents(response.data);
     } catch (error) {
-      console.error("Failed to load Client data:", error);
+      console.error("Failed to load agent data:", error);  // Changed "employee" to "agent"
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddClient = () => {
+  const handleAddAgent = () => {  // Renamed to handleAddAgent
     setFormData({});
-    setSelectedClient(null);
+    setSelectedAgent(null);  // Renamed to selectedAgent
     setOpenDialog(true);
   };
 
-  const handleclient = (client) => {
-    setFormData(client);
-    setSelectedClient(client);
+  const handleEditAgent = (agent) => {  // Renamed to handleEditAgent
+    setFormData(agent);
+    setSelectedAgent(agent);  // Renamed to selectedAgent
     setOpenDialog(true);
   };
 
   // Open the delete confirmation dialog
-  const handleDeleteClick = (client) => {
-    setSelectedClient(client);
+  const handleDeleteClick = (agent) => {  // Renamed to handleDeleteClick
+    setSelectedAgent(agent);  // Renamed to selectedAgent
     setDeleteDialogOpen(true);
   };
 
-  // Delete employee on confirmation
-  const handleDeleteClient = async () => {
+  // Delete agent on confirmation
+  const handleDeleteAgent = async () => {  // Renamed to handleDeleteAgent
     try {
-      if (selectedClient) {
-        await ClientService.deleteClient(selectedClient.id);
-        fetchClients();
+      if (selectedAgent) {  // Renamed to selectedAgent
+        await AgentService.deleteAgent(selectedAgent.id);  // Renamed to selectedAgent
+        fetchAgents();
         setDeleteDialogOpen(false);
       }
     } catch (error) {
-      console.error("Failed to delete client:", error);
+      console.error("Failed to delete agent:", error);  // Changed "employee" to "agent"
     }
   };
 
-  const handleSaveClient = async (data) => {
+  const handleSaveAgent = async (data) => {  // Renamed to handleSaveAgent
     const formData = new FormData();
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
@@ -80,35 +81,34 @@ const ManageAgentAcc = () => {
     }
 
     try {
-      if (selectedClient) {
-        await ClientService.updateEmployee(selectedClient.id, formData);
+      if (selectedAgent) {  // Renamed to selectedAgent
+        await AgentService.updateAgent(selectedAgent.id, formData);  // Renamed to selectedAgent
       } else {
-        await ClientService.createClient(formData);
+        await AgentService.createAgent(formData);
       }
-      fetchClients();
+      fetchAgents();
       setOpenDialog(false);
     } catch (error) {
-      console.error("Error saving client:", error);
+      console.error("Error saving agent:", error);  // Changed "employee" to "agent"
     }
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setSelectedClient(null);
+    setSelectedAgent(null);  // Renamed to selectedAgent
     setFormData({});
   };
-  
 
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchText(value);
 
-    const filtered = clients.filter((client) =>
-      Object.values(client).some((field) =>
+    const filtered = agents.filter((agent) =>  // Renamed to agent
+      Object.values(agent).some((field) =>
         field?.toString().toLowerCase().includes(value)
       )
     );
-    setFilteredClients(filtered);
+    setFilteredAgents(filtered);
   };
 
   const columns = [
@@ -123,7 +123,7 @@ const ManageAgentAcc = () => {
     { field: "address", headerName: "Address", flex: 1 },
     { field: "account_type", headerName: "Account Type", flex: 1 },
     { field: "hire_date", headerName: "Hire Date", width: 90 },
-    { field: "salary", headerName: "Salary (₱)", flex: 1 },
+    { field: "commision_rate", headerName: "Commision Rate (₱)", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",
@@ -135,7 +135,7 @@ const ManageAgentAcc = () => {
             color="primary"
             startIcon={<Edit />}
             size="small"
-            onClick={() => handleEditEmployee(params.row)}
+            onClick={() => handleEditAgent(params.row)}  // Renamed to handleEditAgent
             style={{ textTransform: "none" }}
           >
             Edit
@@ -145,7 +145,7 @@ const ManageAgentAcc = () => {
             color="error"
             startIcon={<Delete />}
             size="small"
-            onClick={() => handleDeleteClick(params.row)}
+            onClick={() => handleDeleteClick(params.row)}  // Renamed to handleDeleteClick
             style={{ textTransform: "none" }}
           >
             Delete
@@ -157,10 +157,10 @@ const ManageAgentAcc = () => {
 
   return (
     <Box m="20px">
-      <Header title="EMPLOYEES" subtitle="List of Employees in the Database" />
+      <Header title="AGENTS" subtitle="List of Agents in the Database" />  {/* Changed EMPLOYEES to AGENTS */}
       <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={2}>
-        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddEmployee}>
-          Add Employee
+        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddAgent}>
+          Add Agent  {/* Changed Employee to Agent */}
         </Button>
         <TextField
           variant="outlined"
@@ -172,7 +172,7 @@ const ManageAgentAcc = () => {
       </Box>
       <Box sx={{ height: "calc(100vh - 250px)", width: "100%", overflowY: "auto", bgcolor: "background.default", borderRadius: "8px", boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)" }}>
         <DataGrid
-          rows={filteredEmployees}
+          rows={filteredAgents}  // Renamed to filteredAgents
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[10, 20, 50]}
@@ -185,26 +185,26 @@ const ManageAgentAcc = () => {
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
-          <p>Are you sure you want to delete this employee? This action cannot be undone.</p>
+          <p>Are you sure you want to delete this agent? This action cannot be undone.</p>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleDeleteEmployee} color="error">
+          <Button onClick={handleDeleteAgent} color="error">
             Delete
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Employee Add/Edit Dialog */}
+      {/* Agent Add/Edit Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>{selectedEmployee ? "Edit Employee" : "Add New Employee"}</DialogTitle>
+        <DialogTitle>{selectedAgent ? "Edit Agent" : "Add New Agent"}</DialogTitle>  {/* Changed Employee to Agent */}
         <DialogContent>
           <Form
-            mode={selectedEmployee ? "edit" : "add"}
-            initialValues={selectedEmployee || {}}
-            onSubmit={handleSaveEmployee}
+            mode={selectedAgent ? "edit" : "add"}
+            initialValues={selectedAgent || {}}
+            onSubmit={handleSaveAgent}  // Renamed to handleSaveAgent
           />
         </DialogContent>
         <DialogActions>
@@ -214,7 +214,6 @@ const ManageAgentAcc = () => {
 
     </Box>
   );
-    
-}
+};
 
-export default ManageAgentAcc;
+export default Agents;  // Renamed to plural "Agents"

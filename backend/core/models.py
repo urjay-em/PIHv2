@@ -45,12 +45,25 @@ class Agent(models.Model):
     contact_no = models.CharField(max_length=15)
     email_address = models.EmailField(unique=True)
     hire_date = models.DateField()
-    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    account_type = models.CharField(max_length=15, choices=ROLE_CHOICES, default='agent')
+    commision_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     profile_picture = models.ImageField(upload_to='agent_pics/', null=True, blank=True)
+    
+    account_type = models.CharField(max_length=15, choices=ROLE_CHOICES, default='agent')
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.role}"
+
+# Transaction model to track the individual transactions handled by agents
+class Transaction(models.Model):
+    agent = models.ForeignKey(Agent, related_name='transactions', on_delete=models.CASCADE)
+    transaction_date = models.DateField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    transaction_type = models.CharField(max_length=50)
+    description = models.TextField()
+
+    def __str__(self):
+        return f"Transaction on {self.transaction_date} for {self.agent}"
+
 
 
 class Commission(models.Model):
@@ -76,11 +89,12 @@ class Plot(models.Model):
     STATUS_CHOICES = [
         ('occupied', 'Occupied'),
         ('vacant', 'Vacant'),
+        ('reserved', 'Reserved'),  # New status for pending requests
     ]
 
     plot_id = models.AutoField(primary_key=True)  # Automatically generated unique ID
-    row = models.IntegerField(default=0)
-    column = models.IntegerField(default=0)
+    row = models.IntegerField()
+    column = models.IntegerField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='vacant')
     plot_type = models.CharField(max_length=30, choices=[
         ('stone', 'Stone Type'),
@@ -90,14 +104,25 @@ class Plot(models.Model):
     ])
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     purchase_date = models.DateField(null=True, blank=True)
-    owner = models.ForeignKey('Client', on_delete=models.CASCADE, related_name='plots', null=True, blank=True)
+    owner = models.ForeignKey('Client', on_delete=models.SET_NULL, related_name='plots', null=True, blank=True)
 
     class Meta:
-        unique_together = ('row', 'column')  # Enforces uniqueness
-        ordering = ['row', 'column']  # Grid-style ordering
+        unique_together = ('row', 'column')
+        ordering = ['row', 'column']
+
+    def assign_owner(self, client):
+        """Assign a client as the owner of this plot."""
+        if self.status == 'vacant':
+            self.owner = client
+            self.status = 'occupied'
+            self.purchase_date = datetime.date.today()
+            self.save()
+        else:
+            raise ValueError("Plot is not available for purchase.")
 
     def __str__(self):
         return f"Plot {self.plot_id} (Row {self.row}, Column {self.column}) - {self.status}"
+
 
 
 
@@ -112,9 +137,8 @@ class Client(models.Model):
     address = models.TextField()
     contact_no = models.CharField(max_length=15)
     email_address = models.EmailField(unique=True)
-    account_type = models.CharField(max_length=10, choices=[('client', 'Client')])
     date_registered = models.DateField(auto_now_add=True)
-    
+
     MODE_OF_PAYMENT_CHOICES = [
         ('cash', 'Cash'),
         ('installments', 'Installments'),
@@ -123,16 +147,137 @@ class Client(models.Model):
     balance_to_pay = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     plot = models.ForeignKey(Plot, on_delete=models.SET_NULL, null=True, blank=True)
     agent = models.ForeignKey(Agent, on_delete=models.SET_NULL, null=True, related_name='clients')
-    
-    # Added role field
-    role = models.CharField(max_length=10, choices=[
-        ('client', 'Client')
-    ], default='client')
+    payment_status = models.CharField(max_length=10, choices=[
+        ('unpaid', 'Unpaid'),
+        ('partial', 'Partial'),
+        ('paid', 'Paid'),
+    ], default='unpaid')
 
-    def save(self, *args, **kwargs):
-        if self.plot:
-            self.balance_to_pay = self.plot.price
-        super(Client, self).save(*args, **kwargs)
+    def update_payment_status(self):
+        """Update the payment status based on balance."""
+        if self.balance_to_pay == 0:
+            self.payment_status = 'paid'
+        elif self.balance_to_pay > 0 and self.balance_to_pay < self.plot.price:
+            self.payment_status = 'partial'
+        else:
+            self.payment_status = 'unpaid'
+        self.save()
 
     def __str__(self):
-        return f"{self.userid} - {self.first_name} {self.last_name}"
+        return f"{self.id} - {self.first_name} {self.last_name} ({self.payment_status})"
+    
+
+class PendingRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('rejected', 'Rejected'),
+        ('confirmed', 'Confirmed'),
+        ('voided', 'Voided'),  # Added Voided status
+    ]
+
+    PAYMENT_CHOICES = [
+        ('partial', 'Partial Payment'),
+        ('full', 'Full Payment'),
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('paid', 'Paid'),
+        ('rejected', 'Rejected'),
+    ]
+
+    id = models.AutoField(primary_key=True)
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='pending_requests')
+    client_name = models.CharField(max_length=255)
+    client_email = models.EmailField()
+    client_phone = models.CharField(max_length=15, blank=True, null=True)
+    plot = models.ForeignKey(Plot, on_delete=models.CASCADE, related_name='pending_requests')
+    payment_type = models.CharField(max_length=10, choices=PAYMENT_CHOICES)
+    declared_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Total cost of the plot")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    submission_deadline = models.DateTimeField()  # Deadline for payment submission
+    message = models.TextField(blank=True, null=True)  # For feedback from the cashier
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    def confirm_request(self):
+        """Confirm the request and handle client and plot assignments."""
+        if self.plot.status != 'vacant':
+            raise ValueError("Plot is not available.")
+        
+        # Validate payment amount
+        remaining_balance = self.total_price - self.declared_amount
+        if self.payment_type == 'full' and remaining_balance != 0:
+            raise ValueError("Declared amount does not match the total price for full payment.")
+        elif self.payment_type == 'partial' and remaining_balance <= 0:
+            raise ValueError("Declared amount exceeds the total price for partial payment.")
+
+        # Create or update client record
+        client, created = Client.objects.update_or_create(
+            email_address=self.client_email,
+            defaults={
+                'first_name': self.client_name.split()[0],
+                'last_name': self.client_name.split()[-1],
+                'contact_no': self.client_phone,
+                'plot': self.plot,
+                'balance_to_pay': remaining_balance,
+                'agent': self.agent,
+            },
+        )
+        client.update_payment_status()
+
+        # Update plot and request status
+        if remaining_balance == 0:
+            self.plot.assign_owner(client)
+        else:
+            self.plot.status = 'reserved'
+            self.plot.save()
+
+        self.status = 'confirmed'
+        self.payment_status = 'pending'  # Set to pending until cashier verifies
+        self.reviewed_at = datetime.datetime.now()
+        self.save()
+
+    def __str__(self):
+        return f"Request {self.id} - {self.status} by Agent {self.agent.first_name} {self.agent.last_name}"
+
+
+class PaymentSubmission(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('paid', 'Paid'),
+        ('voided', 'Voided'),
+    ]
+
+    id = models.AutoField(primary_key=True)
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='payment_submissions')
+    request = models.OneToOneField(PendingRequest, on_delete=models.CASCADE, related_name='payment_submission')
+    declared_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    submission_deadline = models.DateTimeField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    actual_payment_received = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    submission_date = models.DateTimeField(null=True, blank=True)
+
+    def mark_as_accepted(self):
+        """Mark the request as accepted and notify the agent."""
+        self.status = 'accepted'
+        self.save()
+        # Notify agent to deliver payment by the deadline
+
+    def mark_as_paid(self, actual_amount):
+        """Mark the request as paid and confirm the payment amount."""
+        self.status = 'paid'
+        self.actual_payment_received = actual_amount
+        self.save()
+
+    def mark_as_voided(self):
+        """Void the reservation if the deadline is missed."""
+        self.status = 'voided'
+        self.save()
+
+    def __str__(self):
+        return f"Payment Submission for {self.request} - Status: {self.status}"

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Employee, Agent, Commission, Plot, Client
+from .models import Employee, Agent, Commission, Plot, Client, PendingRequest, PaymentSubmission, Transaction
 
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,21 +7,19 @@ class EmployeeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class AgentSerializer(serializers.ModelSerializer):
-    clients = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all(), many=True)
-
     class Meta:
         model = Agent
-        fields = ['id', 'name', 'clients']
+        fields = '__all__'
 
 class CommissionSerializer(serializers.ModelSerializer):
-    agent = AgentSerializer(read_only=True)  # Include full details of the associated agent
+    agent = AgentSerializer(read_only=True)
 
     class Meta:
         model = Commission
         fields = '__all__'
 
 class PlotSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all())  # Include client ID
+    owner = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all())
 
     class Meta:
         model = Plot
@@ -33,4 +31,19 @@ class ClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Client
+        fields = '__all__'
+
+class PendingRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PendingRequest
+        fields = '__all__'
+
+class PaymentSubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentSubmission
+        fields = '__all__' 
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
         fields = '__all__'
