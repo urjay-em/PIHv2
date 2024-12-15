@@ -79,8 +79,8 @@ class Plot(models.Model):
     ]
 
     plot_id = models.AutoField(primary_key=True)  # Automatically generated unique ID
-    row = models.IntegerField()
-    column = models.IntegerField()
+    row = models.IntegerField(default=0)
+    column = models.IntegerField(default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='vacant')
     plot_type = models.CharField(max_length=30, choices=[
         ('stone', 'Stone Type'),

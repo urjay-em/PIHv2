@@ -67,6 +67,8 @@ const Map = () => {
         if (layerType === "marker") {
             setMarkers([...markers, { position: layer.getLatLng(), color: currentColor }]);
         } else if (layerType === "polygon") {
+            const polygonCoordinates = layer.getLatLngs()[0]; // Get the coordinates of the polygon's first ring
+            console.log("Polygon coordinates:", polygonCoordinates);
             setPolygons([...polygons, { positions: layer.getLatLngs()[0], color: currentColor }]);
         }
 
