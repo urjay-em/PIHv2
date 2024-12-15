@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { ColorModeContext, useMode } from "./theme";
@@ -17,33 +17,83 @@ import AdminProfilePage from "./main_components/admin/pages/profile/AdminProfile
 
 // Agent
 import AgentSidebar from "./main_components/agent/components/AgentSidebar";
+import AgentDashboard from "./main_components/agent/pages/dashboard/AgentDashboard";
 import AgentTopbar from "./main_components/agent/components/AgentTopbar";
+
 import Map from "./main_components/agent/pages/map/Map";
-import ApprovedClient from "./main_components/agent/pages/clientlist/ApprovedClient";
-import DeclinedClient from "./main_components/agent/pages/clientlist/DeclinedClient";
-import AgentProfilePage from "./main_components/agent/pages/profile/AgentProfilePage";
+import Client from "./main_components/agent/pages/clientlist/Client";
+import Commissions from "./main_components/agent/pages/commission/Commissions";
+import Performance from "./main_components/agent/pages/performance/Performance";
+import Settings from "./main_components/agent/pages/settings/Settings"
+
+
 
 //Cashier
 import CashierSidebar from "./main_components/cashier/components/CashierSidebar";
 import CashierTopbar from "./main_components/cashier/components/CashierTopbar";
 import PaymentApplication from "./main_components/cashier/pages/paymentapplication/PaymentApplication";
 import CashierApprovedClient from "./main_components/cashier/pages/clientlist/ApprovedClient";
-import Commision from "./main_components/cashier/pages/commision/Commision";
+import Commission from "./main_components/cashier/pages/commission/Commission";
 import CashierProfilePage from "./main_components/cashier/pages/profile/CashierProfilePage";
+
+//Information Officer
 import InformationOfficerSidebar from "./main_components/information_officer/components/InformationOfficerSidebar";
 import InformationOfficerTopbar from "./main_components/information_officer/components/InformationOfficerTopbar";
 import InformationOfficerMap from "./main_components/information_officer/pages/map/Map";
 import AgentList from "./main_components/information_officer/pages/agentlist/AgentList";
 import InformationOfficerApprovedClient from "./main_components/information_officer/pages/clientlist/ApprovedClient";
 import InformationOfficerProfilePage from "./main_components/information_officer/pages/profile/InformationOfficerProfilePage";
+
+//Client 
+
+import ClientDashboard from "./main_components/client/components/ClientDashboard";
+import EditProfile from "./main_components/client/pages/editprofile/EditProfile";
+import ClientMap from "./main_components/client/pages/map/ClientMap";
+import ClientPayment from "./main_components/client/pages/payment/ClientPayment";
+import TransacHistory from "./main_components/client/pages/transactionhistory/TransacHistory";
+
+
+
+
 import Login from "./components/login_components/LoginForm"; // Import the Login component
+
+
 //import ProtectedRoute from "./components/ProtectedRoute"; // Import the ProtectedRoute component
 
 const App = () => {
   const [theme, colorMode] = useMode();
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [userRole, setUserRole] = useState("");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(prevState => !prevState);
+  };
+
+  // Dynamically load CSS for the current userRole
+  useEffect(() => {
+    const loadRoleSpecificCSS = async () => {
+      if (userRole) {
+        try {
+          await import(`./styles/${userRole.toLowerCase()}.css`);
+          document.body.className = `${userRole.toLowerCase()}-interface`;
+        } catch (error) {
+          console.error("Failed to load role-specific CSS:", error);
+        }
+      } else {
+        document.body.className = "default-interface";
+      }
+    };
+
+    loadRoleSpecificCSS();
+
+    // Cleanup on unmount
+    return () => {
+      document.body.className = "";
+    };
+  }, [userRole]);
+
+  
   // Admin-specific layout
   const AdminLayout = () => (
     <div className="app">
@@ -67,14 +117,17 @@ const App = () => {
    // Agent-specific layout
    const AgentLayout = () => (
     <div className="app">
-      <AgentSidebar />
+      <AgentSidebar isCollapsed={isSidebarCollapsed}/>
       <main className="content">
-        <AgentTopbar />
+        <AgentTopbar toggleSidebar={toggleSidebar}/>
         <Routes>
-          <Route path="/agent/map" index element={<ProtectedRoute><Map /></ProtectedRoute>} />
-          <Route path="/agent/approvedclients" element={<ProtectedRoute><ApprovedClient /></ProtectedRoute>} />
-          <Route path="/agent/declinedclients" element={<ProtectedRoute><DeclinedClient /></ProtectedRoute>} />
-          <Route path="/agent/profile" element={<ProtectedRoute><AgentProfilePage /></ProtectedRoute>} />
+          <Route path="/agent/dashboard/*" index element={<ProtectedRoute> <AgentDashboard /></ProtectedRoute>} />
+          <Route path="/agent/performance"  element={<ProtectedRoute><Performance /></ProtectedRoute>} />
+          <Route path="/agent/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/agent/map" element={<ProtectedRoute><Map /></ProtectedRoute>} />
+          <Route path="/agent/clients" element={<ProtectedRoute><Client /></ProtectedRoute>} />
+          <Route path="/agent/commissions" element={<ProtectedRoute><Commissions /></ProtectedRoute>} />
+          
         </Routes>
       </main>
     </div>
@@ -90,7 +143,7 @@ const App = () => {
         <Routes>
           <Route path="/cashier/paymentapplication" index element={<ProtectedRoute><PaymentApplication/></ProtectedRoute>} />
           <Route path="/cashier/approvedclients" element={<ProtectedRoute><CashierApprovedClient /></ProtectedRoute>} />
-          <Route path="/cashier/commision" element={<ProtectedRoute><Commision /></ProtectedRoute>} />
+          <Route path="/cashier/commission" element={<ProtectedRoute><Commission /></ProtectedRoute>} />
           <Route path="/cashier/profile" element={<ProtectedRoute><CashierProfilePage/></ProtectedRoute>} />
         </Routes>
       </main>
@@ -108,6 +161,25 @@ const App = () => {
           <Route path="/information_officer/agentlist" element={<ProtectedRoute><AgentList /></ProtectedRoute>} />
           <Route path="/information_officer/approvedclients" element={<ProtectedRoute><InformationOfficerApprovedClient/></ProtectedRoute>} />
           <Route path="/information_officer/profile" element={<ProtectedRoute><InformationOfficerProfilePage/></ProtectedRoute>} />
+        </Routes>
+      </main>
+    </div>
+  );
+
+   // InformationOfficer-specific layout
+   const ClientLayout = () => (
+    <div className="app">
+      
+      <main className="content">
+        <ClientDashboard />
+        <Routes>
+          <Route path="/" index element={<ProtectedRoute><ClientDashboard/></ProtectedRoute>} />
+          <Route path="/client/map" element={<ProtectedRoute><ClientMap /></ProtectedRoute>} />
+          <Route path="/client/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+          <Route path="/client/payments" element={<ProtectedRoute><ClientPayment /></ProtectedRoute>} />
+          <Route path="/client/transactionhistory" element={<ProtectedRoute><TransacHistory /></ProtectedRoute>} />
+
+          
         </Routes>
       </main>
     </div>
@@ -132,6 +204,7 @@ const App = () => {
                   : userRole === "agent" ? <AgentLayout />
                   : userRole === "cashier" ? <CashierLayout />
                   : userRole === "info_officer" ? <InformationOfficerLayout />
+                  : userRole === "client" ? <ClientLayout />
                   : <Navigate to="/login" replace />
                 ) : (
                   <Navigate to="/login" replace />

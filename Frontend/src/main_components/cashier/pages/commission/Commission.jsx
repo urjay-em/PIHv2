@@ -2,13 +2,13 @@ import React from 'react'
 import Header from '../../Header';
 import { Box } from '@mui/material';
 
-const ApprovedClient = () => {
+const Commission = () => {
   return (
     <Box m="20px">
-      <Header title="CLIENT ACCOUNTS" subtitle="List of Approved Client" />
+      <Header title="COMMISION RECORDS" subtitle="List of Commision Records" />
     </Box>
   );
     
 }
 
-export default ApprovedClient;
+export default Commission;

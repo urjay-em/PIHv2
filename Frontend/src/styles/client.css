@@ -1,0 +1,18 @@
+:root {
+    /* Light mode theme variables */
+    --background-color: #0f2926;
+    --text-color: #01050c;
+  }
+  
+  [data-theme="dark"] {
+    /* Dark mode theme variables */
+    --background-color: #1a237e;
+    --text-color: #172027;
+  }
+  
+  /* Apply the variables in the agent-interface styles */
+  body.client-interface {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+  

@@ -1,0 +1,114 @@
+.dashboard-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap; /* Allow components to wrap on smaller screens */
+  justify-content: space-between;
+}
+
+.dashboard-content {
+  flex: 3;
+  padding: 5rem;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1;
+  transform: scale(1);
+  max-width: 75%; /* Limit width to avoid overflow */
+}
+
+
+.calendar-section, .announcement-section {
+  padding: 4rem;
+  border-radius: 1px;
+  box-shadow: 0 2px 2px rgba(9, 1, 1, 0.1);
+}
+
+.calendar-section h3, .announcement-section h3 {
+  margin-top: 7rem;
+  font-size: large;
+  color: #333;
+}
+
+.announcement-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.announcement-section li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.9rem;
+  color: #1b0d0d;
+}
+
+.announcement-section li:last-child {
+  border-bottom: none;
+}
+
+/* Ensure the calendar is responsive */
+.react-calendar {
+  width: 150%;
+  max-width: 300px;
+  margin-right: 1rem;
+}
+
+
+.main {
+  text-align: left; /* Align text to the left */
+  width: 100%;
+  max-width: 800px; /* Optional: Limit the width of the card container */
+}
+
+.welcome-text {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  color: #0c0303;
+  text-align: left; /* Align text to the left */
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* Align cards to the left */
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.card {
+  width: 400px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: 1px solid #211a1a;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card p {
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+
+.card-map {
+  background-color: #4d8f54;
+}
+
+.card-clients {
+  background-color: #d78282;
+}
+
+.card-commission {
+  background-color: #8d74c3;
+}
+
+

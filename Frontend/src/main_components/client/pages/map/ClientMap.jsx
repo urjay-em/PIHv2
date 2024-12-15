@@ -7,7 +7,6 @@ import { ChromePicker } from 'react-color';
 import { Box } from '@mui/material';
 import Header from '../../Header';
 import L from 'leaflet';
-import B1Plots from '../../../../Plots/B1Plots'; // Importing the B1Plots component for grid management
 
 const CenterButton = ({ centerCoords, zoomLevel }) => {
     const map = useMap();
@@ -68,8 +67,6 @@ const Map = () => {
         if (layerType === "marker") {
             setMarkers([...markers, { position: layer.getLatLng(), color: currentColor }]);
         } else if (layerType === "polygon") {
-            const polygonCoordinates = layer.getLatLngs()[0]; // Get the coordinates of the polygon's first ring
-            console.log("Polygon coordinates:", polygonCoordinates);
             setPolygons([...polygons, { positions: layer.getLatLngs()[0], color: currentColor }]);
         }
 
@@ -133,7 +130,7 @@ const Map = () => {
     };
 
     return (
-        <Box m="15px" maxWidth="1000px" mx="auto">
+        <Box m="100px" maxWidth="1000px" mx="auto">
             <Header title="Paradise in Heaven Memorial Park" subtitle="Map" />
             <MapContainer
                 center={cemeteryLocation}
@@ -228,9 +225,6 @@ const Map = () => {
                         </button>
                     </div>
                 </div>
-
-                {/* Add the grid plotting and rotation */}
-                <B1Plots imageBounds={imageBounds} />
             </MapContainer>
         </Box>
     );
