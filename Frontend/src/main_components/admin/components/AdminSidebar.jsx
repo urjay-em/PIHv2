@@ -108,7 +108,7 @@ const AdminSidebar = ({ isAdminSidebar }) => {
                   src={profilePicture}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
-                {/* Edit Profile Icon */}
+                
                 <Tooltip title="Edit profile">
                   <Box
                     sx={{
@@ -116,7 +116,7 @@ const AdminSidebar = ({ isAdminSidebar }) => {
                       flexDirection: "column",
                       alignItems: "center",
                       position: "absolute",
-                      right: 85, // Adjust to position the icon closer or further
+                      right: 85, 
                       top: "20%",
                       transform: "translateY(-100%)",
                     }}
@@ -159,7 +159,6 @@ const AdminSidebar = ({ isAdminSidebar }) => {
             </Box>
           )}
 
-          {/* Menu Items */}
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
               title="Dashboard"

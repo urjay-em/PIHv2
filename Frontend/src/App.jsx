@@ -25,6 +25,7 @@ import Client from "./main_components/agent/pages/clientlist/Client";
 import Commissions from "./main_components/agent/pages/commission/Commissions";
 import Performance from "./main_components/agent/pages/performance/Performance";
 import Settings from "./main_components/agent/pages/settings/Settings"
+import CommissionDetails from "./main_components/agent/pages/commission/CommissionDetails";
 
 
 
@@ -127,6 +128,7 @@ const App = () => {
           <Route path="/agent/map" element={<ProtectedRoute><Map /></ProtectedRoute>} />
           <Route path="/agent/clients" element={<ProtectedRoute><Client /></ProtectedRoute>} />
           <Route path="/agent/commissions" element={<ProtectedRoute><Commissions /></ProtectedRoute>} />
+          <Route path="/agent/commission-details" element={<ProtectedRoute><CommissionDetails /></ProtectedRoute>} />
           
         </Routes>
       </main>

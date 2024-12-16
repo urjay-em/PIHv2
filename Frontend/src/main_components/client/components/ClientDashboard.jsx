@@ -19,6 +19,103 @@ import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 
+// Styles extracted for easy modification
+const styles = {
+  appBar: {
+    bgcolor: "#2196f3",
+    boxShadow: 4,
+  },
+  container: {
+    height: "100vh",
+    overflowY: "auto",
+    backgroundColor: "#f4f7fb",
+  },
+  welcomeBox: {
+    padding: 3,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#ffffff",
+    boxShadow: 1,
+    marginTop: 2,
+  },
+  welcomeText: {
+    fontWeight: "bold",
+    color: "#2196f3",
+  },
+  button: {
+    borderColor: "#2196f3",
+    color: "#2196f3",
+    "&:hover": {
+      borderColor: "#1976d2",
+      backgroundColor: "#e3f2fd",
+    },
+  },
+  grid: {
+    padding: 3,
+  },
+  card: {
+    boxShadow: 3,
+    "&:hover": {
+      boxShadow: 6,
+    },
+  },
+  mapCard: {
+    bgcolor: "red",
+    color: "#fff",
+    "&:hover": {
+      bgcolor: "#f57c00",
+    },
+  },
+  paymentCard: {
+    bgcolor: "green",
+    color: "#fff",
+    "&:hover": {
+      bgcolor: "#66bb6a",
+    },
+  },
+  transactionCard: {
+    bgcolor: "grey",
+    "&:hover": {
+      bgcolor: "grey",
+    },
+  },
+  accountStatusBox: {
+    padding: 3,
+    display: "flex",
+    gap: 3,
+    flexDirection: { xs: "column", md: "row" },
+  },
+  promoBox: {
+    flex: 1,
+  },
+  accountStatusTitle: {
+    marginBottom: 2,
+    fontWeight: "bold",
+  },
+  promoTitle: {
+    marginBottom: 2,
+    fontWeight: "bold",
+  },
+  plotCard: {
+    cursor: "pointer",
+    "&:hover": {
+      boxShadow: 6,
+      bgcolor: "#e8e8e8",
+    },
+    boxShadow: 1,
+    padding: 2,
+  },
+  promoCard: {
+    bgcolor: " blue",
+    "&:hover": {
+      bgcolor: "skyblue",
+    },
+    boxShadow: 1,
+    padding: 2,
+  },
+};
+
 const ClientDashboard = () => {
   const accountStatuses = [
     { plot: "1B1", status: "Paid", purchaseDate: "December 5", totalAmount: "300,000 PHP", paidAmount: "50,000 PHP", agent: "Jake" },
@@ -68,9 +165,9 @@ const ClientDashboard = () => {
   };
 
   return (
-    <Box sx={{ height: "100vh", overflowY: "auto", backgroundColor: "#f4f7fb" }}>
+    <Box sx={styles.container}>
       {/* AppBar with Logout */}
-      <AppBar position="static" sx={{ bgcolor: "#2196f3", boxShadow: 4 }}>
+      <AppBar position="static" sx={styles.appBar}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Dashboard
@@ -88,18 +185,20 @@ const ClientDashboard = () => {
       </AppBar>
 
       {/* Welcome Section */}
-      <Box sx={{ padding: 3, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "#ffffff", boxShadow: 1, marginTop: 2 }}>
-        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#2196f3" }}>Welcome, Kupal</Typography>
-        <Button variant="outlined" color="primary" size="small" sx={{ borderColor: "#2196f3", color: "#2196f3", "&:hover": { borderColor: "#1976d2", backgroundColor: "#e3f2fd" } }}>
+      <Box sx={styles.welcomeBox}>
+        <Typography variant="h4" sx={styles.welcomeText}>
+          Welcome, Kupal
+        </Typography>
+        <Button variant="outlined" color="primary" size="small" sx={styles.button}>
           Edit Profile
         </Button>
       </Box>
 
       {/* Main Grid Content */}
-      <Grid container spacing={3} sx={{ padding: 3 }}>
+      <Grid container spacing={3} sx={styles.grid}>
         {/* Map Card */}
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ bgcolor: "#f28d4d", color: "#fff", "&:hover": { bgcolor: "#f57c00" }, boxShadow: 3 }}>
+          <Card sx={{ ...styles.card, ...styles.mapCard }}>
             <CardContent>
               <Typography variant="h6">Map</Typography>
               <Typography variant="body2">Explore the location of all available plots.</Typography>
@@ -109,7 +208,7 @@ const ClientDashboard = () => {
 
         {/* Payment Card */}
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ bgcolor: "#81c784", color: "#fff", "&:hover": { bgcolor: "#66bb6a" }, boxShadow: 3 }}>
+          <Card sx={{ ...styles.card, ...styles.paymentCard }}>
             <CardContent>
               <Typography variant="h6">Payment</Typography>
               <Typography variant="body2">Check payment status and make payments.</Typography>
@@ -119,7 +218,7 @@ const ClientDashboard = () => {
 
         {/* Transaction History Card */}
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ bgcolor: "#fff176", "&:hover": { bgcolor: "#ffee58" }, boxShadow: 3 }}>
+          <Card sx={{ ...styles.card, ...styles.transactionCard }}>
             <CardContent>
               <Typography variant="h6">Transaction History</Typography>
               <Typography variant="body2">View and manage your past transactions.</Typography>
@@ -129,13 +228,13 @@ const ClientDashboard = () => {
       </Grid>
 
       {/* Account Status and Promotions */}
-      <Box sx={{ padding: 3, display: "flex", gap: 3, flexDirection: { xs: "column", md: "row" } }}>
+      <Box sx={styles.accountStatusBox}>
         <Box sx={{ flex: 2 }}>
-          <Typography variant="h5" sx={{ marginBottom: 2, fontWeight: "bold" }}>Account Status</Typography>
+          <Typography variant="h5" sx={styles.accountStatusTitle}>Account Status</Typography>
           <Grid container spacing={2}>
             {accountStatuses.map((status, index) => (
               <Grid item xs={12} key={index}>
-                <Card onClick={() => handlePlotClick(status)} sx={{ cursor: "pointer", "&:hover": { boxShadow: 6, bgcolor: "#e8e8e8" }, boxShadow: 1, padding: 2 }}>
+                <Card onClick={() => handlePlotClick(status)} sx={styles.plotCard}>
                   <CardContent>
                     <Typography variant="body1">
                       <strong>{status.plot}:</strong> {status.status}
@@ -147,12 +246,12 @@ const ClientDashboard = () => {
           </Grid>
         </Box>
 
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="h5" sx={{ marginBottom: 2, fontWeight: "bold" }}>What's New on PIH</Typography>
+        <Box sx={styles.promoBox}>
+          <Typography variant="h5" sx={styles.promoTitle}>What's New on PIH</Typography>
           <Grid container spacing={2}>
             {pihPromotions.map((promo, index) => (
               <Grid item xs={12} key={index}>
-                <Card sx={{ bgcolor: "#f5f5f5", "&:hover": { bgcolor: "#e0e0e0" }, boxShadow: 1, padding: 2 }}>
+                <Card sx={styles.promoCard}>
                   <CardContent>
                     <Typography variant="h6">{promo.title}</Typography>
                     <Typography variant="body2">{promo.description}</Typography>

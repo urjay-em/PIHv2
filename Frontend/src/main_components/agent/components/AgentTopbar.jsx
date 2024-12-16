@@ -1,19 +1,32 @@
 import React, { useState } from 'react';
 import { FaBars, FaBell, FaUserCircle, FaCircle } from 'react-icons/fa';
 import './AgentTopbar.css';
+import bossing from '../../../assets/bossing.jpg';
 import LOGOO from '../../../assets/LOGOO.jpg';
-import { Menu, MenuItem, IconButton, Tooltip, Divider, Badge } from '@mui/material';
+import { Menu, MenuItem, IconButton, Tooltip, Divider, Badge, Modal, Box } from '@mui/material';
 
 const AgentTopbar = ({ toggleSidebar }) => {
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const [notifAnchorEl, setNotifAnchorEl] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
   const [notifications, setNotifications] = useState([
     { id: 1, message: 'New message', type: 'message', read: false },
     { id: 2, message: 'Email confirmation', type: 'email', read: false },
     { id: 3, message: 'Approval required', type: 'approval', read: false },
   ]);
 
-  // Handle profile menu
+  // User Data
+  const userData = {
+    firstName: 'Aizel',
+    middleName: 'Hoyo-a',
+    lastName: 'Cantado',
+    address: 'Brgy. Tiniguiban',
+    email: 'agent@example.com',
+    contactNumber: '09106032251',
+    profilePicture: bossing, // Replace with actual image
+  };
+
+  // Handle Profile Menu
   const handleProfileMenuOpen = (event) => {
     setProfileAnchorEl(event.currentTarget);
   };
@@ -22,13 +35,23 @@ const AgentTopbar = ({ toggleSidebar }) => {
     setProfileAnchorEl(null);
   };
 
-  // Handle notifications menu
+  // Handle Notifications Menu
   const handleNotifMenuOpen = (event) => {
     setNotifAnchorEl(event.currentTarget);
   };
 
   const handleNotifMenuClose = () => {
     setNotifAnchorEl(null);
+  };
+
+  // Toggle Profile Modal
+  const handleViewProfile = () => {
+    setShowProfile(true);
+    handleProfileMenuClose();
+  };
+
+  const handleCloseProfile = () => {
+    setShowProfile(false);
   };
 
   // Mark notifications as read
@@ -94,11 +117,35 @@ const AgentTopbar = ({ toggleSidebar }) => {
           open={Boolean(profileAnchorEl)}
           onClose={handleProfileMenuClose}
         >
-          <MenuItem>View Profile</MenuItem>
+          <MenuItem onClick={handleViewProfile}>View Profile</MenuItem>
           <MenuItem>Change Password</MenuItem>
           <Divider />
         </Menu>
       </div>
+
+      {/* Profile View Modal */}
+      <Modal open={showProfile} onClose={handleCloseProfile}>
+        <Box className="profile-modal">
+          <h2>Profile Information</h2>
+          <div className="profile-container">
+            <div className="profile-picture">
+              <img
+                src={userData.profilePicture}
+                alt="Profile"
+                style={{ width: '150px', borderRadius: '10px' }}
+              />
+            </div>
+            <div className="profile-details">
+              <p><strong>First Name:</strong> {userData.firstName}</p>
+              <p><strong>Middle Name:</strong> {userData.middleName}</p>
+              <p><strong>Last Name:</strong> {userData.lastName}</p>
+              <p><strong>Address:</strong> {userData.address}</p>
+              <p><strong>Email Address:</strong> {userData.email}</p>
+              <p><strong>Contact Number:</strong> {userData.contactNumber}</p>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 };

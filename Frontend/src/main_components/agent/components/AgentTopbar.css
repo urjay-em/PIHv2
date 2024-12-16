@@ -83,4 +83,33 @@
   .user-icon:hover {
     color: #9791b4;
   }
+
+  .profile-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #44445e;
+    color: #eddddd;
+    border-radius: 10px;
+    padding: 20px;
+    width: 500px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+  
+  .profile-container {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+  }
+  
+  .profile-picture img {
+    border: 2px solid #03dac6;
+    object-fit: cover;
+  }
+  
+  .profile-details p {
+    margin: 5px 0;
+  }
+  
   

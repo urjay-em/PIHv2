@@ -1,0 +1,142 @@
+/* Desktop View */
+.commission-container {
+    background-color: #c2d4de;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 85%;
+    margin: 100px;
+  }
+  
+  .commission-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .commission-title {
+    color: #333;
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  
+  .commission-details-icon {
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  
+  
+  .commission-details-expanded {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .commission-amount {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f44336;
+    color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .commission-label {
+    font-size: 18px;
+  }
+  
+  .commission-value {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .commission-withdraw-btn {
+    background-color: #fff;
+    color: #f44336;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .commission-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .commission-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .commission-detail-label {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .commission-detail-value {
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .commission-performance-title {
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .commission-performance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .commission-performance-label {
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .commission-performance-value {
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .commission-activities {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .commission-activity {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .commission-activity-label {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .commission-activity-value {
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
