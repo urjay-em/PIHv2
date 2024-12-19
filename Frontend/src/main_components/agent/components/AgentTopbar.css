@@ -5,7 +5,7 @@
     background-color: #5d718c;
     color: rgb(37, 35, 33);
     border-radius: 1rem;
-    padding: 0.5rem 1rem;
+    padding: 1rem 1rem;
     height: 70px;
     position: fixed;
     top: 0;
@@ -17,11 +17,15 @@
   .topbar-left {
     display: flex;
     align-items: center;
+    background: linear-gradient(to right, #d2d8f2, transparent) !important;
+    border-top-left-radius: 5rem;
+    border-bottom-left-radius: 1em;
+    padding: 0.5rem 1.5rem;
   }
   
   .menu-icon {
     font-size: 1.4rem;
-    margin-right: 2frem;
+    margin-left:0.01rem;
     cursor: pointer;
   }
   
@@ -29,35 +33,35 @@
     display: flex;
     align-items: center;
     margin-left: 1rem;
-    gap: 0.8rem; /* Adds consistent spacing */
-    transition: all 0.3s ease-in-out; /* Smooth transitions for hover effects */
+    gap: 0.8rem; 
+    transition: all 0.3s ease-in-out; 
   }
   
   .logo-img {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    border: 2px solid #d9dde2; /* Adds a blue border for accent */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds subtle shadow for depth */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
+    border: 2px solid #d9dde2;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
   }
   
   .logo-img:hover {
-    transform: scale(1.1); /* Slight zoom effect on hover */
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Increases shadow on hover */
+    transform: scale(1.1); 
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); 
   }
   
   .logo-text {
-    font-size: 1.8rem; /* Slightly larger for emphasis */
+    font-size: 1.8rem; 
     font-weight: bold;
-    color: #322923; /* Neutral color for versatility */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Adds a subtle text shadow */
-    letter-spacing: 0.5px; /* Improves readability */
-    transition: color 0.3s ease; /* Smooth color change effect */
+    color: #322923; 
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+    letter-spacing: 0.5px; 
+    transition: color 0.3s ease; 
   }
   
   .logo-text:hover {
-    color: #acbbca; /* Highlights text on hover */
+    color: #acbbca; 
   }
   
   

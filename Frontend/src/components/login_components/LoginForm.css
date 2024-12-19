@@ -9,78 +9,99 @@ body, html {
     background-color: #333;
 }
 
-/* Styling the wrapper */
+/*main*/
 .wrapper {
     max-width: 420px;
     width: 100%;
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(20px);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     color: #fff;
     border-radius: 10px;
     padding: 30px;
     box-sizing: border-box;
-    margin: auto;
+    margin: 100px auto;
 }
 
-/* Styling the heading */
+
 .wrapper h1 {
-    font-size: 2em;
+    font-size: 2rem; 
+    padding-bottom: 10px;
     text-align: center;
-    margin-bottom: 20px;
+    font-weight: bold;
+    color: #cfc7c7;
+    text-shadow: 
+        0 2px 4px rgba(88, 88, 88, 0.6), 
+        0 4px 8px rgba(255, 255, 255, 0.4); 
+    letter-spacing: 3px; 
+    line-height: 1; 
+}
+
+.wrapper h1 span {
+    font-size: 2rem; 
+    font-style: italic; 
+    display: block; 
+    margin-top: 10px; 
+    color: #ffcccc;
 }
 
 /* Input box styling */
 .wrapper .input-box {
     position: relative;
     width: 100%;
-    margin: 20px 0;
+    margin: 30px 0;
+}
+
+.input-box label {
+    display: block;
+    margin-bottom: 7px; 
+    font-size: 1rem; 
+    color: #fff; 
+    font-weight: bold; 
 }
 
 .input-box input {
     width: 100%;
-    height: 45px; /* Adjusted height for a better fit */
+    height: 45px;
     background: transparent;
     border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 40px;
     outline: none;
-    font-size: 1rem;
+    font-size: 0.8rem;
     color: #fff;
-    padding: 0 20px 0 40px; /* Adjusted padding to leave room for icons on the right */
+    padding: 0 20px 0 40px; 
     box-sizing: border-box;
 }
 
 .input-box input::placeholder {
-    color: #fff;
+    color: #cebbbb;
 }
+
 
 /* Move icons to the right */
 .input-box .icon {
     position: absolute;
-    top: 50%;
+    top: 70%;
     transform: translateY(-50%);
-    color: #fff;
+    color: hsl(220, 50%, 98%);
     font-size: 1.2rem;
 }
 
 .input-box .icon {
-    right: 15px; /* Right icon (user icon) positioning */
+    right: 15px; 
 }
 
 /* Adjusted position for eye icon */
 .password-eye-icon {
     position: absolute;
     top: 50%;
-    right: 40px; /* Move eye icon slightly left */
+    right: 40px; 
     transform: translateY(-50%);
     cursor: pointer;
-    font-size: 1.3rem; /* Increased size for better visibility */
-    color: #fff;
+    font-size: 2rem; 
+    color: #ffffff !important;
 }
 
 .password-eye-icon:hover {
-    color: #bbb; /* Change color on hover */
+    color: #f7f1f1; /* Change color on hover */
 }
 
 /* Remember me and forgot password section */
@@ -99,6 +120,8 @@ body, html {
 .remember-forgot a {
     color: #fff;
     text-decoration: none;
+    
+    
 }
 
 .remember-forgot a:hover {
@@ -107,29 +130,33 @@ body, html {
 
 /* Login button styling */
 .wrapper button {
-    width: 100%;
-    height: 45px;
-    background: #fff;
+    width: 30%;
+    height: 35px;
+    background: #d9c5c525;
     border: none;
     outline: none;
     border-radius: 40px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     font-size: 1rem;
-    color: #333;
+    color: #f6f0f0;
     font-weight: 700;
     transition: background-color 0.3s ease;
+    float: right; 
 }
 
+
 .wrapper button:hover {
-    background-color: #ddd;
+    background-color: #55889422;
 }
 
 /* Register link styling */
 .wrapper .register-link {
     font-size: 0.9rem;
     text-align: center;
-    margin-top: 20px;
+    margin-top: 80px;
+    position: relative; 
+    padding-bottom: 10px;
 }
 
 .register-link p a {
@@ -141,6 +168,17 @@ body, html {
 .register-link p a:hover {
     text-decoration: underline;
 }
+
+/* Adding the line */
+.wrapper .register-link::after {
+    content: "";
+    display: block;
+    width: 100%; 
+    height: 1px;
+    background-color: #ffffff82; 
+    margin: 30px auto 0; 
+}
+
 
 /* Responsive adjustments for smaller screens */
 @media (max-width: 600px) {
@@ -159,6 +197,7 @@ body, html {
 
     .input-box .icon {
         font-size: 1rem;
+        color: brown;
     }
 
     .password-eye-icon {

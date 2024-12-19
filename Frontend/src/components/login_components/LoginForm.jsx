@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { jwtDecode } from 'jwt-decode'; 
 import './LoginForm.css';
 import { FaUser } from "react-icons/fa";
-import { RiLockPasswordFill } from "react-icons/ri";
 import { useNavigate } from 'react-router-dom';
 
 const LoginForm = ({ setUserRole }) => {
@@ -93,11 +92,12 @@ const LoginForm = ({ setUserRole }) => {
     return (
         <div className='wrapper'>
             <form onSubmit={handleSubmit}>
-                <h1>Login</h1>
+                <h1>Paradise in Heaven</h1>
 
                 {error && <p className="error-message">{error}</p>}
 
                 <div className="input-box">
+                    <label htmlFor="email">Email</label>
                     <input
                         type="email"
                         placeholder='Email Address'
@@ -109,6 +109,7 @@ const LoginForm = ({ setUserRole }) => {
                 </div>
 
                 <div className="input-box">
+                    <label htmlFor="password">Password</label>
                     <input
                         type="password"
                         placeholder='Password'
@@ -116,7 +117,8 @@ const LoginForm = ({ setUserRole }) => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                    <RiLockPasswordFill className="icon" />
+                    
+                   
                 </div>
 
                 <div className="remember-forgot">
@@ -127,7 +129,7 @@ const LoginForm = ({ setUserRole }) => {
                 <button type="submit">Login</button>
 
                 <div className="register-link">
-                    <p>Don't have an account? <a href="#">Register</a></p>
+                    <p>Interested ? Contact us <a href="#">here</a></p>
                 </div>
             </form>
         </div>
