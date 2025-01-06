@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Employee, Agent, Commission, Plot, Client, PendingRequest, PaymentSubmission, Transaction
+from .models import Employee, Agent, Commission, Plot, Client, PendingRequest, PaymentSubmission, Transaction, Block
 
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,3 +47,8 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = '__all__'
+        
+class BlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Block
+        fields = ['id', 'name', 'coordinates']

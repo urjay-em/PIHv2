@@ -1,12 +1,20 @@
 from rest_framework import viewsets
-from .models import Employee, Agent, Commission, Plot, Client, PendingRequest
+from .models import Employee, Agent, Commission, Plot, Client, PendingRequest, Block
 from .serializers import EmployeeSerializer, AgentSerializer, CommissionSerializer, PlotSerializer, ClientSerializer, PendingRequestSerializer
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from django.core.mail import send_mail
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
+from .serializers import BlockSerializer
 import datetime
+from django.http import JsonResponse
+from django.db import connection
+
+class BlockViewSet(viewsets.ModelViewSet):
+    queryset = Block.objects.all()
+    serializer_class = BlockSerializer
 
 def normalize_role(role):
     return role.lower()

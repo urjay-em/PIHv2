@@ -281,3 +281,10 @@ class PaymentSubmission(models.Model):
 
     def __str__(self):
         return f"Payment Submission for {self.request} - Status: {self.status}"
+    
+class Block(models.Model):
+    name = models.CharField(max_length=255)
+    coordinates = models.JSONField()
+
+    def __str__(self):
+        return self.name
