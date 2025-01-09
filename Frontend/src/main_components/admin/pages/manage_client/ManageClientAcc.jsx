@@ -10,9 +10,9 @@ import {
 } from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
-import ClientService from "../../../../features/client_service.js"; // Replace with actual service
+import ClientService from "../../../../features/client_service.js";
 import Header from "../../Header";
-import Form from "../../pages/form/ClientForm.jsx"; // Ensure ClientForm is updated
+import Form from "../../pages/form/ClientForm.jsx"; 
 
 const Clients = () => {
   const [clients, setClients] = useState([]);

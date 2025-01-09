@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Employee, Agent, Commission, Plot, Client, PendingRequest, PaymentSubmission, Transaction, Block
+from .models import Employee, Agent, Commission, Block, Price, Plot, Client, PendingRequest, PaymentSubmission, Transaction
 
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,6 +17,20 @@ class CommissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Commission
         fields = '__all__'
+
+class BlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Block
+        fields = '__all__' 
+
+class PriceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Price
+        fields = '__all__'
+    
+    def get_price(self, obj):
+        """Fetch the price based on plot's type."""
+        return obj.get_price()
 
 class PlotSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all())
@@ -47,8 +61,3 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = '__all__'
-        
-class BlockSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Block
-        fields = ['id', 'name', 'coordinates']

@@ -65,7 +65,6 @@ class Transaction(models.Model):
         return f"Transaction on {self.transaction_date} for {self.agent}"
 
 
-
 class Commission(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -85,16 +84,40 @@ class Commission(models.Model):
         return f"{self.agent.first_name} {self.agent.last_name}: {self.amount} - {self.status}"
     
 
+class Block(models.Model):
+    block_name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    coordinates = models.TextField(null=True, blank=True)  # Store coordinates as a string
+
+    def __str__(self):
+        return self.block_name
+
+class Price(models.Model):
+    PRICE_TYPE_CHOICES = [
+        ('stone', 'Stone Type'),
+        ('lawn', 'Lawn Type'),
+        ('valor', 'Valor Type'),
+        ('mausoleum', 'Mausoleum'),
+    ]
+    
+    plot_type = models.CharField(max_length=30, choices=PRICE_TYPE_CHOICES)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        unique_together = ('plot_type',)
+
+    def __str__(self):
+        return f"Price for {self.plot_type} in Block {self.block.block_name}: {self.price}"
+    
+
 class Plot(models.Model):
     STATUS_CHOICES = [
         ('occupied', 'Occupied'),
         ('vacant', 'Vacant'),
-        ('reserved', 'Reserved'),  # New status for pending requests
+        ('reserved', 'Reserved'),
     ]
 
-    plot_id = models.AutoField(primary_key=True)  # Automatically generated unique ID
-    row = models.IntegerField()
-    column = models.IntegerField()
+    plot_id = models.AutoField(primary_key=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='vacant')
     plot_type = models.CharField(max_length=30, choices=[
         ('stone', 'Stone Type'),
@@ -102,13 +125,31 @@ class Plot(models.Model):
         ('valor', 'Valor Type'),
         ('mausoleum', 'Mausoleum'),
     ])
-    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     purchase_date = models.DateField(null=True, blank=True)
     owner = models.ForeignKey('Client', on_delete=models.SET_NULL, related_name='plots', null=True, blank=True)
+    
+    # Link to Block model
+    block = models.ForeignKey('Block', on_delete=models.CASCADE, related_name='plots', null=True)
+    
+    # New field for maximum bodies allowed
+    max_bodies = models.PositiveIntegerField(default=2)
+
+    # Fields added based on the script
+    plot_name = models.CharField(max_length=255, blank=False, null=False)  # No default value
+    latitude = models.FloatField(null=True, blank=True)  # Added latitude
+    longitude = models.FloatField(null=True, blank=True)  # Added longitude
+
+    def get_price(self):
+        """Fetch the price based on plot type."""
+        try:
+            price_entry = Price.objects.get(plot_type=self.plot_type)
+            return price_entry.price
+        except Price.DoesNotExist:
+            return 0
 
     class Meta:
-        unique_together = ('row', 'column')
-        ordering = ['row', 'column']
+        unique_together = ('plot_id', 'block')
+        ordering = ['block', 'plot_id']
 
     def assign_owner(self, client):
         """Assign a client as the owner of this plot."""
@@ -120,10 +161,18 @@ class Plot(models.Model):
         else:
             raise ValueError("Plot is not available for purchase.")
 
+    def save(self, *args, **kwargs):
+        """Save the plot with dynamically set name and max_bodies."""
+        # Dynamically set max_bodies based on plot_type
+        if self.plot_type in ['stone', 'lawn', 'valor']:
+            self.max_bodies = 2
+        elif self.plot_type == 'mausoleum':
+            self.max_bodies = 6
+
+        super().save(*args, **kwargs)
+        
     def __str__(self):
-        return f"Plot {self.plot_id} (Row {self.row}, Column {self.column}) - {self.status}"
-
-
+        return f"Plot {self.plot_id} (Block {self.block.block_name}) - {self.status}"
 
 
 
@@ -281,10 +330,3 @@ class PaymentSubmission(models.Model):
 
     def __str__(self):
         return f"Payment Submission for {self.request} - Status: {self.status}"
-    
-class Block(models.Model):
-    name = models.CharField(max_length=255)
-    coordinates = models.JSONField()
-
-    def __str__(self):
-        return self.name

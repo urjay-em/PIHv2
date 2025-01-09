@@ -10,17 +10,17 @@ import {
 } from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
-import AgentService from "../../../../features/agent_service.js";  // Use AgentService
+import AgentService from "../../../../features/agent_service.js";
 import Header from "../../Header";
-import Form from "../../pages/form/AgentForm.jsx";  // Use AgentForm
+import Form from "../../pages/form/AgentForm.jsx";
 
-const Agents = () => {  // Renamed to plural "Agents"
+const Agents = () => {
   const [agents, setAgents] = useState([]);
   const [filteredAgents, setFilteredAgents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedAgent, setSelectedAgent] = useState(null);  // Renamed to selectedAgent
+  const [selectedAgent, setSelectedAgent] = useState(null);
   const [formData, setFormData] = useState({});
   const [searchText, setSearchText] = useState("");
 
@@ -31,48 +31,48 @@ const Agents = () => {  // Renamed to plural "Agents"
   const fetchAgents = async () => {
     setLoading(true);
     try {
-      const response = await AgentService.getAllAgents();  // Use AgentService
+      const response = await AgentService.getAllAgents();
       setAgents(response.data);
       setFilteredAgents(response.data);
     } catch (error) {
-      console.error("Failed to load agent data:", error);  // Changed "employee" to "agent"
+      console.error("Failed to load agent data:", error); 
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddAgent = () => {  // Renamed to handleAddAgent
+  const handleAddAgent = () => {
     setFormData({});
-    setSelectedAgent(null);  // Renamed to selectedAgent
+    setSelectedAgent(null);
     setOpenDialog(true);
   };
 
-  const handleEditAgent = (agent) => {  // Renamed to handleEditAgent
+  const handleEditAgent = (agent) => { 
     setFormData(agent);
-    setSelectedAgent(agent);  // Renamed to selectedAgent
+    setSelectedAgent(agent);
     setOpenDialog(true);
   };
 
-  // Open the delete confirmation dialog
-  const handleDeleteClick = (agent) => {  // Renamed to handleDeleteClick
-    setSelectedAgent(agent);  // Renamed to selectedAgent
+  //delete confirmation dialog
+  const handleDeleteClick = (agent) => {  
+    setSelectedAgent(agent); 
     setDeleteDialogOpen(true);
   };
 
-  // Delete agent on confirmation
-  const handleDeleteAgent = async () => {  // Renamed to handleDeleteAgent
+  //delete confirmation
+  const handleDeleteAgent = async () => {
     try {
-      if (selectedAgent) {  // Renamed to selectedAgent
-        await AgentService.deleteAgent(selectedAgent.id);  // Renamed to selectedAgent
+      if (selectedAgent) {
+        await AgentService.deleteAgent(selectedAgent.id);
         fetchAgents();
         setDeleteDialogOpen(false);
       }
     } catch (error) {
-      console.error("Failed to delete agent:", error);  // Changed "employee" to "agent"
+      console.error("Failed to delete agent:", error);
     }
   };
 
-  const handleSaveAgent = async (data) => {  // Renamed to handleSaveAgent
+  const handleSaveAgent = async (data) => {
     const formData = new FormData();
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
@@ -81,21 +81,21 @@ const Agents = () => {  // Renamed to plural "Agents"
     }
 
     try {
-      if (selectedAgent) {  // Renamed to selectedAgent
-        await AgentService.updateAgent(selectedAgent.id, formData);  // Renamed to selectedAgent
+      if (selectedAgent) {
+        await AgentService.updateAgent(selectedAgent.id, formData); 
       } else {
         await AgentService.createAgent(formData);
       }
       fetchAgents();
       setOpenDialog(false);
     } catch (error) {
-      console.error("Error saving agent:", error);  // Changed "employee" to "agent"
+      console.error("Error saving agent:", error); 
     }
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setSelectedAgent(null);  // Renamed to selectedAgent
+    setSelectedAgent(null);
     setFormData({});
   };
 
@@ -103,7 +103,7 @@ const Agents = () => {  // Renamed to plural "Agents"
     const value = e.target.value.toLowerCase();
     setSearchText(value);
 
-    const filtered = agents.filter((agent) =>  // Renamed to agent
+    const filtered = agents.filter((agent) =>
       Object.values(agent).some((field) =>
         field?.toString().toLowerCase().includes(value)
       )
@@ -135,7 +135,7 @@ const Agents = () => {  // Renamed to plural "Agents"
             color="primary"
             startIcon={<Edit />}
             size="small"
-            onClick={() => handleEditAgent(params.row)}  // Renamed to handleEditAgent
+            onClick={() => handleEditAgent(params.row)}
             style={{ textTransform: "none" }}
           >
             Edit
@@ -145,7 +145,7 @@ const Agents = () => {  // Renamed to plural "Agents"
             color="error"
             startIcon={<Delete />}
             size="small"
-            onClick={() => handleDeleteClick(params.row)}  // Renamed to handleDeleteClick
+            onClick={() => handleDeleteClick(params.row)}
             style={{ textTransform: "none" }}
           >
             Delete
@@ -157,10 +157,10 @@ const Agents = () => {  // Renamed to plural "Agents"
 
   return (
     <Box m="20px">
-      <Header title="AGENTS" subtitle="List of Agents in the Database" />  {/* Changed EMPLOYEES to AGENTS */}
+      <Header title="AGENTS" subtitle="List of Agents in the Database" />  {/*AGENTS*/}
       <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={2}>
         <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddAgent}>
-          Add Agent  {/* Changed Employee to Agent */}
+          Add Agent  {/*Agent*/}
         </Button>
         <TextField
           variant="outlined"
@@ -172,7 +172,7 @@ const Agents = () => {  // Renamed to plural "Agents"
       </Box>
       <Box sx={{ height: "calc(100vh - 250px)", width: "100%", overflowY: "auto", bgcolor: "background.default", borderRadius: "8px", boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)" }}>
         <DataGrid
-          rows={filteredAgents}  // Renamed to filteredAgents
+          rows={filteredAgents}
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[10, 20, 50]}
@@ -199,12 +199,12 @@ const Agents = () => {  // Renamed to plural "Agents"
 
       {/* Agent Add/Edit Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>{selectedAgent ? "Edit Agent" : "Add New Agent"}</DialogTitle>  {/* Changed Employee to Agent */}
+        <DialogTitle>{selectedAgent ? "Edit Agent" : "Add New Agent"}</DialogTitle>  {/*Agent*/}
         <DialogContent>
           <Form
             mode={selectedAgent ? "edit" : "add"}
             initialValues={selectedAgent || {}}
-            onSubmit={handleSaveAgent}  // Renamed to handleSaveAgent
+            onSubmit={handleSaveAgent}
           />
         </DialogContent>
         <DialogActions>
@@ -216,4 +216,4 @@ const Agents = () => {  // Renamed to plural "Agents"
   );
 };
 
-export default Agents;  // Renamed to plural "Agents"
+export default Agents;

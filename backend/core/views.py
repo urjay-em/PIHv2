@@ -1,20 +1,12 @@
 from rest_framework import viewsets
-from .models import Employee, Agent, Commission, Plot, Client, PendingRequest, Block
-from .serializers import EmployeeSerializer, AgentSerializer, CommissionSerializer, PlotSerializer, ClientSerializer, PendingRequestSerializer
+from .models import Employee, Agent, Commission, Block, Price, Plot, Client, PendingRequest
+from .serializers import EmployeeSerializer, AgentSerializer, CommissionSerializer, BlockSerializer, PriceSerializer, PlotSerializer, ClientSerializer, PendingRequestSerializer
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from django.core.mail import send_mail
-from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
-from .serializers import BlockSerializer
 import datetime
-from django.http import JsonResponse
-from django.db import connection
-
-class BlockViewSet(viewsets.ModelViewSet):
-    queryset = Block.objects.all()
-    serializer_class = BlockSerializer
 
 def normalize_role(role):
     return role.lower()
@@ -43,6 +35,28 @@ class CanAccessPlot(BasePermission):
         if account_type == 'client':
             return request.method == 'GET'
         return False
+    
+class CanAccessBlock(BasePermission):
+    def has_permission(self, request, view):
+        account_type = normalize_role(request.user.account_type)
+        if account_type == 'admin':
+            return True
+        if account_type in ['information', 'agent']:
+            return request.method in ['GET', 'POST', 'PATCH']
+        return False
+
+class BlockViewSet(viewsets.ModelViewSet):
+    queryset = Block.objects.all()
+    serializer_class = BlockSerializer
+    permission_classes = [IsAuthenticated, CanAccessBlock]
+
+    def get_queryset(self):
+        user = self.request.user
+        account_type = normalize_role(user.account_type)
+        if account_type == 'admin':
+            return Block.objects.all()
+        # Add any additional filters based on user roles here if necessary
+        return Block.objects.none()
 
 class PlotViewSet(viewsets.ModelViewSet):
     queryset = Plot.objects.all()
@@ -161,3 +175,8 @@ class PendingRequestViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PriceViewSet(viewsets.ModelViewSet):
+    queryset = Price.objects.all()
+    serializer_class = PriceSerializer
