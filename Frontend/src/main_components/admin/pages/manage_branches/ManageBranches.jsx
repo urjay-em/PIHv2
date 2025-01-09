@@ -2,19 +2,16 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import axiosInstance from "../../../../features/axiosInstance.js";
-import PushPinIcon from '@mui/icons-material/PushPin';
-import L from "leaflet";
-import Form from "../../pages/manage_client/clientform.jsx"; // Import your client form
+import L from "leaflet"; 
+import Form from "../../pages/manage_client/clientform.jsx";
 
-// ImageOverlay component for adding an overlay image to the map
+
 const ImageOverlay = ({ imageUrl, imageBounds }) => {
     const map = useMap();
 
     useEffect(() => {
         const overlay = L.imageOverlay(imageUrl, imageBounds, { opacity: 0.9 }).addTo(map);
-        // Adjust the initial map zoom to fit the overlay
-        map.fitBounds(imageBounds);
-        
+
         return () => {
             map.removeLayer(overlay);
         };
@@ -26,38 +23,50 @@ const ImageOverlay = ({ imageUrl, imageBounds }) => {
 const CemeteryMap = () => {
     const [lots, setLots] = useState([]);
     const [blocks, setBlocks] = useState([]);
-    const [selectedPlot, setSelectedPlot] = useState(null); // Store the selected plot
-    const [isFormVisible, setIsFormVisible] = useState(false); // Control form visibility
-    const cemeteryLocation = [9.8413, 118.71835]; // Center of the map
+    const [selectedPlot, setSelectedPlot] = useState(null);
+    const [isFormVisible, setIsFormVisible] = useState(false);
+    const cemeteryLocation = [9.8413, 118.71835];
 
-    // Define the bounds for the image overlay
+    //bounds for image
     const imageBounds = [
         [9.8391, 118.7202],
         [9.8435, 118.7165],
     ];
-    const imageUrl = '/assets/pih_place_overlay.png'; // Path to your overlay image
+    const imageUrl = '/assets/pih_place_overlay.png';
 
-    const getMarkerColor = (status) => {
+    //icon based on status
+    const getMarkerIcon = (status) => {
+        let iconUrl;
         switch (status) {
             case "vacant":
-                return "green";
+                iconUrl = '/assets/blackg.png';
+                break;
             case "occupied":
-                return "red";
+                iconUrl = '/assets/blueg.png';
+                break;
             case "reserved":
-                return "yellow";
+                iconUrl = '/assets/yellowg.png'; 
+                break;
             default:
-                return "gray";
+                iconUrl = '/assets/blackg.png';
         }
+
+        return new L.Icon({
+            iconUrl: iconUrl,
+            iconSize: [30, 45], 
+            iconAnchor: [15, 45],
+            popupAnchor: [0, -45],
+        });
     };
 
-    // Fetch the blocks and lots
+    //blocks and lots
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const plotResponse = await axiosInstance.get("plots");
                 console.log("Fetched Lots:", plotResponse.data);
 
-                const blockResponse = await axiosInstance.get("blocks"); // Correct endpoint
+                const blockResponse = await axiosInstance.get("blocks"); 
                 console.log("Fetched Blocks:", blockResponse.data);
 
                 if (Array.isArray(plotResponse.data)) {
@@ -79,22 +88,26 @@ const CemeteryMap = () => {
         fetchData();
     }, []);
 
-    // Group plots by block_id
     const groupedPlots = blocks.reduce((acc, block) => {
         acc[block.id] = lots.filter(lot => lot.block === block.id);
         return acc;
     }, {});
 
-    // Handle marker click to show the client form
-    const handleMarkerClick = (lot) => {
-        setSelectedPlot(lot); // Set the plot data
-        handleAddClient(lot); // Open client form dialog
+    const handleMarkerClick = (lot, map) => {
+        setSelectedPlot(lot); 
+        handleAddClient(lot); 
+        zoomToPlot(lot, map);
     };
 
     const handleAddClient = (lot) => {
-        setSelectedPlot(lot);  // You can store the plot data in the form data as needed
-        setIsFormVisible(true); // Open the form
+        setSelectedPlot(lot);
+        setIsFormVisible(true);
     };
+
+    const zoomToPlot = (lot, map) => {
+      const plotLocation = [lot.latitude, lot.longitude];
+      map.setView(plotLocation, map.getZoom());
+  };
 
     return (
         <div>
@@ -109,13 +122,12 @@ const CemeteryMap = () => {
                     attribution="&copy; OpenStreetMap contributors"
                 />
 
-                {/* Image overlay */}
+                {/* Image*/}
                 <ImageOverlay imageUrl={imageUrl} imageBounds={imageBounds} />
 
-                {/* Render blocks as polygons */}
+                {/* as polygons */}
                 {blocks.map((block) => {
-                    // Ensure coordinates are parsed into proper format for Leaflet
-                    const blockCoordinates = JSON.parse(block.coordinates); // Ensure coordinates are in the correct format
+                    const blockCoordinates = JSON.parse(block.coordinates);
                     return (
                         <Polygon key={block.id} positions={blockCoordinates} color="blue">
                             <Popup>
@@ -123,16 +135,17 @@ const CemeteryMap = () => {
                                 <p>{block.description}</p>
                             </Popup>
 
-                            {/* Render plots inside the block */}
+                            {/*plots inside the block */}
                             {groupedPlots[block.id]?.map((lot) => {
-                                const markerColor = getMarkerColor(lot.status);
+                                const markerIcon = getMarkerIcon(lot.status);
 
                                 return (
                                     <Marker
                                         key={lot.plot_id}
                                         position={[lot.latitude, lot.longitude]}
+                                        icon={markerIcon}
                                         eventHandlers={{
-                                            click: () => handleMarkerClick(lot), // Set selected plot on click
+                                            click: (e) => handleMarkerClick(lot, e.target._map),
                                         }}
                                     >
                                         <Popup>
@@ -140,14 +153,6 @@ const CemeteryMap = () => {
                                             <p>Block ID: {lot.block}</p>
                                             <p>Status: {lot.status}</p>
                                         </Popup>
-                                        <div
-                                            style={{
-                                                fontSize: "30px", // Adjust the size of the icon
-                                                color: markerColor, // Adjust color based on status
-                                            }}
-                                        >
-                                            <PushPinIcon />
-                                        </div>
                                     </Marker>
                                 );
                             })}
@@ -156,11 +161,11 @@ const CemeteryMap = () => {
                 })}
             </MapContainer>
 
-            {/* Conditionally render the client form */}
+            {/* client form */}
             {isFormVisible && (
-                <Form 
-                    plot={selectedPlot} 
-                    onClose={() => setIsFormVisible(false)} // Pass a function to close the form
+                <Form
+                    plot={selectedPlot}
+                    onClose={() => setIsFormVisible(false)}
                 />
             )}
         </div>
