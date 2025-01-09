@@ -53,7 +53,7 @@ class Agent(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.role}"
 
-# Transaction model to track the individual transactions handled by agents
+# track the individual transactions
 class Transaction(models.Model):
     agent = models.ForeignKey(Agent, related_name='transactions', on_delete=models.CASCADE)
     transaction_date = models.DateField()
@@ -87,7 +87,7 @@ class Commission(models.Model):
 class Block(models.Model):
     block_name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    coordinates = models.TextField(null=True, blank=True)  # Store coordinates as a string
+    coordinates = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.block_name
@@ -128,16 +128,15 @@ class Plot(models.Model):
     purchase_date = models.DateField(null=True, blank=True)
     owner = models.ForeignKey('Client', on_delete=models.SET_NULL, related_name='plots', null=True, blank=True)
     
-    # Link to Block model
     block = models.ForeignKey('Block', on_delete=models.CASCADE, related_name='plots', null=True)
     
-    # New field for maximum bodies allowed
+
     max_bodies = models.PositiveIntegerField(default=2)
 
-    # Fields added based on the script
-    plot_name = models.CharField(max_length=255, blank=False, null=False)  # No default value
-    latitude = models.FloatField(null=True, blank=True)  # Added latitude
-    longitude = models.FloatField(null=True, blank=True)  # Added longitude
+
+    plot_name = models.CharField(max_length=255, blank=False, null=False) 
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
 
     def get_price(self):
         """Fetch the price based on plot type."""
@@ -163,7 +162,6 @@ class Plot(models.Model):
 
     def save(self, *args, **kwargs):
         """Save the plot with dynamically set name and max_bodies."""
-        # Dynamically set max_bodies based on plot_type
         if self.plot_type in ['stone', 'lawn', 'valor']:
             self.max_bodies = 2
         elif self.plot_type == 'mausoleum':
@@ -221,7 +219,7 @@ class PendingRequest(models.Model):
         ('pending', 'Pending'),
         ('rejected', 'Rejected'),
         ('confirmed', 'Confirmed'),
-        ('voided', 'Voided'),  # Added Voided status
+        ('voided', 'Voided'),
     ]
 
     PAYMENT_CHOICES = [
@@ -247,8 +245,8 @@ class PendingRequest(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Total cost of the plot")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='pending')
-    submission_deadline = models.DateTimeField()  # Deadline for payment submission
-    message = models.TextField(blank=True, null=True)  # For feedback from the cashier
+    submission_deadline = models.DateTimeField() 
+    message = models.TextField(blank=True, null=True) 
     submitted_at = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
 
@@ -257,14 +255,14 @@ class PendingRequest(models.Model):
         if self.plot.status != 'vacant':
             raise ValueError("Plot is not available.")
         
-        # Validate payment amount
+
         remaining_balance = self.total_price - self.declared_amount
         if self.payment_type == 'full' and remaining_balance != 0:
             raise ValueError("Declared amount does not match the total price for full payment.")
         elif self.payment_type == 'partial' and remaining_balance <= 0:
             raise ValueError("Declared amount exceeds the total price for partial payment.")
 
-        # Create or update client record
+
         client, created = Client.objects.update_or_create(
             email_address=self.client_email,
             defaults={
@@ -278,7 +276,7 @@ class PendingRequest(models.Model):
         )
         client.update_payment_status()
 
-        # Update plot and request status
+
         if remaining_balance == 0:
             self.plot.assign_owner(client)
         else:
@@ -286,7 +284,7 @@ class PendingRequest(models.Model):
             self.plot.save()
 
         self.status = 'confirmed'
-        self.payment_status = 'pending'  # Set to pending until cashier verifies
+        self.payment_status = 'pending'
         self.reviewed_at = datetime.datetime.now()
         self.save()
 
@@ -315,7 +313,7 @@ class PaymentSubmission(models.Model):
         """Mark the request as accepted and notify the agent."""
         self.status = 'accepted'
         self.save()
-        # Notify agent to deliver payment by the deadline
+
 
     def mark_as_paid(self, actual_amount):
         """Mark the request as paid and confirm the payment amount."""

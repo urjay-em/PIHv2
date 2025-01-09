@@ -7,18 +7,16 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         block_a = Block.objects.get(id=1) 
         
-        # Create 500 plots for Block A
         for i in range(500):
             plot = Plot.objects.create(
                 status='vacant',
-                plot_type='lawn',  # Default plot_type
+                plot_type='lawn',
                 purchase_date=None, 
                 owner=None, 
                 block=block_a,
-                name=""  # Initially empty
+                name="" 
             )
 
-            # Update the name after the plot is saved
             plot.name = f"p{plot.plot_id}b{block_a.id}"
             plot.save()
 

@@ -40,11 +40,11 @@ class Command(BaseCommand):
         random_points = generate_grid_points_within_bounds(polygon, 200)
 
         for idx, point in enumerate(random_points, start=1):
-            plot_n = f'BA-P{idx}'  # Format the plot name as BA-P1, BA-P2, etc.
-            print(f'Generating plot with name: {plot_n}')  # Debugging line to check the plot name
+            plot_n = f'BA-P{idx}'
+            print(f'Generating plot with name: {plot_n}')
             plot = Plot(
                 status='vacant',
-                plot_type='lawn',  # Default plot type is lawn
+                plot_type='lawn', 
                 purchase_date=None,
                 owner_id=None,
                 block_id=1,

@@ -55,7 +55,6 @@ class BlockViewSet(viewsets.ModelViewSet):
         account_type = normalize_role(user.account_type)
         if account_type == 'admin':
             return Block.objects.all()
-        # Add any additional filters based on user roles here if necessary
         return Block.objects.none()
 
 class PlotViewSet(viewsets.ModelViewSet):
@@ -155,19 +154,15 @@ class PendingRequestViewSet(viewsets.ModelViewSet):
     serializer_class = PendingRequestSerializer
     permission_classes = [IsAuthenticated]
 
-    # Confirm request and send email notifications
     @action(detail=True, methods=['post'])
     def confirm_request(self, request, pk=None):
         try:
             pending_request = self.get_object()
 
-            # Check if payment is correct (This would be a method you implement in the model)
             pending_request.confirm_request()
 
-            # Send email to agent with payment deadline
             send_payment_deadline_notification(pending_request.agent, pending_request)
 
-            # Send email to client about successful purchase (if payment was full and confirmed)
             if pending_request.payment_status == 'accepted' and pending_request.declared_amount == pending_request.total_price:
                 send_successful_purchase_notification(pending_request.client)
 
