@@ -7,7 +7,7 @@ router.register(r'employees', EmployeeViewSet, basename='employee')
 router.register(r'agents', AgentViewSet, basename='agent')
 router.register(r'commissions', CommissionViewSet, basename='commission')
 router.register(r'blocks', BlockViewSet, basename='block')
-router.register(r'prices', PriceViewSet)
+router.register(r'prices', PriceViewSet, basename='price')
 router.register(r'plots', PlotViewSet, basename='plot')
 router.register(r'clients', ClientViewSet, basename='client')
 

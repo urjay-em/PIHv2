@@ -53,7 +53,7 @@ class Agent(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.role}"
 
-# track the individual transactions
+
 class Transaction(models.Model):
     agent = models.ForeignKey(Agent, related_name='transactions', on_delete=models.CASCADE)
     transaction_date = models.DateField()

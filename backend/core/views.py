@@ -55,7 +55,16 @@ class BlockViewSet(viewsets.ModelViewSet):
         account_type = normalize_role(user.account_type)
         if account_type == 'admin':
             return Block.objects.all()
+        if account_type in ['agent', 'information']:
+            return Block.objects.all()
         return Block.objects.none()
+
+    def destroy(self, request, *args, **kwargs):
+        account_type = normalize_role(request.user.account_type)
+        if account_type in ['agent', 'information']:
+            return Response({"detail": "You do not have permission to delete."}, status=403)
+        return super().destroy(request, *args, **kwargs)
+
 
 class PlotViewSet(viewsets.ModelViewSet):
     queryset = Plot.objects.all()
@@ -67,19 +76,26 @@ class PlotViewSet(viewsets.ModelViewSet):
         account_type = normalize_role(user.account_type)
         if account_type == 'admin':
             return Plot.objects.all()
+        if account_type in ['agent', 'information']:
+            return Plot.objects.all()
         if account_type == 'client':
             return Plot.objects.filter(owner=user.client)
-        if account_type == 'agent':
-            return Plot.objects.filter(owner__agent=user.agent_profile)
         return Plot.objects.none()
+
+    def destroy(self, request, *args, **kwargs):
+        account_type = normalize_role(request.user.account_type)
+        if account_type in ['agent', 'information']:
+            return Response({"detail": "You do not have permission to delete."}, status=403)
+        return super().destroy(request, *args, **kwargs)
+
 
 class CanAccessAgent(BasePermission):
     def has_permission(self, request, view):
         account_type = normalize_role(request.user.account_type)
         if account_type == 'admin':
-            return True
-        if account_type == 'agent':
-            return request.method == 'GET'
+            return True 
+        if account_type in ['agent', 'information']: 
+            return request.method == 'GET' 
         return False
 
 class AgentViewSet(viewsets.ModelViewSet):
@@ -113,15 +129,26 @@ class CommissionViewSet(viewsets.ModelViewSet):
 class CanAccessClient(BasePermission):
     def has_permission(self, request, view):
         account_type = normalize_role(request.user.account_type)
+        
+        # Admin has full access
         if account_type == 'admin':
             return True
+        
+        # Information and Agent can GET, POST, and PATCH
         if account_type in ['information', 'agent']:
             return request.method in ['GET', 'POST', 'PATCH']
+        
+        # Cashier has GET-only access
         if account_type == 'cashier':
             return request.method == 'GET'
+        
+        # Client has GET-only access
         if account_type == 'client':
             return request.method == 'GET'
+        
+        # Default to deny
         return False
+
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
@@ -131,13 +158,23 @@ class ClientViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         account_type = normalize_role(user.account_type)
+        
+        # Admin can access all clients
         if account_type == 'admin':
             return Client.objects.all()
+        
+        # Information and Agent can access clients they manage
         if account_type in ['information', 'agent']:
             return Client.objects.filter(agent=user.agent_profile)
+        
+        # Client can only access their own information
         if account_type == 'client':
             return Client.objects.filter(id=user.client.id)
+        
+        # Default to no access
         return Client.objects.none()
+
+
 
 def send_payment_deadline_notification(agent, pending_request):
     subject = "Payment Deadline Notification"
@@ -175,3 +212,14 @@ class PendingRequestViewSet(viewsets.ModelViewSet):
 class PriceViewSet(viewsets.ModelViewSet):
     queryset = Price.objects.all()
     serializer_class = PriceSerializer
+
+    @action(detail=False, methods=['get'])
+    def get_price_by_type(self, request):
+        plot_type = request.query_params.get('plot_type', None)
+        if plot_type:
+            try:
+                price_entry = Price.objects.get(plot_type=plot_type)
+                return Response({'price': price_entry.price})
+            except Price.DoesNotExist:
+                return Response({'price': 0}, status=404)
+        return Response({'error': 'plot_type is required'}, status=400)

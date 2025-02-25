@@ -33,8 +33,6 @@ class PriceSerializer(serializers.ModelSerializer):
         return obj.get_price()
 
 class PlotSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all())
-
     class Meta:
         model = Plot
         fields = '__all__'

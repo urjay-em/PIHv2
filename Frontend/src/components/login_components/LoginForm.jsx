@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+
 import { jwtDecode } from 'jwt-decode'; 
 import './LoginForm.css';
 import { FaUser } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+
 
 const LoginForm = ({ setUserRole }) => {
     const [email, setEmail] = useState('');
@@ -72,7 +74,7 @@ const LoginForm = ({ setUserRole }) => {
                     navigate("/admin/dashboard");
                 } else if (accountType === "cashier") {
                     navigate("/cashier/paymentapplication");
-                } else if (accountType === "info_officer") {
+                } else if (accountType === "information") {
                     navigate("/information_officer/information-officer-map");
                 } else if (accountType === "agent") {
                     navigate("/agent/dashboard");
@@ -85,7 +87,7 @@ const LoginForm = ({ setUserRole }) => {
             }
         } catch (error) {
             console.error("Login failed:", error);
-            setError("Login failed. Please check your credentials.");
+            setError("Login failed. Please check your email or password.");
         }
     };
 
@@ -123,7 +125,7 @@ const LoginForm = ({ setUserRole }) => {
 
                 <div className="remember-forgot">
                     <label><input type="checkbox" />Remember me</label>
-                    <a href="#">Forgot Password</a>
+                    <Link to="/reset-password">Forget Password ?</Link>
                 </div>
 
                 <button type="submit">Login</button>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { ColorModeContext, useMode } from "./theme";
+import './styles/client.css';
 
 // Admin
 import AdminSidebar from './main_components/admin/components/AdminSidebar';
@@ -12,8 +13,9 @@ import ManageAgentAcc from "./main_components/admin/pages/manage_agent/ManageAge
 import ManageBranches from "./main_components/admin/pages/manage_branches/ManageBranches";
 import ManageEmployeeAcc from "./main_components/admin/pages/manage_employee/ManageEmployeeAcc";
 import BackupRestore from "./main_components/admin/pages/backuprestore/BackupRestore";
-import Reports from "./main_components/admin/pages/reports/Reports";
+import Register from "./main_components/admin/pages/register_acc/Register";
 import AdminProfilePage from "./main_components/admin/pages/profile/AdminProfilePage";
+
 
 // Agent
 import AgentSidebar from "./main_components/agent/components/AgentSidebar";
@@ -47,19 +49,21 @@ import InformationOfficerProfilePage from "./main_components/information_officer
 
 //Client 
 
-import ClientDashboard from "./main_components/client/components/ClientDashboard";
-import EditProfile from "./main_components/client/pages/editprofile/EditProfile";
+import ClientSidebar from "./main_components/client/components/ClientSidebar";
+import ClientHeader from "./main_components/client/components/ClientHeader";
+import Home from "./main_components/client/pages/home/Home";
+import Setting from "./main_components/client/pages/settings/Setting";
+
 import ClientMap from "./main_components/client/pages/map/ClientMap";
-import ClientPayment from "./main_components/client/pages/payment/ClientPayment";
-import TransacHistory from "./main_components/client/pages/transactionhistory/TransacHistory";
 
 
 
+import Login from "./components/login_components/LoginForm";
+import ResetPasswordPage from "./components/login_components/ResetPasswordPage";
+import ResetPasswordConfirm from "./components/login_components/ResetPasswordConfirm";
+import ActivatePage from "./components/login_components/ActivatePage";
 
-import Login from "./components/login_components/LoginForm"; // Import the Login component
 
-
-//import ProtectedRoute from "./components/ProtectedRoute"; // Import the ProtectedRoute component
 
 const App = () => {
   const [theme, colorMode] = useMode();
@@ -71,7 +75,7 @@ const App = () => {
     setIsSidebarCollapsed(prevState => !prevState);
   };
 
-  // Dynamically load CSS for the current userRole
+
   useEffect(() => {
     const loadRoleSpecificCSS = async () => {
       if (userRole) {
@@ -93,7 +97,6 @@ const App = () => {
       document.body.className = "";
     };
   }, [userRole]);
-
   
   // Admin-specific layout
   const AdminLayout = () => (
@@ -108,7 +111,7 @@ const App = () => {
           <Route path="/admin/managebranches" element={<ProtectedRoute><ManageBranches /></ProtectedRoute>} />
           <Route path="/admin/manageemployeeacc" element={<ProtectedRoute><ManageEmployeeAcc /></ProtectedRoute>} />
           <Route path="/admin/backuprestore" element={<ProtectedRoute><BackupRestore /></ProtectedRoute>} />
-          <Route path="/admin/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+          <Route path="/admin/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
           <Route path="/admin/profile" element={<ProtectedRoute><AdminProfilePage /></ProtectedRoute>} />
         </Routes>
       </main>
@@ -168,25 +171,24 @@ const App = () => {
     </div>
   );
 
-   // InformationOfficer-specific layout
+   // Client-specific layout
    const ClientLayout = () => (
     <div className="app">
-      
+      <ClientSidebar isCollapsed={isSidebarCollapsed}/>
       <main className="content">
-        <ClientDashboard />
+        <ClientHeader toggleSidebar={toggleSidebar}/>
         <Routes>
-          <Route path="/" index element={<ProtectedRoute><ClientDashboard/></ProtectedRoute>} />
+          <Route path="/client/dashboard/*" index element={<ProtectedRoute> <Home /></ProtectedRoute>} />
+          <Route path="/client/performance"  element={<ProtectedRoute><Performance /></ProtectedRoute>} />
+          <Route path="/setting" element={<ProtectedRoute><Setting /></ProtectedRoute>} />
           <Route path="/client/map" element={<ProtectedRoute><ClientMap /></ProtectedRoute>} />
-          <Route path="/client/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
-          <Route path="/client/payments" element={<ProtectedRoute><ClientPayment /></ProtectedRoute>} />
-          <Route path="/client/transactionhistory" element={<ProtectedRoute><TransacHistory /></ProtectedRoute>} />
-
           
         </Routes>
       </main>
     </div>
   );
 
+  
   const ProtectedRoute = ({ children }) => {
     return isAuthenticated ? children : <Navigate to="/login" replace />;
   };
@@ -197,7 +199,11 @@ const App = () => {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Routes>
+            {/* Auth routes */}
             <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/password/reset/confirm/:uid/:token" element={<ResetPasswordConfirm />} />
+            <Route path="/activate/:uid/:token" element={<ActivatePage />} />
             <Route
               path="*"
               element={
@@ -205,7 +211,7 @@ const App = () => {
                   userRole === "admin" ? <AdminLayout />
                   : userRole === "agent" ? <AgentLayout />
                   : userRole === "cashier" ? <CashierLayout />
-                  : userRole === "info_officer" ? <InformationOfficerLayout />
+                  : userRole === "information" ? <InformationOfficerLayout />
                   : userRole === "client" ? <ClientLayout />
                   : <Navigate to="/login" replace />
                 ) : (

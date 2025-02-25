@@ -1,0 +1,66 @@
+/* Center the page content vertically and horizontally */
+.registration-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    background-color: #081434dd;
+}
+
+/* Container for the buttons */
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Styling for the form */
+.auth__form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 300px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for the input fields */
+.auth__form input,
+.auth__form select {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Button styling */
+.button {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    background-color: rgb(5, 46, 92);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Hover effect for buttons */
+.button:hover {
+    background-color: white;
+    color: black;
+}
+
+/* Back button styling (same as submit but with a different background color) */
+.button[type="button"] {
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+.button[type="button"]:hover {
+    background-color: #ddd;
+    color: #333;
+}
