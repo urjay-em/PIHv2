@@ -48,16 +48,15 @@ import InformationOfficerApprovedClient from "./main_components/information_offi
 import InformationOfficerProfilePage from "./main_components/information_officer/pages/profile/InformationOfficerProfilePage";
 
 //Client 
-
-//import ClientSidebar from "./main_components/client/components/ClientSidebar";
-//import ClientHeader from "./main_components/client/components/ClientHeader";
+import ClientSidebar from "./main_components/client/components/ClientSidebar";
+import ClientHeader from "./main_components/client/components/ClientHeader";
 import Home from "./main_components/client/pages/home/Home";
 import Setting from "./main_components/client/pages/settings/Setting";
 
 import ClientMap from "./main_components/client/pages/map/ClientMap";
 
 
-
+import HomePage from "./components/login_components/HomePage";
 import Login from "./components/login_components/LoginForm";
 import ResetPasswordPage from "./components/login_components/ResetPasswordPage";
 import ResetPasswordConfirm from "./components/login_components/ResetPasswordConfirm";
@@ -200,6 +199,7 @@ const App = () => {
           <CssBaseline />
           <Routes>
             {/* Auth routes */}
+            <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/password/reset/confirm/:uid/:token" element={<ResetPasswordConfirm />} />

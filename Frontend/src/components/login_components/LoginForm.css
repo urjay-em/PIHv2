@@ -179,6 +179,20 @@ body, html {
     margin: 30px auto 0; 
 }
 
+/* Logo Styling */
+.logo-container {
+    display: flex;
+    justify-content: center; /* Centers the logo horizontally */
+    align-items: center; /* Optional: centers vertically if needed */
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 100px; /* Adjust size as needed */
+    height: auto;
+}
+
+
 
 /* Responsive adjustments for smaller screens */
 @media (max-width: 600px) {

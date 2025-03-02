@@ -6,11 +6,13 @@ const user = JSON.parse(localStorage.getItem("user")) || null;
 const initialState = {
     user: user,
     userInfo: {}, 
+    isAuthenticated: user ? true : false, // Track authentication state
     isError: false,
     isSuccess: false,
     isLoading: false,
     message: "",
 };
+
 
 export const register = createAsyncThunk(
     "auth/register",
@@ -133,10 +135,10 @@ const authSlice = createSlice({
                 state.isLoading = true;
             })
             .addCase(login.fulfilled, (state, action) => {
-                console.log('Login successful', action.payload);
                 state.isLoading = false;
                 state.isSuccess = true;
                 state.user = action.payload; 
+                state.isAuthenticated = true;
             })
             .addCase(login.rejected, (state, action) => {
                 state.isLoading = false;
@@ -147,6 +149,7 @@ const authSlice = createSlice({
             .addCase(logout.fulfilled, (state) => {
                 state.user = null;
                 state.userInfo = {};
+                state.isAuthenticated = false;
                 localStorage.removeItem("user");
             })
             .addCase(getUserInfo.pending, (state) => { state.isLoading = true; })

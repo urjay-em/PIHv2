@@ -248,8 +248,8 @@ const AdminSidebar = ({ isAdminSidebar }) => {
               setSelected={setSelected}
             />
             <Item
-              title="Reports"
-              to="/admin/reports"
+              title="Register"
+              to="/admin/register"
               icon={<AiOutlineFileText />}
               selected={selected}
               setSelected={setSelected}
@@ -262,13 +262,6 @@ const AdminSidebar = ({ isAdminSidebar }) => {
             >
               Pages
             </Typography>
-            <Item
-              title="User Profile Form"
-              to="/admin/form"
-              icon={<PersonAddIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
           </Box>
         </Menu>
       </ProSidebar>
