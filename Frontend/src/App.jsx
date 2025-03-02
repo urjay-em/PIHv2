@@ -49,8 +49,8 @@ import InformationOfficerProfilePage from "./main_components/information_officer
 
 //Client 
 
-import ClientSidebar from "./main_components/client/components/ClientSidebar";
-import ClientHeader from "./main_components/client/components/ClientHeader";
+//import ClientSidebar from "./main_components/client/components/ClientSidebar";
+//import ClientHeader from "./main_components/client/components/ClientHeader";
 import Home from "./main_components/client/pages/home/Home";
 import Setting from "./main_components/client/pages/settings/Setting";
 

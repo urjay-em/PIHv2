@@ -10,7 +10,7 @@ User = get_user_model()
 class CreateUserSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'password','account_type']
+        fields = ['id', 'email', 'first_name', 'last_name', 'password','account_type',]
 
     def validate_email(self, value):
         """email unique"""
@@ -38,3 +38,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['first_name'] = user.first_name
         token['last_name'] = user.last_name
         return token
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+        extra_kwargs = {"user": {"read_only": True}}

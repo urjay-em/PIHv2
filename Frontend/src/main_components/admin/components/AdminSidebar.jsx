@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme, Tooltip } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -38,16 +38,53 @@ const AdminSidebar = ({ isAdminSidebar }) => {
   const [isCollapsed, setIsCollapsed] = useState(isAdminSidebar);
   const [selected, setSelected] = useState("Dashboard");
   const userRole = localStorage.getItem("account_type");
-  const fullName = localStorage.getItem("account_name");
-  const [profilePicture, setProfilePicture] = useState(localStorage.getItem("profilePicture") || 'default-profile-picture-url');
+  const [fullName, setfullName] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
 
-  useEffect(() => {
+  const API_BASE_URL = "http://127.0.0.1:8000/api/v1/user/profile/";
+
+  useState(() => {
     setIsCollapsed(isAdminSidebar);
+  
+    const fetchProfilePicture = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await fetch(`${API_BASE_URL}`, {  // Ensure correct API endpoint
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+  
+          if (data.first_name && data.last_name)
+            setfullName(`${data.first_name} ${data.last_name}`)
+          if (data.employee_pic) {
+            const mediaUrl = "http://127.0.0.1:8000/"; // Ensure correct media path
+            setProfilePicture(`${mediaUrl}${data.employee_pic}`);
+            localStorage.setItem("profilePicture", `${mediaUrl}${data.employee_pic}`);
+          }
+        } else {
+          console.error("Failed to fetch profile");
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+  
+    fetchProfilePicture();
+  
     // Listen for changes in local storage to update profile picture
-    const updateProfilePicture = () => setProfilePicture(localStorage.getItem("profilePicture"));
-        window.addEventListener("storage", updateProfilePicture);
-        return () => window.removeEventListener("storage", updateProfilePicture);
-  }, [isAdminSidebar]);
+    const updateProfilePicture = () => {
+      setProfilePicture(localStorage.getItem("profilePicture"));
+    };
+    window.addEventListener("storage", updateProfilePicture);
+  
+    return () => {
+      window.removeEventListener("storage", updateProfilePicture);
+    };
+  }, [isAdminSidebar]); 
 
   return (
     <Box
