@@ -16,9 +16,10 @@ const RegistrationPage = () => {
         email: '',
         password: '',
         re_password: '',
-        account_type: 'client', // Default to 'client'
+        account_type: 'client',
+        phone_number: '',
     });
-
+    
     // Handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -33,6 +34,12 @@ const RegistrationPage = () => {
         e.preventDefault();
         if (formData.password !== formData.re_password) {
             toast.error('Passwords do not match');
+            return;
+        }
+    
+        const phoneRegex = /^\+63 \d{3}-\d{3}-\d{4}$/;
+        if (!phoneRegex.test(formData.phone_number)) {
+            toast.error('Invalid phone number format. Use +63 XXX-XXX-XXXX');
             return;
         }
 
@@ -108,6 +115,17 @@ const RegistrationPage = () => {
                         value={formData.re_password}
                         required
                     />
+                    <input
+                        type="text"
+                        placeholder="Phone Number (e.g., +63 912-345-6789)"
+                        name="phone_number"
+                        onChange={handleChange}
+                        value={formData.phone_number}
+                        pattern="\+63 \d{3}-\d{3}-\d{4}"
+                        title="Phone number must be in the format +63 XXX-XXX-XXXX"
+                        required
+                    />
+
                     {formType === 'account' && (
                         <select
                             name="account_type"

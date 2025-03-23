@@ -8,22 +8,51 @@ User = get_user_model()
 
 
 class CreateUserSerializer(UserCreateSerializer):
+    re_password = serializers.CharField(write_only=True, required=True)
+
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'password','account_type',]
+        fields = ['id', 'email', 'first_name', 'last_name', 'password', 're_password', 'account_type', 'phone_number']
+        extra_kwargs = {"password": {"write_only": True}}
 
     def validate_email(self, value):
-        """email unique"""
+        """Email must be unique."""
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("This email is already registered.")
         return value
 
+    def validate_phone_number(self, value):
+        """Phone number must be unique."""
+        if User.objects.filter(phone_number=value).exists():
+            raise serializers.ValidationError("This phone number is already registered.")
+        return value
+
     def validate_account_type(self, value):
-        """validation for account types"""
+        """Validate account type."""
         valid_account_types = ['client', 'admin', 'agent', 'cashier', 'information']
+
+        if not value:
+            raise serializers.ValidationError("Account type is required and cannot be empty.")
+        
         if value not in valid_account_types:
             raise serializers.ValidationError(f"Invalid account type. Valid types are: {', '.join(valid_account_types)}")
         return value
+
+    def validate(self, data):
+        """Check if password and re_password match."""
+        password = data.get("password")
+        re_password = data.get("re_password")
+
+        if password != re_password:
+            raise serializers.ValidationError({"re_password": "Passwords do not match."})
+
+        return data
+
+    def create(self, validated_data):
+        """Remove re_password before saving."""
+        validated_data.pop("re_password", None)
+        user = super().create(validated_data)
+        return user
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -34,9 +63,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         print("Account Type:", user.account_type)
 
         token['account_type'] = user.account_type  
-
         token['first_name'] = user.first_name
         token['last_name'] = user.last_name
+        token['phone_number'] = user.phone_number
+
+        
         return token
     
 class UserProfileSerializer(serializers.ModelSerializer):

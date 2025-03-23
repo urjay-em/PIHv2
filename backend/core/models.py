@@ -3,6 +3,10 @@ from django.db import models
 from django.db.models import Max
 from decimal import Decimal
 
+
+def upload_to(instance, filename):
+    return f"profile_pics/{instance.id}/{filename}"
+
 class Employee(models.Model):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
@@ -21,7 +25,7 @@ class Employee(models.Model):
     email_address = models.EmailField(unique=True)
     hire_date = models.DateField()
     salary = models.DecimalField(max_digits=10, decimal_places=2)
-    profile_picture = models.ImageField(upload_to='employee_pics/', null=True, blank=True)
+    employee_pic = models.ImageField(upload_to=upload_to, blank=True, null=True)
     
     account_type = models.CharField(max_length=15, choices=ROLE_CHOICES, default='information')
 
@@ -46,7 +50,7 @@ class Agent(models.Model):
     email_address = models.EmailField(unique=True)
     hire_date = models.DateField()
     commision_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    profile_picture = models.ImageField(upload_to='agent_pics/', null=True, blank=True)
+    agent_pic = models.ImageField(upload_to=upload_to, blank=True, null=True)
     
     account_type = models.CharField(max_length=15, choices=ROLE_CHOICES, default='agent')
 
@@ -185,6 +189,7 @@ class Client(models.Model):
     contact_no = models.CharField(max_length=15)
     email_address = models.EmailField(unique=True)
     date_registered = models.DateField(auto_now_add=True)
+    client_pic = models.ImageField(upload_to=upload_to, blank=True, null=True)
 
     MODE_OF_PAYMENT_CHOICES = [
         ('cash', 'Cash'),

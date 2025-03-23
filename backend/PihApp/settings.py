@@ -18,6 +18,8 @@ from datetime import timedelta
 
 env = environ.Env(DEBUG=(bool, False))
 
+DEBUG = True
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -202,8 +204,8 @@ DJOSER = {
 EMAIL_BACKEND= "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST= "smtp.gmail.com"
 EMAIL_PORT=587
-EMAIL_HOST_USER= "capstone.project2505@gmail.com"
-EMAIL_HOST_PASSWORD= "yalf hkup vipe ufpu"
+EMAIL_HOST_USER= "pdise00000@gmail.com"
+EMAIL_HOST_PASSWORD= "cwmx cnvu ynnn agmi"
 EMAIL_USE_TLS=True
 DOMAIN= "localhost:5173"
 

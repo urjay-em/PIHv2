@@ -24,6 +24,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['is_staff'] = user.is_staff
         token['is_superuser'] = user.is_superuser
         token['full_name'] = f"{user.first_name} {user.last_name}"
+        token['phone_number'] = user.phone_number 
+
         return token
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -47,12 +49,18 @@ class UserProfileView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+
     def patch(self, request):
         try:
             user_profile = User.objects.get(id=request.user.id)
             serializer = UserProfileSerializer(user_profile, data=request.data, partial=True)
             if serializer.is_valid():
+                # Validate phone_number uniqueness if updated
+                if 'phone_number' in request.data:
+                    new_phone_number = request.data['phone_number']
+                    if User.objects.filter(phone_number=new_phone_number).exclude(id=request.user.id).exists():
+                        return Response({"error": "Phone number is already in use."}, status=status.HTTP_400_BAD_REQUEST)
+
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -66,6 +74,7 @@ class UserProfileView(APIView):
             return Response({"message": "Profile deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
         except User.DoesNotExist:
             return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
 '''
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
