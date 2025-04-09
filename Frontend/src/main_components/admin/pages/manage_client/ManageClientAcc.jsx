@@ -112,21 +112,23 @@ const Clients = () => {
   const columns = [
     { field: "id", headerName: "ID", width: 50 },
     { field: "first_name", headerName: "First Name", flex: 1 },
-    { field: "last_name", headerName: "Last Name", flex: 1 },
     { field: "middle_name", headerName: "Middle Name", flex: 1 },
-    { field: "age", headerName: "Age", width: 50 },
-    { field: "gender", headerName: "Gender", width: 100 },
-    { field: "contact_no", headerName: "Contact Number", flex: 1 },
-    { field: "email_address", headerName: "Email", flex: 1 },
-    { field: "mode_of_payment", headerName: "Mode of Payment", flex: 1 },
+    { field: "last_name", headerName: "Last Name", flex: 1 },
+    { field: "age", headerName: "Age", width: 50 }, // Only if stored in Profile
+    { field: "gender", headerName: "Gender", width: 100 }, // Only if stored in Profile
+    { field: "phone_number", headerName: "Contact Number", flex: 1 }, // Changed from contact_no
+    { field: "email", headerName: "Email", flex: 1 }, // Changed from email_address
+    { field: "address", headerName: "Address", flex: 1 },
+    { field: "account_type", headerName: "Account Type", flex: 1 },
     { field: "balance_to_pay", headerName: "Balance (₱)", flex: 1 },
     { field: "payment_status", headerName: "Payment Status", flex: 1 },
+
     {
       field: "actions",
       headerName: "Actions",
       width: 180,
       renderCell: (params) => (
-        <Box display="flex" justifyContent="center" alignItems="center" gap={1} height="100%">
+        <Box display="flex" justifyContent="center" alignItems="center" sx={{ width: "100%", height: "100%" }} >
           <Button
             variant="contained"
             color="primary"
@@ -136,6 +138,7 @@ const Clients = () => {
           >
             Edit
           </Button>
+          {/*
           <Button
             variant="contained"
             color="error"
@@ -145,6 +148,7 @@ const Clients = () => {
           >
             Delete
           </Button>
+          */}
         </Box>
       ),
     },
@@ -154,9 +158,11 @@ const Clients = () => {
     <Box m="20px">
       <Header title="CLIENTS" subtitle="List of Clients in the Database" />
       <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={2}>
+        {/*
         <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddClient}>
           Add Client
         </Button>
+        */}
         <TextField
           variant="outlined"
           placeholder="Search..."

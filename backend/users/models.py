@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from .managers import CustomUserManager
 from django.core.validators import RegexValidator
+from django.conf import settings
 
 # Create your models here.
 
@@ -27,7 +28,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES, null=True, blank=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
-    date_joined =  models.DateTimeField(auto_now_add=True)
+    initial_registration =  models.DateTimeField(auto_now_add=True)
     phone_number = models.CharField(
         max_length=16,
         validators=[phone_number_validator],

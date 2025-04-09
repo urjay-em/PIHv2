@@ -12,18 +12,14 @@ import { Add, Edit, Delete } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
 import EmployeeService from "../../../../features/employee_service.js";
 import Header from "../../Header";
-import Form from "../../pages/form/EmployeeForm.jsx";
-
-
+import EmployeeForm from "../../pages/form/EmployeeForm.jsx";
 
 const Employees = () => {
   const [employees, setEmployees] = useState([]);
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [formData, setFormData] = useState({});
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
@@ -34,125 +30,130 @@ const Employees = () => {
     setLoading(true);
     try {
       const response = await EmployeeService.getAllEmployees();
+      console.log("Fetched Employees:", response.data); // Log the full response
       setEmployees(response.data);
-      setFilteredEmployees(response.data);
     } catch (error) {
       console.error("Failed to load employee data:", error);
     } finally {
       setLoading(false);
     }
   };
-
+  
+  
   const handleAddEmployee = () => {
-    setFormData({});
     setSelectedEmployee(null);
     setOpenDialog(true);
   };
 
   const handleEditEmployee = (employee) => {
-    setFormData(employee);
     setSelectedEmployee(employee);
     setOpenDialog(true);
   };
 
-  // Open the delete confirmation dialog
   const handleDeleteClick = (employee) => {
     setSelectedEmployee(employee);
     setDeleteDialogOpen(true);
   };
 
-  // Delete employee on confirmation
   const handleDeleteEmployee = async () => {
+    if (!selectedEmployee) return;
     try {
-      if (selectedEmployee) {
-        await EmployeeService.deleteEmployee(selectedEmployee.id);
-        fetchEmployees();
-        setDeleteDialogOpen(false);
-      }
+      await EmployeeService.deleteEmployee(selectedEmployee.id);
+      fetchEmployees();
     } catch (error) {
       console.error("Failed to delete employee:", error);
+    } finally {
+      setDeleteDialogOpen(false);
+      setSelectedEmployee(null);
     }
   };
 
-  const handleSaveEmployee = async (data) => {
-    const formData = new FormData();
-    for (const key in data) {
-      if (data.hasOwnProperty(key)) {
-        formData.append(key, data[key]);
-      }
-    }
-
+  const handleSaveEmployee = async (formData) => {
+    const mappedData = {
+      salary: formData.salary,
+      hire_date: formData.hire_date,
+      profile: {
+        first_name: formData.first_name,
+        middle_name: formData.middle_name,
+        last_name: formData.last_name,
+        account_type: formData.account_type, // account_types -> account_type
+        age: formData.age,
+        gender: formData.gender,
+        phone_number: formData.contact_no, // contact_no -> phone_number
+        email: formData.email_address, // email_address -> email
+        address: formData.address,
+        employee_pic: formData.employee_pic,
+      },
+    };
+  
     try {
       if (selectedEmployee) {
-        await EmployeeService.updateEmployee(selectedEmployee.id, formData);
+        await EmployeeService.updateEmployee(selectedEmployee.id, mappedData);
       } else {
-        await EmployeeService.createEmployee(formData);
+        await EmployeeService.createEmployee(mappedData);
       }
       fetchEmployees();
-      setOpenDialog(false);
     } catch (error) {
       console.error("Error saving employee:", error);
+    } finally {
+      setOpenDialog(false);
+      setSelectedEmployee(null);
     }
   };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedEmployee(null);
-    setFormData({});
-  };
-  
-
   const handleSearch = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearchText(value);
-
-    const filtered = employees.filter((employee) =>
-      Object.values(employee).some((field) =>
-        field?.toString().toLowerCase().includes(value)
-      )
-    );
-    setFilteredEmployees(filtered);
+    setSearchText(e.target.value.toLowerCase());
   };
+
+  const filteredEmployees = employees.filter((employee) =>
+    Object.values(employee).some((field) =>
+      field?.toString().toLowerCase().includes(searchText)
+    )
+  );
 
   const columns = [
     { field: "id", headerName: "ID", width: 50 },
     { field: "first_name", headerName: "First Name", flex: 1 },
     { field: "middle_name", headerName: "Middle Name", flex: 1 },
     { field: "last_name", headerName: "Last Name", flex: 1 },
-    { field: "age", headerName: "Age", width: 40 },
-    { field: "gender", headerName: "Gender", width: 60 },
-    { field: "contact_no", headerName: "Contact Number", flex: 1 },
-    { field: "email_address", headerName: "Email", flex: 1 },
+    { field: "age", headerName: "Age", width: 60 },
+    { field: "gender", headerName: "Gender", width: 80 },
+    { field: "phone_number", headerName: "Contact Number", flex: 1 },
+    { field: "email", headerName: "Email", flex: 1 },
     { field: "address", headerName: "Address", flex: 1 },
     { field: "account_type", headerName: "Account Type", flex: 1 },
-    { field: "hire_date", headerName: "Hire Date", width: 90 },
+    { field: "hire_date", headerName: "Hire Date", width: 120 },
     { field: "salary", headerName: "Salary (₱)", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",
-      width: 180,
+      width: 80,
       renderCell: (params) => (
-        <Box display="flex" justifyContent="center" alignItems="center" gap={1} height="100%">
+        <Box display="flex"
+          justifyContent="center" // Center horizontally
+          alignItems="center" // Center vertically
+          sx={{ width: "100%", height: "100%" }} // Ensure the full height is used
+        >
           <Button
             variant="contained"
             color="primary"
             startIcon={<Edit />}
             size="small"
             onClick={() => handleEditEmployee(params.row)}
-            style={{ textTransform: "none" }}
           >
             Edit
           </Button>
+          {/* 
           <Button
             variant="contained"
             color="error"
             startIcon={<Delete />}
             size="small"
             onClick={() => handleDeleteClick(params.row)}
-            style={{ textTransform: "none" }}
           >
             Delete
           </Button>
+          */}
         </Box>
       ),
     },
@@ -161,60 +162,43 @@ const Employees = () => {
   return (
     <Box m="20px">
       <Header title="EMPLOYEES" subtitle="List of Employees in the Database" />
-      <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={2}>
+      <Box display="flex" justifyContent="space-between" mb={2}>
+        {/* 
         <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddEmployee}>
           Add Employee
         </Button>
-        <TextField
-          variant="outlined"
-          placeholder="Search..."
-          value={searchText}
-          onChange={handleSearch}
-          sx={{ width: { xs: "100%", sm: "300px" }, mt: { xs: 2, sm: 0 } }}
-        />
+        */}
+        <TextField variant="outlined" placeholder="Search..." value={searchText} onChange={handleSearch} />
       </Box>
-      <Box sx={{ height: "calc(100vh - 250px)", width: "100%", overflowY: "auto", bgcolor: "background.default", borderRadius: "8px", boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)" }}>
-        <DataGrid
-          rows={filteredEmployees}
-          columns={columns}
-          pageSize={10}
-          rowsPerPageOptions={[10, 20, 50]}
-          loading={loading}
-          disableSelectionOnClick
-        />
+      <Box sx={{ height: "65vh", width: "100%" }}>
+      <DataGrid 
+        rows={filteredEmployees} 
+        columns={columns} 
+        pageSize={10} 
+        loading={loading} 
+        getRowId={(row) => row.id} // Ensure DataGrid knows how to get the row ID
+      />
       </Box>
-
+      
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
-          <p>Are you sure you want to delete this employee? This action cannot be undone.</p>
+          <p>Are you sure you want to delete this employee?</p>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleDeleteEmployee} color="error">
-            Delete
-          </Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteEmployee} color="error">Delete</Button>
         </DialogActions>
       </Dialog>
 
       {/* Employee Add/Edit Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>{selectedEmployee ? "Edit Employee" : "Add New Employee"}</DialogTitle>
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>{selectedEmployee ? "Edit Employee" : "Add Employee"}</DialogTitle>
         <DialogContent>
-          <Form
-            mode={selectedEmployee ? "edit" : "add"}
-            initialValues={selectedEmployee || {}}
-            onSubmit={handleSaveEmployee}
-          />
+          <EmployeeForm mode={selectedEmployee ? "edit" : "add"} initialValues={selectedEmployee || {}} onSubmit={handleSaveEmployee} />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-        </DialogActions>
       </Dialog>
-
     </Box>
   );
 };

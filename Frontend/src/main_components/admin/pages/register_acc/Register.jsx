@@ -16,9 +16,9 @@ const RegistrationPage = () => {
         email: '',
         password: '',
         re_password: '',
-        account_type: 'client',
+        account_type: formType === 'client' ? 'client' : '', // ✅ Default to 'client' for client form
         phone_number: '',
-    });
+    });    
     
     // Handle input changes
     const handleChange = (e) => {
@@ -32,6 +32,7 @@ const RegistrationPage = () => {
     // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
+    
         if (formData.password !== formData.re_password) {
             toast.error('Passwords do not match');
             return;
@@ -42,10 +43,22 @@ const RegistrationPage = () => {
             toast.error('Invalid phone number format. Use +63 XXX-XXX-XXXX');
             return;
         }
-
-        // Dispatch the register action
+    
+        // Ensure account_type is always set
+        if (!formData.account_type) {
+            if (formType === 'client') {
+                formData.account_type = 'client';  // ✅ Auto-assign 'client' if registering a client
+            } else {
+                toast.error('Please select an account type.');
+                return;
+            }
+        }
+        
+        
+    
         dispatch(register(formData));
     };
+    
 
     // Reset state when component unmounts or on successful registration
     useEffect(() => {
@@ -127,17 +140,19 @@ const RegistrationPage = () => {
                     />
 
                     {formType === 'account' && (
-                        <select
-                            name="account_type"
-                            onChange={handleChange}
-                            value={formData.account_type}
-                            required
-                        >
-                            <option value="admin">Admin</option>
-                            <option value="agent">Agent</option>
-                            <option value="information">Information</option>
-                            <option value="cashier">Cashier</option>
-                        </select>
+                    <select
+                        name="account_type"
+                        onChange={handleChange}
+                        value={formData.account_type}
+                        required
+                    >
+                        <option value="" disabled>Select Account Type</option>  {/* ✅ Placeholder */}
+                        <option value="admin">Admin</option>
+                        <option value="agent">Agent</option>
+                        <option value="information">Information</option>
+                        <option value="cashier">Cashier</option>
+                    </select>
+                    
                     )}
                     <button className="button" type="submit">
                         Submit

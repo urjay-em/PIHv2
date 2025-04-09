@@ -3,7 +3,6 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../Header";
-import { useState } from "react";
 
 const ClientForm = ({ onSubmit, mode = "add", initialValues = {} }) => { 
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -261,9 +260,8 @@ const initialValues = {
   gender: "",
   email_address: "",
   contact_no: "",
-  plot_details: "",
-  payment_status: "pending",
-  payment_method: "cash",
+  payment_status: "",
+
 };
 
 // Validation schema using yup
@@ -276,7 +274,6 @@ const checkoutSchema = yup.object().shape({
   gender: yup.string().required("Required"),
   email_address: yup.string().email("Invalid email").required("Required"),
   contact_no: yup.string().required("Required"),
-  plot_details: yup.string().required("Required"),
   payment_status: yup.string().required("Required"),
   payment_method: yup.string().required("Required"),
 });

@@ -1,4 +1,4 @@
-import { Box, Button, TextField, Snackbar, Alert, Grid, Typography } from "@mui/material";
+import { Box, Button, TextField, Snackbar, Alert, Grid, Typography, MenuItem } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import ImageIcon from "@mui/icons-material/Image";
 import InputMask from "react-input-mask";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api/v1/user/profile/"; // Adjust this based on your backend
+const API_BASE_URL = "http://127.0.0.1:8000/api/v1/profile/"; // Adjust this based on your backend
 
 const AdminProfilePage = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -16,16 +16,18 @@ const AdminProfilePage = () => {
     middle_name: "",
     last_name: "",
     address: "",
-    email_address: "",
-    contacts: "+63 ",
-    employee_pic: null, // Store only the file reference
+    email: "",
+    phone_number: "+63 ",
+    age: "",
+    gender: "",
+    account_type: "client",
+    date_registered: "",
+    profile_pic: null, // Store only the file reference
   });
 
   const [profilePicture, setProfilePicture] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  
 
   // Fetch profile data from the backend
   useEffect(() => {
@@ -45,14 +47,17 @@ const AdminProfilePage = () => {
             middle_name: data.middle_name || "",
             last_name: data.last_name || "",
             address: data.address || "",
-            email_address: data.email || "",
-            contacts: data.phone_number || "",
-            employee_pic: data.employee_pic || null,
+            email: data.email || "",
+            phone_number: data.phone_number || "+63 ",
+            age: data.age || "",
+            gender: data.gender || "",
+            account_type: data.account_type || "client",
+            date_registered: data.date_registered || "",
+            profile_pic: data.profile_pic || null,
           });
 
-          if (data.employee_pic) {
-            const profile_pics = "http://127.0.0.1:8000/";
-            setProfilePicture(`${profile_pics}${data.employee_pic}`);
+          if (data.profile_pic) {
+            setProfilePicture(data.profile_pic); // ✅ Directly use the API URL
           }
         } else {
           console.error("Failed to fetch profile");
@@ -69,51 +74,54 @@ const AdminProfilePage = () => {
     const file = e.target.files[0];
     if (file) {
       setProfilePicture(URL.createObjectURL(file)); // Show preview
-      setFieldValue("employee_pic", file); // Store file for submission
+      setFieldValue("profile_pic", file); // Store file for submission
     }
   };
 
   const handleFormSubmit = async (values, { resetForm }) => {
     setIsLoading(true);
     const token = localStorage.getItem("access_token");
-
+  
     const formData = new FormData();
-    formData.append("first_name", values.first_name);
-    formData.append("middle_name", values.middle_name);
-    formData.append("last_name", values.last_name);
-    formData.append("address", values.address);
-    formData.append("email_address", values.email);
-    formData.append("contacts", values.contacts);
-    
-    if (values.employee_pic instanceof File) {
-      formData.append("employee_pic", values.employee_pic);
-    }
-
+    Object.keys(values).forEach((key) => {
+      if (key === "profile_pic" && values.profile_pic instanceof File) {
+        formData.append("profile_pic", values.profile_pic); // ✅ Correctly append image
+      } else {
+        formData.append(key, values[key]);
+      }
+    });
+  
     try {
       const response = await fetch(`${API_BASE_URL}`, {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // ✅ No Content-Type for FormData
         },
         body: formData,
       });
-      
+  
       if (response.ok) {
-        
-        setTimeout(() => {
-          console.log("Profile saved:", values); // Log profile for debugging
-          setIsLoading(false);
-    
-          // Show Snackbar after saving
-          setOpenSnackbar(true);
-    
-          // Optionally reset the form if needed
-          resetForm();
-        }, 500);
-
+        const updatedData = await response.json(); // ✅ Fetch updated profile
+        console.log("Updated Data:", updatedData); // Debug log to verify response
+  
+        // ✅ Correctly update profile pic URL
+        if (updatedData.profile_pic) {
+          setProfilePicture(`http://127.0.0.1:8000${updatedData.profile_pic}`);
+        }
+  
+        // ✅ Update other profile data
+        setProfile({
+          ...profile,
+          ...updatedData,
+        });
+  
+        // ✅ Show Snackbar
+        setOpenSnackbar(true);
+  
+        // ✅ Optional: Reload after saving (if necessary)
         setTimeout(() => {
           window.location.reload();
-        },500);
+        }, 500);
       } else {
         console.error("Failed to update profile");
       }
@@ -122,8 +130,8 @@ const AdminProfilePage = () => {
     } finally {
       setIsLoading(false);
     }
-    
   };
+  
 
   return (
     <Box m="20px" maxWidth="800px" mx="auto">
@@ -191,7 +199,7 @@ const AdminProfilePage = () => {
                       color="error"
                       onClick={() => {
                         setProfilePicture(null);
-                        setFieldValue("employee_pic", null);
+                        setFieldValue("profile_pic", null);
                       }}
                     >
                       Clear
@@ -265,31 +273,90 @@ const AdminProfilePage = () => {
                   label="Email Address"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.email_address}
-                  name="email_address"
+                  value={values.email}
+                  name="email"
                   fullWidth
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <InputMask
-                    mask="+63 999-999-9999" // Ensure +63 is always there, user only enters remaining part
-                    value={values.contacts}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                  >
-                    {(inputProps) => (
-                      <TextField
-                        {...inputProps}
-                        variant="filled"
-                        label="Contact Number"
-                        name="contacts"
-                        error={touched.contacts && !!errors.contacts}
-                        helperText={touched.contacts && errors.contacts}
-                        fullWidth
-                        sx={{ mb: 2 }}
-                      />
-                    )}
-                  </InputMask>
+                  mask="+63 999-999-9999"
+                  value={values.phone_number}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                >
+                  {(inputProps) => (
+                    <TextField
+                      {...inputProps}
+                      variant="filled"
+                      label="Contact Number"
+                      name="phone_number"
+                      error={touched.phone_number && !!errors.phone_number}
+                      helperText={touched.phone_number && errors.phone_number}
+                      fullWidth
+                      sx={{ mb: 2 }}
+                    />
+                  )}
+                </InputMask>
+              </Grid>
+
+              {/* Gender & Age */}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  variant="filled"
+                  label="Gender"
+                  name="gender"
+                  value={values.gender}
+                  onChange={handleChange}
+                  fullWidth
+                >
+                  <MenuItem value="M">Male</MenuItem>
+                  <MenuItem value="F">Female</MenuItem>
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  type="number"
+                  variant="filled"
+                  label="Age"
+                  name="age"
+                  value={values.age}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+
+              {/* Account Type */}
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  variant="filled"
+                  label="Account Type"
+                  name="account_type"
+                  value={values.account_type}
+                  onChange={handleChange}
+                  fullWidth
+                >
+                  <MenuItem value="admin">Admin</MenuItem>
+                  <MenuItem value="information">Information Officer</MenuItem>
+                  <MenuItem value="cashier">Cashier</MenuItem>
+                  <MenuItem value="agent">Agent</MenuItem>
+                  <MenuItem value="client">Client</MenuItem>
+                </TextField>
+              </Grid>
+
+              {/* Date Registered (Read-only) */}
+              <Grid item xs={12}>
+                <TextField
+                  variant="filled"
+                  label="Date Registered"
+                  value={values.date_registered}
+                  fullWidth
+                  disabled
+                />
               </Grid>
             </Grid>
 
@@ -312,15 +379,18 @@ const AdminProfilePage = () => {
 // Validation Schema
 const checkoutSchema = yup.object().shape({
   first_name: yup.string().required("Required"),
-  middle_name: yup.string().required("Required"),
+  middle_name: yup.string(),
   last_name: yup.string().required("Required"),
   address: yup.string().required("Required"),
-  email_address: yup.string().email("Invalid email").required("Required"),
-  contacts: yup
+  email: yup.string().email("Invalid email").required("Required"),
+  phone_number: yup
     .string()
     .matches(/^\+63 \d{3}-\d{3}-\d{4}$/, "Contact number must be in the format +63 XXX-XXX-XXXX")
     .required("Required"),
-  employee_pic: yup.mixed().required("Image is required"),
+  gender: yup.string().required("Required"),
+  age: yup.number().positive().integer().required("Required"),
+  account_type: yup.string().required("Required"),
+  profile_pic: yup.mixed().nullable(),
 });
 
 export default AdminProfilePage;

@@ -5,7 +5,9 @@ from users.serializers import CustomTokenObtainPairSerializer
 from users.views import MyTokenObtainPairView, MyTokenRefreshView
 from django.conf import settings
 from django.conf.urls.static import static
-from users.views import UserProfileView
+from core.views import ProfileView
+
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -21,7 +23,8 @@ urlpatterns = [
     path('api/v1/', include('core.urls')),
 
     #user
-    path('api/v1/user/profile/', UserProfileView.as_view(), name="profile"),
+    path('api/v1/profile/', ProfileView.as_view(), name="profile"),
+
     #path('api/v1/profile/update', UpdateUserProfileView.as_view(), name="profile-update"),
 ]
 

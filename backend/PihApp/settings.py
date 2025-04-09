@@ -104,7 +104,7 @@ WSGI_APPLICATION = 'PihApp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pihdb_temp', 
+        'NAME': 'pih_db', 
         'USER': 'root', 
         'PASSWORD': 'root',
         'HOST': '127.0.0.1',
@@ -209,5 +209,5 @@ EMAIL_HOST_PASSWORD= "cwmx cnvu ynnn agmi"
 EMAIL_USE_TLS=True
 DOMAIN= "localhost:5173"
 
-MEDIA_URL = '/media/'  # This is the URL that will serve the media files
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")

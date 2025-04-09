@@ -129,7 +129,7 @@ const Agents = () => {
       headerName: "Actions",
       width: 180,
       renderCell: (params) => (
-        <Box display="flex" justifyContent="center" alignItems="center" gap={1} height="100%">
+        <Box display="flex" justifyContent="center" alignItems="center" sx={{ width: "100%", height: "100%" }} >
           <Button
             variant="contained"
             color="primary"
@@ -140,6 +140,7 @@ const Agents = () => {
           >
             Edit
           </Button>
+          {/* 
           <Button
             variant="contained"
             color="error"
@@ -150,6 +151,7 @@ const Agents = () => {
           >
             Delete
           </Button>
+          */}
         </Box>
       ),
     },
@@ -159,9 +161,11 @@ const Agents = () => {
     <Box m="20px">
       <Header title="AGENTS" subtitle="List of Agents in the Database" />  {/*AGENTS*/}
       <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={2}>
+        {/* 
         <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddAgent}>
-          Add Agent  {/*Agent*/}
+          Add Agent
         </Button>
+        */}
         <TextField
           variant="outlined"
           placeholder="Search..."

@@ -111,7 +111,7 @@ const App = () => {
           <Route path="/admin/manageemployeeacc" element={<ProtectedRoute><ManageEmployeeAcc /></ProtectedRoute>} />
           <Route path="/admin/backuprestore" element={<ProtectedRoute><BackupRestore /></ProtectedRoute>} />
           <Route path="/admin/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
-          <Route path="/admin/profile" element={<ProtectedRoute><AdminProfilePage /></ProtectedRoute>} />
+          <Route path="/admin/edit-profile" element={<ProtectedRoute><AdminProfilePage /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

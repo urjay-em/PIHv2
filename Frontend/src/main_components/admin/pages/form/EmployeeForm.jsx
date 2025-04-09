@@ -47,12 +47,12 @@ const EmployeeForm = ({ onSubmit, mode = "add", initialValues = {} }) => {
           first_name: initialValues.first_name || "",
           middle_name: initialValues.middle_name || "",
           last_name: initialValues.last_name || "",
-          address: initialValues.address || "",
           age: initialValues.age || "",
           gender: initialValues.gender || "",
-          email_address: initialValues.email_address || "",
-          contact_no: initialValues.contact_no || "",
-          account_types: initialValues.account_types || "",
+          contact_no: initialValues.phone_number|| "",
+          email_address: initialValues.email || "",
+          address: initialValues.address || "",
+          account_type: initialValues.account_type || "",
           hire_date: initialValues.hire_date || "",
           salary: initialValues.salary || "",
           employee_pic: initialValues.employee_pic || null,
@@ -266,17 +266,17 @@ const EmployeeForm = ({ onSubmit, mode = "add", initialValues = {} }) => {
                   <Select
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.account_types}
-                    name="account_types"
-                    error={touched.account_types && !!errors.account_types}
+                    value={values.account_type}
+                    name="account_type"
+                    error={touched.account_type && !!errors.account_type}
                   >
                     <MenuItem value=""></MenuItem>
-                    <MenuItem value="admin">Admin</MenuItem>
-                    <MenuItem value="cashier">Cashier</MenuItem>
-                    <MenuItem value="information">Information</MenuItem>
+                    <MenuItem value="admin">admin</MenuItem>
+                    <MenuItem value="cashier">cashier</MenuItem>
+                    <MenuItem value="information">information</MenuItem>
                   </Select>
-                  {touched.account_types && errors.account_types && (
-                    <Box sx={{ color: "red", mt: 1 }}>{errors.account_types}</Box>
+                  {touched.account_type && errors.account_type && (
+                    <Box sx={{ color: "red", mt: 1 }}>{errors.account_type}</Box>
                   )}
                 </FormControl>
               </Grid>
@@ -328,35 +328,21 @@ const EmployeeForm = ({ onSubmit, mode = "add", initialValues = {} }) => {
   };
 
 
-// Initial form values
-const initialValues = {
-  first_name: "",
-  middle_name: "",
-  last_name: "",
-  address: "",
-  age: "",
-  gender: "",
-  email_address: "",
-  contact_no: "",
-  account_types: "",
-  hire_date: "",
-  salary: "",
-  employee_pic: null,
-};
+// Initial form value
 
 // Validation schema using yup
 const checkoutSchema = yup.object().shape({
   first_name: yup.string().required("Required"),
-  middle_name: yup.string().required("Required"),
+  middle_name: yup.string().optional("Optional"),
   last_name: yup.string().required("Required"),
   address: yup.string().required("Required"),
   age: yup.number().required("Required"),
   gender: yup.string().required("Required"),
   email_address: yup.string().email("Invalid email").required("Required"),
   contact_no: yup.string().required("Required"),
-  account_types: yup.string().required("Required"),
+  account_type: yup.string().required("Required"),
   hire_date: yup.string().required("Required"),
-  salary: yup.number().required("Required"),
+  salary: yup.number().optional("Optional for a moment"),
 });
 
 export default EmployeeForm;

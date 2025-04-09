@@ -8,6 +8,7 @@ import ImageIcon from '@mui/icons-material/Image';
 
 const AgentForm = ({ onSubmit, mode = "add", initialValues = {} }) => { 
   // Default to "add" mode and accept initial values for edit mode
+  console.log("Initial Values passed to form:", initialValues);
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [selectedImage, setSelectedImage] = useState(
     initialValues.agent_pic ? initialValues.agent_pic : null
@@ -51,14 +52,15 @@ const AgentForm = ({ onSubmit, mode = "add", initialValues = {} }) => {
           age: initialValues.age || "",
           gender: initialValues.gender || "",
           email_address: initialValues.email_address || "",
-          contact_no: initialValues.contact_no || "",
-          account_types: initialValues.account_types || "",
+          contact_no: initialValues.contact_no || "", // Mapping here
+          account_types: initialValues.account_type || "",
           hire_date: initialValues.hire_date || "",
           commision_rate: initialValues.commision_rate || "",
           employee_pic: initialValues.employee_pic || null,
         }}
         validationSchema={checkoutSchema}
       >
+
         {({
           values,
           errors,
@@ -331,20 +333,6 @@ const AgentForm = ({ onSubmit, mode = "add", initialValues = {} }) => {
 
 
 // Initial form values
-const initialValues = {
-  first_name: "",
-  middle_name: "",
-  last_name: "",
-  address: "",
-  age: "",
-  gender: "",
-  email_address: "",
-  contact_no: "",
-  account_types: "",
-  hire_date: "",
-  commision_rate: "",
-  agent_pic: null,
-};
 
 // Validation schema using yup
 const checkoutSchema = yup.object().shape({

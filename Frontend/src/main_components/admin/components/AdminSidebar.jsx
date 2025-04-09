@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme, Tooltip } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -6,12 +6,10 @@ import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { FaUserShield, FaBuilding, FaDatabase, FaUsers } from "react-icons/fa";
 import { AiOutlineFileText } from "react-icons/ai";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -20,7 +18,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
   return (
     <MenuItem
       active={selected === title}
-      style={{
+      style={{  
         color: theme.palette.mode === "light" ? colors.grey[800] : colors.grey[100],
       }}
       onClick={() => setSelected(title)}
@@ -38,58 +36,73 @@ const AdminSidebar = ({ isAdminSidebar }) => {
   const [isCollapsed, setIsCollapsed] = useState(isAdminSidebar);
   const [selected, setSelected] = useState("Dashboard");
   const userRole = localStorage.getItem("account_type");
-  const [fullName, setfullName] = useState(null);
+  const [fullName, setFullName] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
 
-  const API_BASE_URL = "http://127.0.0.1:8000/api/v1/user/profile/";
+  const API_BASE_URL = "http://127.0.0.1:8000/api/v1/profile/";
 
-  useState(() => {
-    setIsCollapsed(isAdminSidebar);
+  // ✅ Fetch profile picture and details
+  const fetchProfilePicture = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const response = await fetch(`${API_BASE_URL}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
   
-    const fetchProfilePicture = async () => {
-      try {
-        const token = localStorage.getItem("access_token");
-        const response = await fetch(`${API_BASE_URL}`, {  // Ensure correct API endpoint
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Fetched profile data:", data); // ✅ Debug
   
-        if (response.ok) {
-          const data = await response.json();
-  
-          if (data.first_name && data.last_name)
-            setfullName(`${data.first_name} ${data.last_name}`)
-          if (data.employee_pic) {
-            const mediaUrl = "http://127.0.0.1:8000/"; // Ensure correct media path
-            setProfilePicture(`${mediaUrl}${data.employee_pic}`);
-            localStorage.setItem("profilePicture", `${mediaUrl}${data.employee_pic}`);
-          }
+        // ✅ Set full name correctly
+        if (data.first_name && data.last_name) {
+          setFullName(`${data.first_name} ${data.last_name}`);
         } else {
-          console.error("Failed to fetch profile");
+          setFullName("Unknown Name"); // Fallback if no name
         }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
+  
+        // ✅ Check for profile pic or employee_pic
+        if (data.employee_pic || data.profile_pic) {
+          const mediaUrl = "http://127.0.0.1:8000";
+          const picUrl = (data.employee_pic || data.profile_pic).startsWith("/media/")
+            ? `${mediaUrl}${data.employee_pic || data.profile_pic}`
+            : data.employee_pic || data.profile_pic;
+  
+          console.log("Final profile picture URL:", picUrl);
+          setProfilePicture(picUrl);
+          localStorage.setItem("profilePicture", picUrl);
+        } else {
+          setProfilePicture("/default_profile_pic.jpg"); // ✅ Fallback
+        }
+      } else {
+        console.error("Failed to fetch profile");
       }
-    };
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
   
+
+  useEffect(() => {
+    setIsCollapsed(isAdminSidebar);
     fetchProfilePicture();
-  
-    // Listen for changes in local storage to update profile picture
+
+    // ✅ Update Profile Picture Listener
     const updateProfilePicture = () => {
       setProfilePicture(localStorage.getItem("profilePicture"));
     };
+
     window.addEventListener("storage", updateProfilePicture);
-  
+
     return () => {
       window.removeEventListener("storage", updateProfilePicture);
     };
-  }, [isAdminSidebar]); 
+  }, [isAdminSidebar]);
 
   return (
     <Box
       sx={{
-
         "& .pro-sidebar-inner": {
           backgroundColor: theme.palette.mode === "light" ? colors.grey[50] : colors.primary[800],
           borderRight: theme.palette.mode === "light" ? `1px solid ${colors.grey[300]}` : "none",
@@ -142,23 +155,20 @@ const AdminSidebar = ({ isAdminSidebar }) => {
                   alt="user"
                   width="80"
                   height="80"
-                  src={profilePicture}
+                  src={profilePicture || "/default_profile_pic.jpg"} // ✅ Fallback
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
-                
                 <Tooltip title="Edit profile">
                   <Box
                     sx={{
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      position: "absolute",
-                      right: 85, 
-                      top: "20%",
-                      transform: "translateY(-100%)",
+                      position: "relative",
+                      top: "10px",
                     }}
                   >
-                    <Link to="/admin/profile">
+                    <Link to="/admin/edit-profile">
                       <IconButton
                         sx={{
                           color: colors.grey[100],
@@ -196,6 +206,7 @@ const AdminSidebar = ({ isAdminSidebar }) => {
             </Box>
           )}
 
+          {/* Menu Items */}
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
               title="Dashboard"
@@ -204,7 +215,6 @@ const AdminSidebar = ({ isAdminSidebar }) => {
               selected={selected}
               setSelected={setSelected}
             />
-
             <Typography
               variant="h6"
               color={theme.palette.mode === "light" ? colors.grey[500] : colors.grey[300]}
@@ -254,7 +264,6 @@ const AdminSidebar = ({ isAdminSidebar }) => {
               selected={selected}
               setSelected={setSelected}
             />
-            
             <Typography
               variant="h6"
               color={theme.palette.mode === "light" ? colors.grey[500] : colors.grey[300]}
