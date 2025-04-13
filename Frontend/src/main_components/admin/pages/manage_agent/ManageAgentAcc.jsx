@@ -63,7 +63,7 @@ const Agents = () => {
   const handleDeleteAgent = async () => {
     try {
       if (selectedAgent) {
-        await AgentService.deleteAgent(selectedAgent.id);
+        await AgentService.updateAgent(selectedAgent.agent.id, data); // or wherever actual agent.id is
         fetchAgents();
         setDeleteDialogOpen(false);
       }
@@ -72,26 +72,40 @@ const Agents = () => {
     }
   };
 
-  const handleSaveAgent = async (data) => {
-    const formData = new FormData();
-    for (const key in data) {
-      if (data.hasOwnProperty(key)) {
-        formData.append(key, data[key]);
-      }
-    }
-
+  const handleSaveAgent = async (formData) => {
+    const mappedData = {
+      commission_rate: formData.commission_rate,
+      clients_managed: formData.clients_managed,
+      hire_date: formData.hire_date,
+      profile: {
+        first_name: formData.first_name,
+        middle_name: formData.middle_name,
+        last_name: formData.last_name,
+        account_type: formData.account_type,
+        age: formData.age,
+        gender: formData.gender,
+        phone_number: formData.contact_no,
+        email: formData.email_address,
+        address: formData.address,
+      },
+    };
+  
     try {
       if (selectedAgent) {
-        await AgentService.updateAgent(selectedAgent.id, formData); 
+        // ✅ USE mappedData here!
+        await AgentService.updateAgent(selectedAgent.id, mappedData);
       } else {
-        await AgentService.createAgent(formData);
+        await AgentService.createAgent(mappedData);
       }
       fetchAgents();
       setOpenDialog(false);
     } catch (error) {
-      console.error("Error saving agent:", error); 
+      console.error("Error saving agent:", error);
     }
   };
+  
+  
+
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -123,7 +137,7 @@ const Agents = () => {
     { field: "address", headerName: "Address", flex: 1 },
     { field: "account_type", headerName: "Account Type", flex: 1 },
     { field: "hire_date", headerName: "Hire Date", width: 90 },
-    { field: "commision_rate", headerName: "Commision Rate (₱)", flex: 1 },
+    { field: "commission_rate", headerName: "Commission Rate (₱)", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",

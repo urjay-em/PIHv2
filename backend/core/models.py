@@ -60,24 +60,6 @@ class EmployeeDetails(models.Model):
         return f"{self.profile.full_name} - Employee"
 
 
-
-# ================================
-# Client Details Model
-# ================================
-class ClientDetails(models.Model):
-    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='client_details')
-    balance_to_pay = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    payment_status = models.CharField(max_length=10, choices=[
-        ('unpaid', 'Unpaid'),
-        ('partial', 'Partial'),
-        ('paid', 'Paid'),
-    ], default='unpaid')
-
-    def __str__(self):
-        return f"{self.profile.full_name} - Client"
-
-
-
 # ================================
 # Agent Details Model
 # ================================
@@ -90,3 +72,95 @@ class AgentDetails(models.Model):
     def __str__(self):
         return f"{self.profile.full_name} - Agent"
 
+
+# ================================
+# Client Details Model
+# ================================
+class ClientDetails(models.Model):
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='client_details')
+    occupation = models.CharField(max_length=100, blank=True, null=True)  # Optional occupation field
+    last_updated = models.DateTimeField(auto_now=True)  # Automatically updates when the client details are changed
+    
+    # Link the client to the agent based on account_type, but handle this logic programmatically
+    # by filtering Profile with account_type='agent'
+    agent = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='clients', blank=True, null=True)  # Optional reference to the agent managing the client
+
+    def __str__(self):
+        return f"{self.profile.full_name} - Client"
+
+    def save(self, *args, **kwargs):
+        # Don’t auto-assign agents; assume it’s handled externally when needed
+        super().save(*args, **kwargs)
+
+
+class Block(models.Model):
+    block_name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    coordinates = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.block_name
+
+class Plot(models.Model):
+    STATUS_CHOICES = [
+        ('occupied', 'Occupied'),
+        ('vacant', 'Vacant'),
+        ('reserved', 'Reserved'),
+    ]
+
+    plot_id = models.AutoField(primary_key=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='vacant')
+    plot_type = models.CharField(max_length=30, choices=[
+        ('stone', 'Stone Type'),
+        ('lawn', 'Lawn Type'),
+        ('valor', 'Valor Type'),
+        ('mausoleum', 'Mausoleum'),
+    ])
+    purchase_date = models.DateField(null=True, blank=True)
+    owner = models.ForeignKey('ClientDetails', on_delete=models.SET_NULL, related_name='plots', null=True, blank=True)
+    
+    block = models.ForeignKey('Block', on_delete=models.CASCADE, related_name='plots', null=True)
+    
+
+    max_bodies = models.PositiveIntegerField(default=2)
+
+
+    plot_name = models.CharField(max_length=255, blank=False, null=False) 
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+
+    def get_price(self):
+        static_prices = {
+            'stone': 50000,
+            'lawn': 35000,
+            'valor': 75000,
+            'mausoleum': 150000,
+        }
+        return static_prices.get(self.plot_type, 0)
+
+
+    class Meta:
+        unique_together = ('plot_id', 'block')
+        ordering = ['block', 'plot_id']
+
+    def assign_owner(self, client):
+        """Assign a client as the owner of this plot."""
+        if self.status == 'vacant':
+            self.owner = client
+            self.status = 'occupied'
+            self.purchase_date = date.today()
+            self.save()
+        else:
+            raise ValueError("Plot is not available for purchase.")
+
+    def save(self, *args, **kwargs):
+        """Save the plot with dynamically set name and max_bodies."""
+        if self.plot_type in ['stone', 'lawn', 'valor']:
+            self.max_bodies = 2
+        elif self.plot_type == 'mausoleum':
+            self.max_bodies = 6
+
+        super().save(*args, **kwargs)
+        
+    def __str__(self):
+        return f"Plot {self.plot_id} (Block {self.block.block_name}) - {self.status}"

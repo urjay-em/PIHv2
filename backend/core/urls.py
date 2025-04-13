@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProfileView,  EmployeeViewSet, AgentViewSet, ClientViewSet
+from .views import ProfileView, ProfileViewSet, EmployeeViewSet, AgentViewSet, ClientViewSet, BlockViewSet, PlotViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -9,6 +9,10 @@ router = DefaultRouter()
 router.register(r'employees', EmployeeViewSet, basename='employee')
 router.register(r'agents', AgentViewSet, basename='agent')
 router.register(r'clients', ClientViewSet, basename='client')
+router.register(r'profiles', ProfileViewSet, basename='profile')
+router.register(r'blocks', BlockViewSet, basename='blocks')
+router.register(r'plots', PlotViewSet, basename='plots')
+
 
 # Add router.urls to urlpatterns
 urlpatterns = [

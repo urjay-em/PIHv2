@@ -4,6 +4,7 @@ from rest_framework import permissions
 from rest_framework.exceptions import PermissionDenied
 
 
+
 def normalize_role(role):
     """Normalize account type to lowercase."""
     return role.lower() if role else ''
@@ -76,3 +77,23 @@ class CanAccessClient(BasePermission):
                 return True
 
         raise PermissionDenied({"detail": "Permission denied. Contact admin if you believe this is a mistake."})
+
+class CanAccessBlock(BasePermission):
+    def has_permission(self, request, view):
+        account_type = normalize_role(request.user.account_type)
+        if account_type == 'admin':
+            return True
+        if account_type in ['information', 'agent']:
+            return request.method in ['GET', 'POST', 'PATCH']
+        return False
+
+class CanAccessPlot(BasePermission):
+    def has_permission(self, request, view):
+        account_type = normalize_role(request.user.account_type)
+        if account_type == 'admin':
+            return True
+        if account_type in ['information', 'agent']:
+            return request.method in ['GET', 'POST', 'PATCH']
+        if account_type == 'client':
+            return request.method == 'GET'
+        return False

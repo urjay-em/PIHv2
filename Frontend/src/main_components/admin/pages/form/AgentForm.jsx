@@ -52,10 +52,10 @@ const AgentForm = ({ onSubmit, mode = "add", initialValues = {} }) => {
           age: initialValues.age || "",
           gender: initialValues.gender || "",
           email_address: initialValues.email_address || "",
-          contact_no: initialValues.contact_no || "", // Mapping here
-          account_types: initialValues.account_type || "",
+          contact_no: initialValues.contact_no || "", 
+          account_type: initialValues.account_type ||  "agent",
           hire_date: initialValues.hire_date || "",
-          commision_rate: initialValues.commision_rate || "",
+          commission_rate: initialValues.commission_rate || "",
           employee_pic: initialValues.employee_pic || null,
         }}
         validationSchema={checkoutSchema}
@@ -261,25 +261,25 @@ const AgentForm = ({ onSubmit, mode = "add", initialValues = {} }) => {
                 />
               </Grid>
 
-              {/* Account Type and Hire Date Fields */}
               <Grid item xs={12} sm={6}>
                 <FormControl variant="filled" fullWidth>
                   <InputLabel>Account Type</InputLabel>
                   <Select
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.account_types}
-                    name="account_types"
-                    error={touched.account_types && !!errors.account_types}
+                    value={values.account_type}
+                    name="account_type"
+                    error={touched.account_type && !!errors.account_type}
                   >
                     <MenuItem value=""></MenuItem>
                     <MenuItem value="agent">Agent</MenuItem>
                   </Select>
-                  {touched.account_types && errors.account_types && (
-                    <Box sx={{ color: "red", mt: 1 }}>{errors.account_types}</Box>
+                  {touched.account_type && errors.account_type && (
+                    <Box sx={{ color: "red", mt: 1 }}>{errors.account_type}</Box>
                   )}
                 </FormControl>
               </Grid>
+
               <Grid item xs={12} sm={6}>
                 <TextField
                   variant="filled"
@@ -306,12 +306,12 @@ const AgentForm = ({ onSubmit, mode = "add", initialValues = {} }) => {
                 onBlur={handleBlur}
                 onChange={(event) => {
                     const value = event.target.value;
-                    setFieldValue("commision_rate", value === "" ? "" : Number(value)); // Ensure it's a number
+                    setFieldValue("commission_rate", value === "" ? "" : Number(value)); // Ensure it's a number
                 }}
-                value={values.commision_rate}
-                name="commision_rate"
-                error={touched.commision_rate && !!errors.commision_rate}
-                helperText={touched.commision_rate && errors.commision_rate}
+                value={values.commission_rate}
+                name="commission_rate"
+                error={touched.commission_rate && !!errors.commission_rate}
+                helperText={touched.commission_rate && errors.commission_rate}
                 fullWidth
                 sx={{ mb: 2 }}
                 />
@@ -344,9 +344,9 @@ const checkoutSchema = yup.object().shape({
   gender: yup.string().required("Required"),
   email_address: yup.string().email("Invalid email").required("Required"),
   contact_no: yup.string().required("Required"),
-  account_types: yup.string().required("Required"),
+  account_type: yup.string().required("Required"),
   hire_date: yup.string().required("Required"),
-  commision_rate: yup.number().required("Required"),
+  commission_rate: yup.number().required("Required"),
 });
 
 export default AgentForm;

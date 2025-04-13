@@ -71,18 +71,11 @@ const Clients = () => {
   };
 
   const handleSaveClient = async (data) => {
-    const formData = new FormData();
-    for (const key in data) {
-      if (data.hasOwnProperty(key)) {
-        formData.append(key, data[key]);
-      }
-    }
-
     try {
       if (selectedClient) {
-        await ClientService.updateClient(selectedClient.id, formData);
+        await ClientService.updateClient(selectedClient.id, data); // Send the plain data object
       } else {
-        await ClientService.createClient(formData);
+        await ClientService.createClient(data); // Same for creating a new client
       }
       fetchClients();
       setOpenDialog(false);
@@ -90,6 +83,7 @@ const Clients = () => {
       console.error("Error saving client:", error);
     }
   };
+  
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -114,15 +108,17 @@ const Clients = () => {
     { field: "first_name", headerName: "First Name", flex: 1 },
     { field: "middle_name", headerName: "Middle Name", flex: 1 },
     { field: "last_name", headerName: "Last Name", flex: 1 },
-    { field: "age", headerName: "Age", width: 50 }, // Only if stored in Profile
-    { field: "gender", headerName: "Gender", width: 100 }, // Only if stored in Profile
-    { field: "phone_number", headerName: "Contact Number", flex: 1 }, // Changed from contact_no
-    { field: "email", headerName: "Email", flex: 1 }, // Changed from email_address
+    { field: "age", headerName: "Age", flex: 1 },
+    { field: "gender", headerName: "Gender", flex: 1 },
+    { field: "email", headerName: "Email", flex: 1 },
+    { field: "phone_number", headerName: "Contact Number", flex: 1 },
     { field: "address", headerName: "Address", flex: 1 },
     { field: "account_type", headerName: "Account Type", flex: 1 },
-    { field: "balance_to_pay", headerName: "Balance (₱)", flex: 1 },
-    { field: "payment_status", headerName: "Payment Status", flex: 1 },
-
+    { field: "occupation", headerName: "Occupation", flex: 1 },
+    { field: "date_registered", headerName: "Date Registered", flex: 1 },
+    { field: "last_updated", headerName: "Last Updated", flex: 1 },
+    { field: "agent", headerName: "Agent ID", flex: 1 },
+  
     {
       field: "actions",
       headerName: "Actions",
@@ -138,17 +134,7 @@ const Clients = () => {
           >
             Edit
           </Button>
-          {/*
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<Delete />}
-            size="small"
-            onClick={() => handleDeleteClick(params.row)}
-          >
-            Delete
-          </Button>
-          */}
+          {/* Add Delete Button if needed */}
         </Box>
       ),
     },
@@ -158,11 +144,6 @@ const Clients = () => {
     <Box m="20px">
       <Header title="CLIENTS" subtitle="List of Clients in the Database" />
       <Box display="flex" flexWrap="wrap" justifyContent="space-between" mb={2}>
-        {/*
-        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddClient}>
-          Add Client
-        </Button>
-        */}
         <TextField
           variant="outlined"
           placeholder="Search..."
