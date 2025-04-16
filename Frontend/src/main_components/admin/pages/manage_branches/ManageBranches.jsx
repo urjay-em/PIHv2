@@ -155,7 +155,10 @@ const CemeteryMap = () => {
                                         <Popup>
                                             <h4>{plot.plot_name || "Unnamed Plot"}</h4>
                                             <p>Plot ID: {plot.plot_id}</p>
+                                            <p>Plot Type: {plot.plot_type}</p>
                                             <p>Status: {plot.status}</p>
+                                            <p>Price: {plot.price}</p>
+                                            <p>Owner ID: {plot.owner}</p> {/* 👈 Add this line */}
                                             {plot.status === "vacant" && (
                                                 <button
                                                     onClick={() => handleBuyPlot(plot, block.id)} // Pass block.id here

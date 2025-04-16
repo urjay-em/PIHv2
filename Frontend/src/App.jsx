@@ -15,6 +15,9 @@ import ManageEmployeeAcc from "./main_components/admin/pages/manage_employee/Man
 import BackupRestore from "./main_components/admin/pages/backuprestore/BackupRestore";
 import Register from "./main_components/admin/pages/register_acc/Register";
 import AdminProfilePage from "./main_components/admin/pages/profile/AdminProfilePage";
+import Payment from "./main_components/admin/pages/payment/payment";
+import PaymentRequest from "./main_components/admin/pages/payment/paymentrequest";
+
 
 
 // Agent
@@ -112,6 +115,8 @@ const App = () => {
           <Route path="/admin/backuprestore" element={<ProtectedRoute><BackupRestore /></ProtectedRoute>} />
           <Route path="/admin/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
           <Route path="/admin/edit-profile" element={<ProtectedRoute><AdminProfilePage /></ProtectedRoute>} />
+          <Route path="/admin/payments" element={<ProtectedRoute><Payment /></ProtectedRoute>}/>
+          <Route path="/admin/payment-request" element={<ProtectedRoute><PaymentRequest /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

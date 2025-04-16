@@ -1,14 +1,17 @@
 # core/views.py
-from rest_framework import viewsets, generics, permissions, status
+from rest_framework import viewsets, generics, permissions, status, serializers
 from rest_framework.permissions import IsAuthenticated
-from .models import Profile, EmployeeDetails, AgentDetails, ClientDetails, Block, Plot
-from .serializers import ProfileSerializer, EmployeeSerializer, AgentSerializer, ClientSerializer, BlockSerializer, PlotSerializer
-from .permissions import CanAccessEmployee, CanAccessAgent, CanAccessClient, IsAdminOrOwner, CanAccessBlock, CanAccessPlot
+from .models import Profile, EmployeeDetails, AgentDetails, ClientDetails, Block, Plot, PaymentRequest
+from .serializers import ProfileSerializer, EmployeeSerializer, AgentSerializer, ClientSerializer, BlockSerializer, PlotSerializer, PaymentRequestSerializer
+from .permissions import CanAccessEmployee, CanAccessAgent, CanAccessClient, IsAdminOrOwner, CanAccessBlock, CanAccessPlot, IsEmployee 
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from core.utils import normalize_role
+from rest_framework.decorators import action
+
 
 
 class ProfileView(generics.RetrieveUpdateAPIView):
@@ -237,4 +240,90 @@ class PlotViewSet(viewsets.ModelViewSet):
         account_type = normalize_role(request.user.account_type)
         if account_type in ['agent', 'information']:
             return Response({"detail": "You do not have permission to delete."}, status=403)
-        return super().destroy(request, *args, **kwargs)
+        return super().destroy(request, *args, **kwargs)  
+    
+
+class PaymentRequestViewSet(viewsets.ModelViewSet):
+    queryset = PaymentRequest.objects.all()
+    serializer_class = PaymentRequestSerializer
+    permission_classes = [IsEmployee]  # Use the permission to restrict access
+
+    # Filter by status when listing payment requests
+    def get_queryset(self):
+        queryset = PaymentRequest.objects.all()
+        status_filter = self.request.query_params.get('status', None)
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        return queryset
+
+    # Override perform_create to set created_by field automatically and handle payment_plan
+    def perform_create(self, serializer):
+        # Automatically assign the user who created the payment request
+        payment_plan = self.request.data.get('payment_plan', None)
+        client_id = self.request.data.get('client_id', None)  # Get client_id from the request data
+        
+        # Ensure client_id is provided and valid
+        if not client_id:
+            raise serializers.ValidationError({"error": "Client ID is required."})
+
+        try:
+            client = ClientDetails.objects.get(id=client_id)  # Get the ClientDetails instance using client_id
+        except ClientDetails.DoesNotExist:
+            raise serializers.ValidationError({"error": "Invalid Client ID."})
+
+        # Ensure payment_plan is valid (it should be one of the predefined choices)
+        if payment_plan not in dict(PaymentRequest.PAYMENT_PLAN_CHOICES):
+            raise serializers.ValidationError({"error": "Invalid payment plan choice."})
+        
+        # Save the payment request with the validated client and created_by
+        serializer.save(created_by=self.request.user, client=client)
+
+    # Override the update method to handle custom logic for rejection reasons and payment_plan
+    def update(self, request, *args, **kwargs):
+        payment_request = self.get_object()
+
+        # Custom validation for rejection reason and payment plan
+        if payment_request.status == 'approved' and request.data.get('status') == 'rejected':
+            rejection_reason = request.data.get('rejection_reason')
+            if not rejection_reason:
+                return Response({"error": "Rejection reason is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # If updating to approved, clear rejection reason
+        if request.data.get('status') == 'approved':
+            request.data['rejection_reason'] = None
+        
+        # Check and handle the payment_plan when updating
+        payment_plan = request.data.get('payment_plan', None)
+        if payment_plan and payment_plan not in dict(PaymentRequest.PAYMENT_PLAN_CHOICES):
+            return Response({"error": "Invalid payment plan choice."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return super().update(request, *args, **kwargs)
+
+    # Create a custom action for approve/reject logic (similar to your previous method)
+    @action(detail=True, methods=['post'])
+    def approve_reject(self, request, pk=None):
+        try:
+            payment_request = PaymentRequest.objects.get(id=pk)
+        except PaymentRequest.DoesNotExist:
+            return Response({"error": "Payment Request not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        action = request.data.get('action')  # 'approve' or 'reject'
+        rejection_reason = request.data.get('rejection_reason', None)
+
+        if action not in ['approve', 'reject']:
+            return Response({"error": "Invalid action. Choose 'approve' or 'reject'."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if action == 'reject' and not rejection_reason:
+            return Response({"error": "Rejection reason is required when rejecting."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update status and rejection_reason accordingly
+        if action == 'approve':
+            payment_request.status = 'approved'
+            payment_request.rejection_reason = None  # Clear any rejection reason
+        elif action == 'reject':
+            payment_request.status = 'rejected'
+            payment_request.rejection_reason = rejection_reason
+
+        payment_request.save()
+
+        return Response(PaymentRequestSerializer(payment_request).data, status=status.HTTP_200_OK)

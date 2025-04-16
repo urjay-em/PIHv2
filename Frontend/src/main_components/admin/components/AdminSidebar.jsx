@@ -6,6 +6,7 @@ import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { FaUserShield, FaBuilding, FaDatabase, FaUsers } from "react-icons/fa";
 import { AiOutlineFileText } from "react-icons/ai";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
@@ -271,6 +272,20 @@ const AdminSidebar = ({ isAdminSidebar }) => {
             >
               Pages
             </Typography>
+            <Item
+              title="Payments"
+              to="/admin/payments"
+              icon={<AttachMoneyIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Payment Requests"
+              to="/admin/payment-request"
+              icon={<AttachMoneyIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
           </Box>
         </Menu>
       </ProSidebar>

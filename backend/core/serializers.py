@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, EmployeeDetails, AgentDetails, ClientDetails, Block, Plot
+from .models import Profile, EmployeeDetails, AgentDetails, ClientDetails, Block, Plot, PaymentRequest
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -175,13 +175,95 @@ class PlotSerializer(serializers.ModelSerializer):
     block_name = serializers.CharField(source='block.block_name', read_only=True)
     price = serializers.SerializerMethodField()
 
+    # Write-only field for assigning a client to the owner
+    client_id = serializers.IntegerField(write_only=True, required=False)
+
     class Meta:
         model = Plot
         fields = [
             'plot_id', 'plot_name', 'plot_type', 'status', 'purchase_date',
-            'owner', 'owner_name', 'block', 'block_name',
+            'client_id', 'owner_name', 'block', 'block_name',
             'latitude', 'longitude', 'max_bodies', 'price'
         ]
+        extra_kwargs = {
+            'owner': {'read_only': True},
+        }
 
     def get_price(self, obj):
         return obj.get_price()
+
+    def create(self, validated_data):
+        client_id = validated_data.pop('client_id', None)
+        if client_id:
+            try:
+                client = ClientDetails.objects.get(id=client_id)
+                validated_data['owner'] = client
+            except ClientDetails.DoesNotExist:
+                raise serializers.ValidationError({'client_id': 'Client with this ID does not exist.'})
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        client_id = validated_data.pop('client_id', None)
+        if client_id:
+            try:
+                client = ClientDetails.objects.get(id=client_id)
+                validated_data['owner'] = client
+            except ClientDetails.DoesNotExist:
+                raise serializers.ValidationError({'client_id': 'Client with this ID does not exist.'})
+        return super().update(instance, validated_data)
+    
+    
+class PaymentRequestSerializer(serializers.ModelSerializer):
+    plot_id = serializers.IntegerField()  # plot_id will be used to reference the plot instance
+    client_id = serializers.IntegerField()  # Add client_id to be used to reference the client instance
+
+    class Meta:
+        model = PaymentRequest
+        fields = ['id', 'plot_id', 'client_id', 'payment_plan', 'status', 'rejection_reason', 'created_by', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        plot_id = validated_data.get('plot_id')  # Safely get the plot_id
+        client_id = validated_data.get('client_id')  # Get client_id for reference
+
+        if not plot_id:
+            raise serializers.ValidationError({"error": "Plot ID is required."})
+
+        if not client_id:
+            raise serializers.ValidationError({"error": "Client ID is required."})
+
+        # Query the Plot object using plot_id
+        try:
+            plot = Plot.objects.get(plot_id=plot_id)
+        except Plot.DoesNotExist:
+            raise serializers.ValidationError({"error": "Invalid Plot ID."})
+
+        # Query the Client object using client_id
+        try:
+            client = ClientDetails.objects.get(id=client_id)
+        except ClientDetails.DoesNotExist:
+            raise serializers.ValidationError({"error": "Invalid Client ID."})
+
+        validated_data['plot'] = plot  # Set the plot instance in validated_data
+        validated_data['client'] = client  # Set the client instance in validated_data
+
+        return super().create(validated_data)  # Call the parent create method to save the instance
+
+    def update(self, instance, validated_data):
+        plot_id = validated_data.get('plot_id')  # Safely get plot_id for updating
+        client_id = validated_data.get('client_id')  # Get client_id for updating
+
+        if plot_id:
+            try:
+                plot = Plot.objects.get(plot_id=plot_id)
+                instance.plot = plot  # Update the plot field in the instance
+            except Plot.DoesNotExist:
+                raise serializers.ValidationError({"error": "Invalid Plot ID."})
+
+        if client_id:
+            try:
+                client = ClientDetails.objects.get(id=client_id)
+                instance.client = client  # Update the client field in the instance
+            except ClientDetails.DoesNotExist:
+                raise serializers.ValidationError({"error": "Invalid Client ID."})
+
+        return super().update(instance, validated_data)  # Call the parent update method to save changes

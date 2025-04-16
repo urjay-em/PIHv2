@@ -2,6 +2,7 @@
 from rest_framework.permissions import BasePermission
 from rest_framework import permissions
 from rest_framework.exceptions import PermissionDenied
+from core.utils import normalize_role
 
 
 
@@ -97,3 +98,17 @@ class CanAccessPlot(BasePermission):
         if account_type == 'client':
             return request.method == 'GET'
         return False
+    
+class IsEmployee(BasePermission):
+    """
+    Allow access only to users with account_type 'admin', 'cashier', or 'information'.
+    """
+    def has_permission(self, request, view):
+        account_type = normalize_role(request.user.account_type)
+        
+        # Check if account type is 'admin', 'cashier', or 'information'
+        if account_type in ['admin', 'cashier', 'information']:
+            return True
+
+        # If permission is denied, raise PermissionDenied exception
+        raise PermissionDenied({"detail": "You do not have permission to access this resource."})

@@ -2,6 +2,7 @@
 from django.db import models
 from django.conf import settings
 from datetime import date
+from django.utils import timezone
 
 def upload_to(instance, filename):
     return f"profile_pics/{instance.user.id}/{filename}" 
@@ -103,7 +104,7 @@ class Block(models.Model):
 
 class Plot(models.Model):
     STATUS_CHOICES = [
-        ('occupied', 'Occupied'),
+        ('sold', 'Sold'),
         ('vacant', 'Vacant'),
         ('reserved', 'Reserved'),
     ]
@@ -117,7 +118,7 @@ class Plot(models.Model):
         ('mausoleum', 'Mausoleum'),
     ])
     purchase_date = models.DateField(null=True, blank=True)
-    owner = models.ForeignKey('ClientDetails', on_delete=models.SET_NULL, related_name='plots', null=True, blank=True)
+    client = models.ForeignKey('ClientDetails', on_delete=models.SET_NULL, related_name='plots', null=True, blank=True)
     
     block = models.ForeignKey('Block', on_delete=models.CASCADE, related_name='plots', null=True)
     
@@ -164,3 +165,66 @@ class Plot(models.Model):
         
     def __str__(self):
         return f"Plot {self.plot_id} (Block {self.block.block_name}) - {self.status}"
+    
+class PaymentRequest(models.Model):
+    # Define the choices for payment plans
+    PAYMENT_PLAN_CHOICES = [
+        ('12', '12 months'),
+        ('24', '24 months'),
+        ('36', '36 months'),
+        ('full', 'Full payment'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('reserved', 'Reserved'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('expired', 'Expired'),  # Expiry status
+    ]
+    
+    REJECTION_REASON_CHOICES = [
+        ('money_not_matching', 'Money Not Matching'),
+        ('expired_request', 'Expired Request'),
+        ('other', 'Other'),
+    ]
+    
+    plot = models.ForeignKey('Plot', on_delete=models.CASCADE) 
+    client = models.ForeignKey('ClientDetails', on_delete=models.SET_NULL, related_name='payment_requests', null=True)
+    payment_plan = models.CharField(
+        max_length=4,  # Up to 4 characters (e.g., '12', 'full')
+        choices=PAYMENT_PLAN_CHOICES,
+        default='full',  # Default to full payment if not selected
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='reserved',
+    )
+    rejection_reason = models.CharField(
+        max_length=50,
+        choices=REJECTION_REASON_CHOICES,
+        blank=True, null=True
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL, 
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"PaymentRequest for Plot {self.plot.plot_name} ({self.status})"
+
+    class Meta:
+        verbose_name = "Payment Request"
+        verbose_name_plural = "Payment Requests"
+    
+    def is_expired(self):
+        return timezone.now() - self.created_at > timezone.timedelta(days=3)
+
+    def save(self, *args, **kwargs):
+        if self.status == 'approved':
+            self.rejection_reason = None
+        super().save(*args, **kwargs)
