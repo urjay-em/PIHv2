@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, EmployeeDetails, AgentDetails, ClientDetails, Block, Plot, PaymentRequest
+from .models import Profile, EmployeeDetails, AgentDetails, ClientDetails, Block, Plot, PaymentRequest, Payment, BalanceTracker
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -216,10 +216,11 @@ class PlotSerializer(serializers.ModelSerializer):
 class PaymentRequestSerializer(serializers.ModelSerializer):
     plot_id = serializers.IntegerField()  # plot_id will be used to reference the plot instance
     client_id = serializers.IntegerField()  # Add client_id to be used to reference the client instance
+    price = serializers.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         model = PaymentRequest
-        fields = ['id', 'plot_id', 'client_id', 'payment_plan', 'status', 'rejection_reason', 'created_by', 'created_at', 'updated_at']
+        fields = ['id', 'plot_id', 'client_id', 'price', 'payment_plan', 'status', 'rejection_reason', 'created_by', 'created_at', 'updated_at']
 
     def create(self, validated_data):
         plot_id = validated_data.get('plot_id')  # Safely get the plot_id
@@ -267,3 +268,49 @@ class PaymentRequestSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"error": "Invalid Client ID."})
 
         return super().update(instance, validated_data)  # Call the parent update method to save changes
+    
+
+class PaymentSerializer(serializers.ModelSerializer):
+    payment_request = serializers.PrimaryKeyRelatedField(queryset=PaymentRequest.objects.all())
+    client = serializers.PrimaryKeyRelatedField(queryset=ClientDetails.objects.all())
+    plot = serializers.PrimaryKeyRelatedField(queryset=Plot.objects.all())
+    created_by = serializers.StringRelatedField()  # To display the username of the user who created the payment
+    created_at = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = Payment
+        fields = ['id', 'payment_request', 'client', 'plot', 'amount', 'payment_method', 'remarks', 'created_by', 'created_at']
+    
+    def validate_amount(self, value):
+        """Ensure that the amount is greater than 0."""
+        if value <= 0:
+            raise serializers.ValidationError("The payment amount must be greater than zero.")
+        return value
+    
+
+class BalanceTrackerSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(source='client.get_full_name', read_only=True)
+    
+    class Meta:
+        model = BalanceTracker
+        fields = [
+            'id', 'paymentrequest', 'client', 'plot', 'payment_plan', 'total_price', 
+            'total_paid', 'remaining_balance', 'last_amount_paid', 
+            'payments_made', 'last_updated', 'full_name'
+        ]
+
+    def update(self, instance, validated_data):
+        # This is for updating the balance when a payment is made
+        payment = validated_data.get('last_payment', None)
+        if payment:
+            instance.update_balance(payment)
+
+        # Updating the rest of the fields as needed
+        instance.total_price = validated_data.get('total_price', instance.total_price)
+        instance.total_paid = validated_data.get('total_paid', instance.total_paid)
+        instance.remaining_balance = validated_data.get('remaining_balance', instance.remaining_balance)
+        instance.payments_made = validated_data.get('payments_made', instance.payments_made)
+        instance.paymentrequest = validated_data.get('paymentrequest', instance.paymentrequest)
+        instance.save()
+
+        return instance

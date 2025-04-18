@@ -6,6 +6,7 @@ const BuyPlotForm = ({ plot, onClose }) => {
     plot_id: plot.plot_id,
     status: "reserved", // always reserved on submission
     plot_type: plot.plot_type || "",
+    price: plot.price || "",
     purchase_date: new Date().toISOString().slice(0, 10),
     client_id: "", // Add client_id field to store the client ID
     block: plot.block, // assuming this is the actual block ID
@@ -22,8 +23,27 @@ const BuyPlotForm = ({ plot, onClose }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  
+    if (name === "plot_type") {
+      const staticPrices = {
+        stone: 50000,
+        lawn: 35000,
+        valor: 75000,
+        mausoleum: 150000,
+      };
+      setFormData((prev) => ({
+        ...prev,
+        plot_type: value,
+        price: staticPrices[value] || 0, // Set default price if plot_type is selected
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
+  
 
   const validateClientID = async (clientID) => {
     try {
@@ -80,6 +100,7 @@ const BuyPlotForm = ({ plot, onClose }) => {
         const paymentRequestResponse = await axiosInstance.post('/payment-requests/', {
           plot_id: formData.plot_id,
           status: formData.status,
+          price: formData.price,
           payment_plan: formData.payment_plan,
           rejection_reason: formData.rejection_reason || null,
           client_id: formData.client_id, // Send client_id along with other data
@@ -116,6 +137,11 @@ const BuyPlotForm = ({ plot, onClose }) => {
           <option value="valor">Valor</option>
           <option value="mausoleum">Mausoleum</option>
         </select>
+      </div>
+
+      <div style={styles.formGroup}>
+        <label style={styles.label}>Price:</label>
+        <span style={styles.value}>{formData.price}</span>
       </div>
 
       <div style={styles.formGroup}>
@@ -201,6 +227,7 @@ const BuyPlotForm = ({ plot, onClose }) => {
             <h3>Please confirm your details</h3>
             <p>Client ID: {formData.client_id}</p>
             <p>Plot Name: {formData.plot_name}</p>
+            <p>Price: {formData.price}</p>
             <p>Payment Plan: {formData.payment_plan}</p>
             <button onClick={handleConfirmationSubmit} style={styles.confirmButton}>Confirm</button>
             <button onClick={() => setShowConfirmation(false)} style={styles.cancelButton}>Cancel</button>

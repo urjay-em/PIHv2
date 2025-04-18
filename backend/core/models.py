@@ -190,6 +190,7 @@ class PaymentRequest(models.Model):
     
     plot = models.ForeignKey('Plot', on_delete=models.CASCADE) 
     client = models.ForeignKey('ClientDetails', on_delete=models.SET_NULL, related_name='payment_requests', null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     payment_plan = models.CharField(
         max_length=4,  # Up to 4 characters (e.g., '12', 'full')
         choices=PAYMENT_PLAN_CHOICES,
@@ -228,3 +229,70 @@ class PaymentRequest(models.Model):
         if self.status == 'approved':
             self.rejection_reason = None
         super().save(*args, **kwargs)
+        
+
+class Payment(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('onsite', 'On-site'),
+        ('gcash', 'GCash'),
+    ]
+
+    payment_request = models.ForeignKey(PaymentRequest, on_delete=models.CASCADE, related_name='payments')
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    plot = models.ForeignKey(Plot, on_delete=models.CASCADE)
+    
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    payment_method = models.CharField(
+        max_length=10,
+        choices=PAYMENT_METHOD_CHOICES,
+        default='onsite'
+    )
+
+    remarks = models.TextField(blank=True, null=True)
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.client} paid ₱{self.amount} via {self.get_payment_method_display()}"
+
+class BalanceTracker(models.Model):
+    paymentrequest = models.ForeignKey("PaymentRequest", on_delete=models.CASCADE, related_name='balance_trackers', null=True, blank=True)
+    client = models.ForeignKey('ClientDetails', on_delete=models.CASCADE)
+    plot = models.ForeignKey("Plot", on_delete=models.CASCADE)
+    last_payment = models.ForeignKey("Payment", on_delete=models.SET_NULL, null=True, blank=True)
+    
+    total_price = models.DecimalField(max_digits=12, decimal_places=2)
+    total_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    remaining_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    payment_plan = models.CharField(max_length=4, null=True, blank=True)
+    payments_made = models.PositiveIntegerField(default=0)
+
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('client', 'plot')
+
+    def __str__(self):
+        return f"Balance for Client {self.client_id} - Plot {self.plot_id}"
+
+    @property
+    def full_name(self):
+        return self.client.get_full_name()  # Assuming get_full_name() method exists in ClientDetails
+
+    def update_balance(self, payment):
+        self.last_payment = payment
+        self.last_amount_paid = payment.amount
+        self.total_paid += payment.amount
+        self.remaining_balance = self.total_price - self.total_paid
+        self.payments_made += 1
+        self.save()

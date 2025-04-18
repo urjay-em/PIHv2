@@ -1,8 +1,8 @@
 # core/views.py
 from rest_framework import viewsets, generics, permissions, status, serializers
 from rest_framework.permissions import IsAuthenticated
-from .models import Profile, EmployeeDetails, AgentDetails, ClientDetails, Block, Plot, PaymentRequest
-from .serializers import ProfileSerializer, EmployeeSerializer, AgentSerializer, ClientSerializer, BlockSerializer, PlotSerializer, PaymentRequestSerializer
+from .models import Profile, EmployeeDetails, AgentDetails, ClientDetails, Block, Plot, PaymentRequest, Payment, BalanceTracker
+from .serializers import ProfileSerializer, EmployeeSerializer, AgentSerializer, ClientSerializer, BlockSerializer, PlotSerializer, PaymentRequestSerializer, PaymentSerializer, BalanceTrackerSerializer
 from .permissions import CanAccessEmployee, CanAccessAgent, CanAccessClient, IsAdminOrOwner, CanAccessBlock, CanAccessPlot, IsEmployee 
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -327,3 +327,50 @@ class PaymentRequestViewSet(viewsets.ModelViewSet):
         payment_request.save()
 
         return Response(PaymentRequestSerializer(payment_request).data, status=status.HTTP_200_OK)
+    
+class PaymentViewSet(viewsets.ModelViewSet):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticated]  # Ensure that only authenticated users can access this
+
+    def perform_create(self, serializer):
+        """Override the perform_create method to assign the current user as the creator."""
+        serializer.save(created_by=self.request.user)  # Assuming 'created_by' is a user field
+
+class BalanceTrackerViewSet(viewsets.ModelViewSet):
+    queryset = BalanceTracker.objects.all()
+    serializer_class = BalanceTrackerSerializer
+
+    # To retrieve the balance for a specific client and plot combination
+    def get_queryset(self):
+        client_id = self.request.query_params.get('client', None)
+        plot_id = self.request.query_params.get('plot', None)
+        paymentrequest_id = self.request.query_params.get('paymentrequest', None)  # added this line
+        
+        queryset = BalanceTracker.objects.all()  # Base queryset
+        
+        if client_id and plot_id:
+            queryset = queryset.filter(client_id=client_id, plot_id=plot_id)
+        
+        if paymentrequest_id:
+            queryset = queryset.filter(paymentrequest_id=paymentrequest_id)  # Filter by paymentrequest_id
+        
+        return queryset
+
+       # Custom action to get the balance summary (this is optional, just an example)
+    @action(detail=True, methods=['get'])
+    def summary(self, request, pk=None):
+        balance_tracker = self.get_object()
+        data = {
+            "client_id": balance_tracker.client.id,
+            "plot_id": balance_tracker.plot.id,
+            "paymentrequest_id": balance_tracker.paymentrequest.id,  # Added this line
+            "total_price": balance_tracker.total_price,
+            "total_paid": balance_tracker.total_paid,
+            "remaining_balance": balance_tracker.remaining_balance,
+            "payments_made": balance_tracker.payments_made,
+            "payment_plan": balance_tracker.payment_plan 
+        }
+        return Response(data)
+
+    # You can also add custom actions for specific payment-related processes

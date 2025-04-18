@@ -51,6 +51,24 @@ const RejectButton = ({ disabled, onClick }) => (
   </Button>
 );
 
+const UpdateButton = ({ disabled, onClick }) => (
+  <Button
+    onClick={onClick}
+    color="primary"
+    variant="contained"
+    sx={{
+      width: "100px",
+      backgroundColor: "#1976d2",
+      "&:hover": { backgroundColor: "#1565c0" },
+      opacity: disabled ? 0.6 : 1,
+      boxShadow: !disabled ? "0 0 10px 5px rgba(0, 123, 255, 0.5)" : "none", // Glow effect
+    }}
+    disabled={disabled}
+  >
+    Update
+  </Button>
+);
+
 const PaymentRequest = () => {
   const [paymentRequests, setPaymentRequests] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -80,28 +98,78 @@ const PaymentRequest = () => {
     setSelectedRequest(null);
   };
 
-  const handleApproveReject = (action, request) => {
+  const handleApproveReject = async (action, request) => {
     const updatedStatus = action === "approve" ? "approved" : "rejected";
     const payload = {
       status: updatedStatus,
       rejection_reason: updatedStatus === "rejected" ? rejectionReason : null,
     };
-
-    axiosInstance
-      .patch(`/payment-requests/${request.id}/`, payload)
-      .then((res) => {
-        setPaymentRequests((prev) =>
-          prev.map((r) => (r.id === request.id ? res.data : r))
-        );
-        setFilteredRequests((prev) =>
-          prev.map((r) => (r.id === request.id ? res.data : r))
-        );
-        handleDialogClose();
-      })
-      .catch(() => {
-        setErrorMessage("Failed to update status. Please try again.");
-      });
+  
+    try {
+      // Step 1: Update payment request status
+      const res = await axiosInstance.patch(`/payment-requests/${request.id}/`, payload);
+  
+      // Step 2: If approved, create a payment entry
+      if (updatedStatus === "approved") {
+        const { amount, payment_method } = request;
+      
+        if (!amount || !payment_method) {
+          setErrorMessage("Amount and Payment Method are required.");
+          return;
+        }
+      
+        await axiosInstance.post("/payments/", {
+          payment_request: request.id,
+          client: request.client_id,
+          plot: request.plot_id,
+          amount,
+          payment_method,
+          remarks: request.remarks || "",
+        });
+      }
+      
+      
+  
+      // Step 3: Update UI
+      setPaymentRequests((prev) =>
+        prev.map((r) => (r.id === request.id ? res.data : r))
+      );
+      setFilteredRequests((prev) =>
+        prev.map((r) => (r.id === request.id ? res.data : r))
+      );
+      handleDialogClose();
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Failed to update status or create payment. Please try again.");
+    }
   };
+  
+  const handleUpdatePayment = async (request) => {
+    const { id, client_id, plot_id, amount, payment_method, remarks } = request;
+  
+    if (!amount || !payment_method) {
+      setErrorMessage("Amount and Payment Method are required for updates.");
+      return;
+    }
+  
+    try {
+      await axiosInstance.post("/payments/", {
+        payment_request: id,
+        client: client_id,
+        plot: plot_id,
+        amount,
+        payment_method,
+        remarks: remarks || "",
+      });
+  
+      setErrorMessage(""); // Clear error
+      handleDialogClose(); // Close the dialog
+    } catch (err) {
+      console.error("Failed to create updated payment:", err);
+      setErrorMessage("Failed to update payment. Please try again.");
+    }
+  };
+  
 
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
@@ -118,6 +186,7 @@ const PaymentRequest = () => {
     { field: "id", headerName: "ID", width: 70 },
     { field: "client_id", headerName: "Client ID", flex: 1 },
     { field: "plot_id", headerName: "Plot ID", flex: 1 },
+    { field: "price", headerName: "Price", flex: 1 },
     { field: "status", headerName: "Status", flex: 1 },
     { field: "rejection_reason", headerName: "Rejection Reason", flex: 1 },
     { field: "created_at", headerName: "Created At", flex: 1 },
@@ -131,7 +200,7 @@ const PaymentRequest = () => {
       width: 160,
       getActions: (params) => {
         const request = params.row;
-        if (request.status === "reserved") {
+        if (["reserved", "approved"].includes(request.status)) {
           return [
             <GridActionsCellItem
               label="Change Status"
@@ -160,65 +229,6 @@ const PaymentRequest = () => {
           onChange={handleSearch}
           sx={{ width: { xs: "100%", sm: "250px" }, mt: { xs: 2, sm: 1 } }}
         />
-        <Box
-            sx={{
-                width: "78%",  // Makes it stretch to 75% width of its container
-                height: "auto",
-                maxHeight: "65px",  // Adjust the max height if needed
-                overflowY: "auto",  // Enables vertical scrolling if needed
-                padding: 2,
-                backgroundColor: "rgba(0, 0, 0, 0.1)", // Darker transparent background
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                fontSize: "14px",
-                lineHeight: 1.6,
-                mt: { xs: 2, sm: 0 },
-            }}
-            >
-              <Typography variant="h2" gutterBottom><span dangerouslySetInnerHTML={{ __html: textContent }} /></Typography>
-            
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
-                <Box>
-                <Typography><strong>Stone (₱50,000):</strong></Typography>
-                <ul>
-                    <li>12 months: ₱6,667 downpayment</li>
-                    <li>24 months: ₱13,333 downpayment</li>
-                    <li>36 months: ₱20,000 downpayment</li>
-                    <li>Full: ₱50,000 upfront</li>
-                </ul>
-                </Box>
-
-                <Box>
-                <Typography><strong>Lawn (₱35,000):</strong></Typography>
-                <ul>
-                    <li>12 months: ₱4,861 downpayment</li>
-                    <li>24 months: ₱9,722 downpayment</li>
-                    <li>36 months: ₱14,583 downpayment</li>
-                    <li>Full: ₱35,000 upfront</li>
-                </ul>
-                </Box>
-
-                <Box>
-                <Typography><strong>Valor (₱75,000):</strong></Typography>
-                <ul>
-                    <li>12 months: ₱10,000 downpayment</li>
-                    <li>24 months: ₱20,000 downpayment</li>
-                    <li>36 months: ₱30,000 downpayment</li>
-                    <li>Full: ₱75,000 upfront</li>
-                </ul>
-                </Box>
-
-                <Box>
-                <Typography><strong>Mausoleum (₱150,000):</strong></Typography>
-                <ul>
-                    <li>12 months: ₱20,000 downpayment</li>
-                    <li>24 months: ₱40,000 downpayment</li>
-                    <li>36 months: ₱60,000 downpayment</li>
-                    <li>Full: ₱150,000 upfront</li>
-                </ul>
-                </Box>
-            </Box>
-        </Box>
       </Box>
 
       <Box
@@ -246,8 +256,94 @@ const PaymentRequest = () => {
         <DialogContent>
           {selectedRequest && (
             <>
-              <Typography variant="body1" mb={2}>
-                Are you sure you want to change the status of this request?
+              {/* READ-ONLY FIELDS */}
+              <TextField
+                label="Request ID"
+                value={selectedRequest.id}
+                fullWidth
+                margin="normal"
+                InputProps={{ readOnly: true }}
+              />
+              <TextField
+                label="Client ID"
+                value={selectedRequest.client_id}
+                fullWidth
+                margin="normal"
+                InputProps={{ readOnly: true }}
+              />
+              <TextField
+                label="Plot ID"
+                value={selectedRequest.plot_id}
+                fullWidth
+                margin="normal"
+                InputProps={{ readOnly: true }}
+              />
+              <TextField
+                label="Price"
+                value={selectedRequest.price}
+                fullWidth
+                margin="normal"
+                InputProps={{ readOnly: true }}
+              />
+              <TextField
+                label="Payment Plan"
+                value={selectedRequest.payment_plan}
+                fullWidth
+                margin="normal"
+                InputProps={{ readOnly: true }}
+              />
+
+              {/* EDITABLE FIELDS */}
+              <TextField
+                label="Amount Paying"
+                type="number"
+                fullWidth
+                margin="normal"
+                value={selectedRequest.amount || ""}
+                onChange={(e) =>
+                  setSelectedRequest({ ...selectedRequest, amount: e.target.value })
+                }
+              />
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="payment-method-label">Payment Method</InputLabel>
+                <Select
+                  labelId="payment-method-label"
+                  value={selectedRequest.payment_method || ""}
+                  onChange={(e) =>
+                    setSelectedRequest({ ...selectedRequest, payment_method: e.target.value })
+                  }
+                >
+                  <MenuItem value="gcash">GCash</MenuItem>
+                  <MenuItem value="onsite">Onsite</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="Remarks"
+                fullWidth
+                multiline
+                rows={3}
+                margin="normal"
+                value={selectedRequest.remarks || ""}
+                onChange={(e) =>
+                  setSelectedRequest({ ...selectedRequest, remarks: e.target.value })
+                }
+              />
+
+              {/* REJECTION REASON DROPDOWN */}
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  color: "error.main",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  mt: 4,
+                  mb: 1,
+                  borderBottom: "1px solid",
+                  borderColor: "error.main",
+                  pb: 1,
+                }}
+              >
+                ---------- Reject Request ----------
               </Typography>
 
               <FormControl fullWidth margin="normal">
@@ -266,6 +362,7 @@ const PaymentRequest = () => {
             </>
           )}
         </DialogContent>
+
         <DialogActions
           sx={{
             display: "flex",
@@ -285,6 +382,11 @@ const PaymentRequest = () => {
               onClick={() => handleApproveReject("reject", selectedRequest)}
               disabled={!rejectionReason || selectedRequest?.status === "rejected"}
             />
+            <UpdateButton
+              onClick={() => handleUpdatePayment(selectedRequest)}
+              disabled={selectedRequest?.status !== "approved"}
+            />
+
           </Box>
         </DialogActions>
       </Dialog>
