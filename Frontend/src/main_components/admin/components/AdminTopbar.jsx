@@ -30,9 +30,6 @@ const AdminTopbar = () => {
 
   // Sample notifications
   const [notifications, setNotifications] = useState([
-    { id: 1, message: "New message", type: "message", read: false },
-    { id: 2, message: "Email confirmation", type: "email", read: false },
-    { id: 3, message: "Approval required", type: "approval", read: false },
   ]);
 
   // Functions for menus

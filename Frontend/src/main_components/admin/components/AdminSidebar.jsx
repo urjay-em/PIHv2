@@ -270,7 +270,7 @@ const AdminSidebar = ({ isAdminSidebar }) => {
               color={theme.palette.mode === "light" ? colors.grey[500] : colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Pages
+              Accounting Pages
             </Typography>
             <Item
               title="Payments"
@@ -282,6 +282,13 @@ const AdminSidebar = ({ isAdminSidebar }) => {
             <Item
               title="Payment Requests"
               to="/admin/payment-request"
+              icon={<AttachMoneyIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Track Balances"
+              to="/admin/balance-trackers"
               icon={<AttachMoneyIcon />}
               selected={selected}
               setSelected={setSelected}

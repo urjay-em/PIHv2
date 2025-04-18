@@ -17,6 +17,7 @@ import Register from "./main_components/admin/pages/register_acc/Register";
 import AdminProfilePage from "./main_components/admin/pages/profile/AdminProfilePage";
 import Payment from "./main_components/admin/pages/payment/payment";
 import PaymentRequest from "./main_components/admin/pages/payment/paymentrequest";
+import Balances from "./main_components/admin/pages/payment/balancetracker";
 
 
 
@@ -117,6 +118,7 @@ const App = () => {
           <Route path="/admin/edit-profile" element={<ProtectedRoute><AdminProfilePage /></ProtectedRoute>} />
           <Route path="/admin/payments" element={<ProtectedRoute><Payment /></ProtectedRoute>}/>
           <Route path="/admin/payment-request" element={<ProtectedRoute><PaymentRequest /></ProtectedRoute>} />
+          <Route path="/admin/balance-trackers" element={<ProtectedRoute><Balances /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

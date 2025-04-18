@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import Profile, EmployeeDetails, AgentDetails, ClientDetails, Block, Plot, PaymentRequest, Payment, BalanceTracker
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -300,17 +303,12 @@ class BalanceTrackerSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        # This is for updating the balance when a payment is made
-        payment = validated_data.get('last_payment', None)
-        if payment:
-            instance.update_balance(payment)
-
         # Updating the rest of the fields as needed
-        instance.total_price = validated_data.get('total_price', instance.total_price)
+        logger.debug(f"Updating BalanceTracker with data: {validated_data}")
         instance.total_paid = validated_data.get('total_paid', instance.total_paid)
         instance.remaining_balance = validated_data.get('remaining_balance', instance.remaining_balance)
+        instance.last_amount_paid = validated_data.get('last_amount_paid', instance.last_amount_paid)
         instance.payments_made = validated_data.get('payments_made', instance.payments_made)
-        instance.paymentrequest = validated_data.get('paymentrequest', instance.paymentrequest)
         instance.save()
 
         return instance

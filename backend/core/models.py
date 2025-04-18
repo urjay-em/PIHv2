@@ -269,12 +269,12 @@ class BalanceTracker(models.Model):
     paymentrequest = models.ForeignKey("PaymentRequest", on_delete=models.CASCADE, related_name='balance_trackers', null=True, blank=True)
     client = models.ForeignKey('ClientDetails', on_delete=models.CASCADE)
     plot = models.ForeignKey("Plot", on_delete=models.CASCADE)
-    last_payment = models.ForeignKey("Payment", on_delete=models.SET_NULL, null=True, blank=True)
+    payment_plan = models.CharField(max_length=4, null=True, blank=True)
     
     total_price = models.DecimalField(max_digits=12, decimal_places=2)
     total_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     remaining_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    payment_plan = models.CharField(max_length=4, null=True, blank=True)
+    last_amount_paid = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     payments_made = models.PositiveIntegerField(default=0)
 
     last_updated = models.DateTimeField(auto_now=True)

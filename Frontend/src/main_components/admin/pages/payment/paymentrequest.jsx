@@ -112,12 +112,13 @@ const PaymentRequest = () => {
       // Step 2: If approved, create a payment entry
       if (updatedStatus === "approved") {
         const { amount, payment_method } = request;
-      
+  
         if (!amount || !payment_method) {
           setErrorMessage("Amount and Payment Method are required.");
           return;
         }
-      
+  
+        // Step 2.1: Create payment entry
         await axiosInstance.post("/payments/", {
           payment_request: request.id,
           client: request.client_id,
@@ -126,11 +127,29 @@ const PaymentRequest = () => {
           payment_method,
           remarks: request.remarks || "",
         });
-      }
-      
-      
   
-      // Step 3: Update UI
+        // Step 2.2: Update plot status to 'sold'
+        await axiosInstance.patch(`/plots/${request.plot_id}/`, {
+          status: "sold",
+        });
+  
+        // Step 3: Create balance tracker
+        await axiosInstance.post("/balance-trackers/", {
+          paymentrequest: request.id,
+          client: request.client_id,
+          plot: request.plot_id,
+          total_price: request.price,
+          total_paid: amount,
+          last_amount_paid: amount,
+          payments_made: 1,
+          remaining_balance: request.price - amount,
+          payment_plan: request.payment_plan,
+        });
+  
+        alert("Balance Tracker has been successfully created.");
+      }
+  
+      // Step 4: Update UI
       setPaymentRequests((prev) =>
         prev.map((r) => (r.id === request.id ? res.data : r))
       );
@@ -138,9 +157,10 @@ const PaymentRequest = () => {
         prev.map((r) => (r.id === request.id ? res.data : r))
       );
       handleDialogClose();
+  
     } catch (err) {
       console.error(err);
-      setErrorMessage("Failed to update status or create payment. Please try again.");
+      setErrorMessage("Failed to approve request. Please try again.");
     }
   };
   
@@ -161,7 +181,7 @@ const PaymentRequest = () => {
         payment_method,
         remarks: remarks || "",
       });
-  
+
       setErrorMessage(""); // Clear error
       handleDialogClose(); // Close the dialog
     } catch (err) {

@@ -39,7 +39,7 @@ const CemeteryMap = () => {
             case "vacant":
                 iconUrl = '/assets/blackg.png';
                 break;
-            case "occupied":
+            case "sold":
                 iconUrl = '/assets/blueg.png';
                 break;
             case "reserved":
