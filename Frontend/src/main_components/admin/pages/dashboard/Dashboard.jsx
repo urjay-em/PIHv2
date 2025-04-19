@@ -1,164 +1,270 @@
-import React from "react";
-import { ThemeProvider, useTheme } from "@mui/material/styles";
+import React, { useEffect, useState } from 'react';
 import {
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area,
-  LineChart,
-  Line,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Grid,
+  Paper,
+} from '@mui/material';
+import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
+  Legend,
   ResponsiveContainer,
-} from "recharts";
+} from 'recharts';
+import { DataGrid } from '@mui/x-data-grid';
+import axios from 'axios';
+import axiosInstance from '../../../../features/axiosInstance';
+
+const Dashboard = () => {
+  const [metrics, setMetrics] = useState({
+    clients: 0,
+    agents: 0,
+    totalSales: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const [clientsRes, agentsRes, paymentsRes] = await Promise.all([
+          axiosInstance.get('/clients/'),
+          axiosInstance.get('/agents/'),
+          axiosInstance.get('/payments/'),
+        ]);
+
+        const clientsCount = clientsRes.data.length;
+        const agentsCount = agentsRes.data.length;
+        const totalSales = paymentsRes.data.reduce(
+          (sum, payment) => sum + parseFloat(payment.amount || 0),
+          0
+        );
+
+        setMetrics({
+          clients: clientsCount,
+          agents: agentsCount,
+          totalSales,
+        });
+      } catch (error) {
+        console.error('Error fetching dashboard metrics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMetrics();
+  }, []);
 
 
-const AdminDashboard = () => {
+  const [openHistory, setOpenHistory] = useState(false);
+  const [payments, setPayments] = useState([]);
 
-  const theme = useTheme();
-  // Sample data
-  const lotStatusData = [
-    { name: "Occupied Lots", value: 350 },
-    { name: "Available Lots", value: 150 },
+  const columns = [
+    { field: "id", headerName: "ID", width: 70 },
+    { field: "client", headerName: "Client", flex: 1 },
+    { field: "plot", headerName: "Plot", flex: 1 },
+    { field: "amount", headerName: "Amount (₱)", flex: 1 },
+    { field: "payment_method", headerName: "Payment Method", flex: 1 },
+    { field: "remarks", headerName: "Remarks", flex: 1 },
+    { field: "created_by", headerName: "Created By", flex: 1 },
+    { field: "created_at", headerName: "Date Paid", flex: 1 },
   ];
 
-  const revenueData = [
-    { month: "Jan", revenue: 4000 },
-    { month: "Feb", revenue: 3000 },
-    { month: "Mar", revenue: 5000 },
-    { month: "Apr", revenue: 7000 },
-    { month: "May", revenue: 6000 },
-  ];
+  useEffect(() => {
+    if (openHistory) {
+      axiosInstance.get('/payments/')
+        .then(({ data }) => {
+          console.log('payments payload:', data);
+          setPayments(data);
+        })
+        .catch(err => console.error(err));
+    }
+  }, [openHistory]);
+  
 
-  const activityData = [
-    { month: "Jan", occupied: 30, available: 20 },
-    { month: "Feb", occupied: 40, available: 25 },
-    { month: "Mar", occupied: 50, available: 30 },
-    { month: "Apr", occupied: 60, available: 35 },
-    { month: "May", occupied: 70, available: 40 },
-  ];
 
-  const COLORS = ["#4caf50", "#f44336", "#ffc107", "#2196f3"];
+  // Dummy data (until you hook up plots API too)
+  const [plotChartData, setPlotChartData] = useState([]);
+
+  
+
+  useEffect(() => {
+    const fetchPlotStats = async () => {
+      try {
+        const res = await axiosInstance.get('/plots/');
+        const plots = res.data;
+
+        // Group by block and status
+        const groupedData = {};
+
+        plots.forEach((plot) => {
+          const block = plot.block || 'Unknown Block';
+          const status = plot.status || 'vacant'; // default fallback
+
+          if (!groupedData[block]) {
+            groupedData[block] = { block, sold: 0, reserved: 0, vacant: 0 };
+          }
+
+          if (status === 'sold') groupedData[block].sold += 1;
+          else if (status === 'reserved') groupedData[block].reserved += 1;
+          else groupedData[block].vacant += 1;
+        });
+
+        setPlotChartData(Object.values(groupedData));
+      } catch (err) {
+        console.error('Failed to fetch plot stats:', err);
+      }
+    };
+
+    fetchPlotStats();
+  }, []);
+
+  const [allPlots, setAllPlots] = useState([]);
+  const [recentSoldPlots, setRecentSoldPlots] = useState([]);
+
+  useEffect(() => {
+    const fetchPlots = async () => {
+      try {
+        const response = await axiosInstance.get('/plots/');
+        setAllPlots(response.data);
+
+        // Filter sold plots and sort by purchase_date descending
+        const soldPlots = response.data
+          .filter(plot => plot.status.toLowerCase() === 'sold')
+          .sort((a, b) => new Date(b.purchase_date) - new Date(a.purchase_date))
+          .slice(0, 3); // limit to latest 5
+
+        setRecentSoldPlots(soldPlots);
+      } catch (error) {
+        console.error('Error fetching plots:', error);
+      }
+    };
+
+    fetchPlots();
+  }, []);
+
 
   return (
-    <div style={dashboardContainer}>
-      <h1 style={dashboardTitle}>Admin Dashboard</h1>
-      <div style={gridContainer}>
-        {/* Pie Chart */}
-        <div style={gridItem}>
-          <h3 style={chartTitle}>Lot Status</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie
-                data={lotStatusData}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={80} // Adjust the radius
-                fill="#8884d8"
-                label
+    <Box sx={{ p: 5, bgcolor: '#001829', minHeight: '100vh' }}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        Admin Dashboard
+      </Typography>
+
+      <Grid container spacing={3} mb={4}>
+        {[ 
+          { label: 'Clients Count', value: metrics.clients },
+          { label: 'Agents Count', value: metrics.agents },
+          {
+            label: 'Total Sales',
+            value: `Php ${metrics.totalSales.toLocaleString()}`,
+          },
+        ].map((item, idx) => (
+          <Grid key={idx} item xs={12} sm={6} md={3}>
+            <Card sx={{ backgroundColor: '#002742', boxShadow: 2 }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography variant="subtitle1" color="text.secondary">
+                  {item.label}
+                </Typography>
+                <Typography variant="h4">{loading ? '...' : item.value}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ backgroundColor: '#002742', boxShadow: 2 }}>
+            <CardContent sx={{ p: 4 }}>
+              <Typography variant="subtitle1" color="text.secondary">
+                Transaction History
+              </Typography>
+              <Button
+                variant="contained"
+                fullWidth
+                sx={{ mt: 2 }}
+                onClick={() => setOpenHistory(true)}
               >
-                {lotStatusData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+                History
+              </Button>
+            </CardContent>
+          </Card>
 
-        {/* Area Chart */}
-        <div style={gridItem}>
-          <h3 style={chartTitle}>Revenue Trend</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={revenueData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Area type="monotone" dataKey="revenue" stroke="#4caf50" fill="#4caf50" fillOpacity={0.3} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
+          <Dialog open={openHistory} onClose={() => setOpenHistory(false)} maxWidth="lg" fullWidth>
+            <DialogTitle>Transaction History</DialogTitle>
+            <DialogContent>
+              <div style={{ height: 500, width: '100%', backgroundColor: '#002742' }}>
+                <DataGrid
+                  rows={payments}            // ← use your payments state
+                  columns={columns}
+                  getRowId={(row) => row.id} // ← or just remove this line if `row.id` exists
+                  disableRowSelectionOnClick
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </Grid>
+      </Grid>
 
-        {/* Bar Chart */}
-        <div style={gridItem}>
-          <h3 style={chartTitle}>Lot Activity (Monthly)</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={activityData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="occupied" fill="#2196f3" />
-              <Bar dataKey="available" fill="#ffc107" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 4, backgroundColor: '#002742', boxShadow: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Plot Chart Statistics
+            </Typography>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={plotChartData}>
+                <XAxis dataKey="block" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="sold" fill="#1976d2" name="Sold" />
+                <Bar dataKey="reserved" fill="#fdd835" name="Reserved" />
+                <Bar dataKey="vacant" fill="#9e9e9e" name="Vacant" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
 
-        {/* Line Chart */}
-        <div style={gridItem}>
-          <h3 style={chartTitle}>Occupied vs Available Lots</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={activityData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="occupied" stroke="#f44336" />
-              <Line type="monotone" dataKey="available" stroke="#4caf50" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 4, backgroundColor: '#002742', boxShadow: 2 }}>
+            <Typography variant="h6" gutterBottom color="white">
+              Recently Sold Plots
+            </Typography>
+            {recentSoldPlots.length > 0 ? (
+              recentSoldPlots.map((plot) => (
+                <Box
+                  key={plot.plot_id}
+                  sx={{
+                    mb: 2,
+                    borderBottom: '1px solid #e0e0e0',
+                    pb: 1,
+                  }}
+                >
+                  <Typography variant="body1" color="white">ID: {plot.plot_id}</Typography>
+                  <Typography variant="body1" color="white">Name: {plot.plot_name}</Typography>
+                  <Typography variant="body1" color="white">Type: {plot.plot_type}</Typography>
+                  <Typography variant="body1" color="white">
+                    Price: Php {plot.price.toLocaleString()}
+                  </Typography>
+                </Box>
+              ))
+            ) : (
+              <Typography color="white">No sold plots yet.</Typography>
+            )}
+          </Paper>
+        </Grid>
+
+      </Grid>
+    </Box>
   );
 };
 
-// Styles
-const dashboardContainer = {
-  padding: "20px",
-  background: (theme) => `linear-gradient(to bottom, ${theme.palette.primary.light}, ${theme.palette.background.default})`,
-  minHeight: "100vh",
-};
-
-const dashboardTitle = {
-  textAlign: "center",
-  marginBottom: "20px",
-  color: (theme) => theme.palette.text.primary,   
-  fontSize: "2.5rem",
-  fontWeight: theme => theme.typography.fontWeightBold,
-};
-
-const gridContainer = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr 1fr 1fr", // Two columns only
-  gap: "20px",
-};
-
-const gridItem = {
-  background: "linear-gradient(to bottom, #ffffff, #f1f1f1)",
-  padding: "20px",
-  borderRadius: "12px",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  transition: "transform 0.3s, box-shadow 0.3s",
-  cursor: "pointer",
-};
-
-const chartTitle = {
-  textAlign: "center",
-  marginBottom: "10px",
-  color: "#555",
-  fontSize: "1.25rem",
-  fontWeight: "bold",
-};
-
-gridItem["&:hover"] = {
-  transform: "scale(1.02)",
-  boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
-};
-
-export default AdminDashboard;
+export default Dashboard;
